@@ -1,5 +1,8 @@
 from TTS.api import TTS
 import sounddevice as sd
+import uuid
+import numpy as np
+from scipy.io.wavfile import write 
 
 _tts_model = None
 
@@ -28,6 +31,11 @@ def tts_and_play(text: str) -> None:
     # Play
     sd.play(audio, samplerate=_tts_model.synthesizer.output_sample_rate)
     sd.wait()  # Block until finished
+    
+    # # Save the audio to a WAV file
+    # unique_id = uuid.uuid4().hex
+    # file_name = f"{unique_id}.wav"
+    # write(file_name, _tts_model.synthesizer.output_sample_rate, np.array(audio))
 
 
 ALLOWED_CHARS = set("_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\n")
