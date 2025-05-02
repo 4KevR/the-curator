@@ -3,3 +3,8 @@ PyPDF2
 openai
 TTS
 sounddevice
+numpy
+scipy
+pyaudio
+requests
+sseclient
