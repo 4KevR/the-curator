@@ -1,0 +1,1983 @@
+{
+  "test_decks": {
+    "empty_deck": {
+      "name": "Empty Deck",
+      "cards": []
+    },
+    "latin": {
+      "name": "Latin Literature",
+      "cards": [
+        {
+          "question": "Who was Virgil?",
+          "answer": "A Roman poet known for the 'Aeneid'",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the 'Aeneid'?",
+          "answer": "An epic poem about Aeneas's journey",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Who was Horace?",
+          "answer": "A leading Roman lyric poet",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What type of work is 'Satires' by Horace?",
+          "answer": "A collection of satirical poems",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Who was Ovid?",
+          "answer": "A Roman poet famous for 'Metamorphoses'",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is 'Metamorphoses'?",
+          "answer": "A narrative poem of mythological transformations",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Who was Cicero?",
+          "answer": "A Roman statesman and orator",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What was Cicero's literary style known for?",
+          "answer": "Its eloquence and rhetorical skill",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Who was Catullus?",
+          "answer": "A Roman poet known for personal poetry",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is 'Carmina' by Catullus?",
+          "answer": "A collection of short poetic works",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does Virgil portray Aeneas\\' internal conflict between duty and personal desire\\?",
+          "answer": "Focus on 'pietas\\' and Aeneas\\' moral struggle.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the significance of the Trojan Horse story in highlighting Greek cunning\\?",
+          "answer": "Emphasizes deceit vs. Trojan trust.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do the gods\\' interventions affect Aeneas\\' journey\\?",
+          "answer": "Divine forces shape his fate and trials.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How is the concept of 'pietas\\' central to Aeneas\\' decisions\\?",
+          "answer": "Reflects duty to family, gods, and destiny.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What role does Dido\\'s tragic story play in exploring the cost of fate\\?",
+          "answer": "Her downfall highlights sacrifices for Rome.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does Book VI foreshadow future events through the Underworld visit\\?",
+          "answer": "Encounters with shades predict key outcomes.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "In what ways does Virgil utilize epic similes to add depth to the narrative\\?",
+          "answer": "Similes enhance tension and highlight heroism.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the political undertone of the Aeneid regarding Roman origins\\?",
+          "answer": "Justifies Augustan rule and Roman identity.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does Juno\\'s opposition reflect divine conflicts influencing the plot\\?",
+          "answer": "Shows competing wills of gods vs. fate.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why is prophecy crucial in guiding Aeneas\\' actions and resolve\\?",
+          "answer": "Prophecies ensure he aligns with destiny.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does the overarching theme of transformation in 'Metamorphoses\\' symbolize life\\'s instability\\?",
+          "answer": "Shifts in form mirror human vulnerabilities.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does Apollo and Daphne\\'s myth reveal about boundaries between pursuit and violation\\?",
+          "answer": "Explores unrequited desire and forced change.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does transformation serve as a form of divine punishment in Ovid\\'s work\\?",
+          "answer": "Reveals gods\\' quickness to impose extreme fates.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How are the various myths connected by frame narratives throughout 'Metamorphoses\\'\\?",
+          "answer": "Stories transition smoothly via thematic links.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does Pygmalion\\'s tale suggest about creative power and reality\\?",
+          "answer": "Blurs line between artistic vision and life.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does Ovid portray the gods\\' cruelty in stories like Io\\'s transformation\\?",
+          "answer": "Emphasizes instability of mortal life under divine whim.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "In what ways does Ovid use vivid imagery to convey the visceral aspects of metamorphosis\\?",
+          "answer": "Graphic details highlight physical and emotional chaos.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What commentary on gender dynamics emerges in tales like Procne and Philomela\\?",
+          "answer": "Examines trauma, power imbalances, and retaliation.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why is the final transformation in Book XV significant to the poem\\'s theme of change\\?",
+          "answer": "Cements the perpetual cycle of creation and renewal.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do these transformations reflect Ovid\\'s view on divine justice\\?",
+          "answer": "Punishments and rewards reveal divine arbitrariness.",
+          "flag": "None",
+          "cardState": "New"
+        }
+      ]
+    },
+    "java": {
+      "name": "Java Programming",
+      "cards": [
+        {
+          "question": "What is the purpose of the 'main' method in Java?",
+          "answer": "It's the entry point to start program execution.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you declare a variable in Java?",
+          "answer": "Specify type, then variable name, e.g. int x;",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a class in Java?",
+          "answer": "A blueprint for creating objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'public' mean in a method declaration?",
+          "answer": "It means the method is accessible from other classes.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between '==' and 'equals()' in Java?",
+          "answer": "'==' compares references; 'equals()' compares values.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a constructor?",
+          "answer": "A special method used to create and initialize objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method overloading?",
+          "answer": "Having methods with the same name but different parameter lists.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method overriding?",
+          "answer": "Redefining a parent class method in a subclass.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is 'static' in Java?",
+          "answer": "Belongs to the class rather than instances of it.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the role of the 'this' keyword in Java?",
+          "answer": "Refers to the current object instance.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'int' and 'Integer'?",
+          "answer": "'int' is a primitive type; 'Integer' is an object wrapper.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'final' do when used on a variable?",
+          "answer": "Prevents the variable's value from changing once assigned.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you comment a single line in Java?",
+          "answer": "Use `//` at the beginning of the comment.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of the 'package' keyword?",
+          "answer": "Organizes classes into namespaces for better management.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the Java Virtual Machine?",
+          "answer": "The environment where Java bytecode is executed.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the basic structure of a 'for' loop?",
+          "answer": "for (initialization; condition; increment) { ... }",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'break' and 'continue'?",
+          "answer": "'break' ends loop execution; 'continue' skips to the next iteration.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the 'import' statement do?",
+          "answer": "Makes classes from other packages accessible in the file.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between a class and an interface?",
+          "answer": "A class can hold implementations; an interface defines contracts.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is inheritance in Java?",
+          "answer": "A class can inherit properties and methods from a parent class.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'super' refer to in a subclass?",
+          "answer": "It refers to the parent class, allowing calls to parent constructors/methods.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'throw' and 'throws'?",
+          "answer": "'throw' generates an exception; 'throws' declares an exception can occur.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create an array in Java?",
+          "answer": "Define the type, then use 'new', e.g. int[] arr = new int[5];",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is polymorphism?",
+          "answer": "Objects can be treated as instances of their parent class, enabling flexibility.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the significance of encapsulation?",
+          "answer": "It hides internal data and implementation details, exposing only safe interfaces.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'List' in Java?",
+          "answer": "An ordered collection interface allowing duplicate elements.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you handle exceptions?",
+          "answer": "Use try/catch blocks, possibly a finally block, or rethrow them.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "When should you use 'else if' instead of multiple 'if' statements?",
+          "answer": "To handle mutually exclusive conditions efficiently.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the 'String' class?",
+          "answer": "A sequence of characters represented as objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you concatenate strings in Java?",
+          "answer": "With the '+' operator or using StringBuilder.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the default value for an uninitialized int in a class field?",
+          "answer": "Zero, for numeric types.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method returning 'void' used for?",
+          "answer": "It performs an action without returning a value.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'switch' statement?",
+          "answer": "An alternative to multiple 'if-else' checks, matching a variable against cases.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of the 'finally' block?",
+          "answer": "Executes code that should run regardless of exceptions.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you define a custom exception class?",
+          "answer": "Extend 'Exception' or a subclass of it.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the format of a typical Java package name?",
+          "answer": "Usually a reversed domain, e.g. com.example.project",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the keyword 'abstract' do?",
+          "answer": "Declares a class or method that cannot be instantiated or must be implemented.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create an object from a class?",
+          "answer": "Use 'new ClassName()', e.g. MyClass obj = new MyClass();",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What denotes a constant in Java?",
+          "answer": "A 'static final' variable, e.g. static final int MAX = 100;",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the 'instanceof' keyword used for?",
+          "answer": "Checks if an object is an instance of a particular type.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'public', 'protected', and 'private' access?",
+          "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a nested class?",
+          "answer": "A class defined within another class.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'System.out.println' do?",
+          "answer": "Prints text to the console, then a newline.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is an enum in Java?",
+          "answer": "A special class representing a fixed set of constants.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is garbage collection?",
+          "answer": "Automatic memory management clearing unused objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a 'StringBuilder'?",
+          "answer": "Specify: StringBuilder sb = new StringBuilder();",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are Java annotations?",
+          "answer": "Metadata that provide additional information to the compiler/JVM.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the 'for-each' loop syntax?",
+          "answer": "for (Type item : collection) { ... }",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What happens if you call 'return' in a 'void' method?",
+          "answer": "It ends the method execution immediately.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'Map' in Java?",
+          "answer": "An object that maps keys to values, e.g. HashMap.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'try-with-resources' block?",
+          "answer": "A block that automatically closes resources after execution.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you check object equality safely?",
+          "answer": "Use 'obj != null' and 'obj instanceof' checks, then 'equals()'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the 'var' keyword introduced in Java 10?",
+          "answer": "Allows local variable type inference at compile time.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between checked and unchecked exceptions?",
+          "answer": "Checked exceptions must be declared or handled; unchecked do not.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a mutable list using 'ArrayList'?",
+          "answer": "Use 'new ArrayList<>()' and add elements as needed.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'StringBuilder' provide that '+' doesn't?",
+          "answer": "Better performance for building/manipulating large strings.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which method is used to compare two 'StringBuilder' objects for content equality?",
+          "answer": "Convert to String and use 'equals()'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the term 'Java Bean' refer to?",
+          "answer": "A class with private fields, getters, setters, and a no-arg constructor.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of the 'javac' command?",
+          "answer": "Compiles Java source code into bytecode.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'Callable' and 'Runnable'?",
+          "answer": "'Callable' can return a value and throw checked exceptions; 'Runnable' cannot.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'lambda expression' in Java?",
+          "answer": "A concise way to represent an anonymous function.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which functional interface is used for defining a no-argument method returning no result?",
+          "answer": "'Runnable'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why is 'Optional' introduced in Java?",
+          "answer": "To avoid null checks and clarify potential absence of values.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'stream' in Java?",
+          "answer": "A sequence of elements supporting sequential and parallel operations.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you filter a stream of integers to only even numbers?",
+          "answer": "Use '.filter(n -> n % 2 == 0)'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between '.map()' and '.flatMap()' in streams?",
+          "answer": "'.map()' transforms elements; '.flatMap()' flattens nested structures.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the 'Collectors.toList()' method do?",
+          "answer": "Collects stream elements into a 'List'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method reference syntax?",
+          "answer": "A shorthand for lambda; 'ClassName::methodName'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the main advantage of 'Record' classes in Java?",
+          "answer": "They provide concise data carriers with minimal boilerplate.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'synchronized' do for a method?",
+          "answer": "Ensures only one thread can execute it at a time.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which concurrency feature was introduced in Java 8?",
+          "answer": "Parallel streams for concurrent processing.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does 'ReentrantLock' differ from 'synchronized'?",
+          "answer": "Offers more flexibility, such as tryLock methods, fairness options.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the role of 'ConcurrentHashMap'?",
+          "answer": "A thread-safe map with better concurrency than 'Hashtable'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which method is used to execute a thread in Java?",
+          "answer": "Call '.start()' on a 'Thread' object.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'volatile' mean for a variable?",
+          "answer": "Changes to the variable are always visible to other threads.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the 'assert' keyword do?",
+          "answer": "Enables testing assumptions in code, throwing an error if false.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'daemon' thread?",
+          "answer": "A background service thread that does not prevent JVM exit.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the main concept behind generics in Java?",
+          "answer": "To provide compile-time type checking and eliminate casting.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you specify a lower-bounded wildcard in generics?",
+          "answer": "Use '? super SomeType'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'Type Erasure' mean in Java generics?",
+          "answer": "Generic type info is removed at runtime; only base types remain.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why is the 'diamond operator' useful?",
+          "answer": "It simplifies generic instance creation, e.g. new ArrayList<>().",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the advantage of 'varargs' in method parameters?",
+          "answer": "Allows passing a variable number of arguments to a method.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does 'StringJoiner' simplify string concatenation?",
+          "answer": "It builds a single string from multiple parts with a delimiter.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the main difference between 'StringBuilder' and 'StringBuffer'?",
+          "answer": "'StringBuffer' is synchronized; 'StringBuilder' is not.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you read a file line by line using 'BufferedReader'?",
+          "answer": "Use 'readLine()' in a loop until null is returned.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'NIO' stand for?",
+          "answer": "New I/O package, introduced to enhance Java I/O operations.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why should you close I/O resources?",
+          "answer": "To free system resources and avoid memory or resource leaks.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of 'java.lang.Object' class?",
+          "answer": "It's the root of the Java class hierarchy.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you achieve deep copying of an object?",
+          "answer": "Manually copy fields or use serialization-based approaches.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which annotation ensures a method overrides a superclass method?",
+          "answer": "@Override.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which feature was introduced in Java 14 for easier null checks?",
+          "answer": "The 'instanceof' pattern matching preview feature.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How can you iterate over entries in a 'Map'?",
+          "answer": "Use 'entrySet()' and a for-each loop.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why is 'String' immutable in Java?",
+          "answer": "To ensure security, caching, and efficient string pooling.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is 'reflection' in Java?",
+          "answer": "An API to examine or modify runtime behavior of classes.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which method in 'Object' is often overridden for debugging messages?",
+          "answer": "'toString()'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which method allows type checking and downcasting in one step with Java 16?",
+          "answer": "Pattern matching for 'instanceof'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you define a sealed class in Java 17?",
+          "answer": "Use 'sealed' keyword and permit subclasses in the class definition.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which Java keyword is used to indicate a class cannot be subclassed?",
+          "answer": "'final' on the class definition.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the benefit of the 'record' keyword over regular classes?",
+          "answer": "Immutable data objects with concise syntax.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you sort a 'List' of objects by a property?",
+          "answer": "Use 'Collections.sort(list, Comparator)', or 'list.sort(...)'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the 'Service Loader' mechanism do?",
+          "answer": "Locates and loads service implementations at runtime.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you execute code if an exception is not thrown, but finalize if it is?",
+          "answer": "Use a 'try-finally' block without 'catch'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of 'Object.wait()' and 'Object.notify()'?",
+          "answer": "They synchronize thread activities by waiting and notifying on a monitor.",
+          "flag": "None",
+          "cardState": "New"
+        }
+      ]
+    },
+    "java_10": {
+      "name": "Java Programming 10",
+      "cards": [
+        {
+          "question": "What is the purpose of the 'main' method in Java?",
+          "answer": "It's the entry point to start program execution.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you declare a variable in Java?",
+          "answer": "Specify type, then variable name, e.g. int x;",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a class in Java?",
+          "answer": "A blueprint for creating objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'public' mean in a method declaration?",
+          "answer": "It means the method is accessible from other classes.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between '==' and 'equals()' in Java?",
+          "answer": "'==' compares references; 'equals()' compares values.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a constructor?",
+          "answer": "A special method used to create and initialize objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method overloading?",
+          "answer": "Having methods with the same name but different parameter lists.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method overriding?",
+          "answer": "Redefining a parent class method in a subclass.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is 'static' in Java?",
+          "answer": "Belongs to the class rather than instances of it.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'public', 'protected', and 'private' access?",
+          "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+          "flag": "None",
+          "cardState": "New"
+        }
+      ]
+    },
+    "python": {
+      "name": "python",
+      "cards": [
+        {
+          "question": "What is Python?",
+          "answer": "It\\'s an interpreted, high-level language emphasizing readability.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you declare a variable in Python?",
+          "answer": "Just assign a name to a value, no explicit type needed.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a Python 'list'?",
+          "answer": "An ordered, mutable collection of items.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a list in Python?",
+          "answer": "Use square brackets, e.g. `[1, 2, 3]`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of indentation in Python?",
+          "answer": "Indicates code blocks instead of braces or keywords.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you write a comment in Python?",
+          "answer": "Use `#` for single-line comments.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'tuple' in Python?",
+          "answer": "An ordered, immutable sequence of items.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "When would you use a tuple over a list?",
+          "answer": "When you need an unchangeable sequence.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a dictionary in Python?",
+          "answer": "A collection of key-value pairs in curly braces.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you access a dictionary value by key?",
+          "answer": "Use `dictName[key]` syntax.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is Python's 'None' keyword?",
+          "answer": "Represents the absence of a value.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `len()` function do?",
+          "answer": "Returns the length of a sequence or collection.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you define a function in Python?",
+          "answer": "Use the `def` keyword, then function name, then parentheses.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the significance of the `return` statement?",
+          "answer": "Ends a function call and outputs a value.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'for' loop used for?",
+          "answer": "Iterating over a sequence or range of values.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you write a basic 'while' loop?",
+          "answer": "`while condition: block of code`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `range()` function do?",
+          "answer": "Generates a sequence of integers.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you handle exceptions in Python?",
+          "answer": "Use a `try-except` block.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `finally` block do?",
+          "answer": "Executes code regardless of whether an exception is raised.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you import another Python module?",
+          "answer": "Use the `import` keyword, e.g. `import math`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a list comprehension?",
+          "answer": "A concise way to create lists from iterables.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `pass` keyword do?",
+          "answer": "Serves as a placeholder with no operation.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'set' in Python?",
+          "answer": "An unordered collection of unique items.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you check membership in a list or set?",
+          "answer": "Use the `in` keyword, e.g. `if x in myList:`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is slicing in Python?",
+          "answer": "Extracting a sub-sequence using `[start:stop:step]`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you read user input?",
+          "answer": "Use the `input()` function.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is string immutability in Python?",
+          "answer": "Strings cannot be changed after they're created.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you convert a string to an integer?",
+          "answer": "Use `int(stringValue)`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are positional arguments in function calls?",
+          "answer": "Arguments passed in order, matching the function parameters.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are keyword arguments in function calls?",
+          "answer": "Arguments passed by name, e.g. `func(argName=value)`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `*args` do in a function?",
+          "answer": "Collects extra positional arguments into a tuple.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `**kwargs` do in a function?",
+          "answer": "Collects extra keyword arguments into a dictionary.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you format strings using f-strings?",
+          "answer": "Use `f\"{varName}\"` syntax.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of `__main__` in Python?",
+          "answer": "Indicates the entry point when the script is run directly.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are Python docstrings?",
+          "answer": "Multi-line strings that describe modules, classes, or functions.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you write a class in Python?",
+          "answer": "Use the `class` keyword and define methods.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is `__init__` in a Python class?",
+          "answer": "The constructor method automatically called upon object creation.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is inheritance in Python?",
+          "answer": "A class can derive from a parent class to reuse methods.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method overriding?",
+          "answer": "Redefining a parent class method in a subclass.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you check the type of a variable?",
+          "answer": "Use the built-in `type()` function.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `dir()` function do?",
+          "answer": "Shows available attributes and methods of an object.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is `pip` used for?",
+          "answer": "Installs and manages Python packages.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `elif` do?",
+          "answer": "Continues an if-else chain with another condition.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you add an item to a list?",
+          "answer": "Use the `.append()` method.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you remove an item from a list?",
+          "answer": "Use `.remove(value)` or `.pop(index)`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the `with` statement used for?",
+          "answer": "Simplifies exception handling by automatically managing resources.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `open()` do in Python?",
+          "answer": "Opens a file and returns a file object.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you loop through both index and value of a list?",
+          "answer": "Use the built-in `enumerate()` function.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you combine items from two lists in parallel?",
+          "answer": "Use the built-in `zip()` function.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the Python `math` module offer?",
+          "answer": "Provides standard mathematical functions, e.g. `sqrt()`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a lambda function?",
+          "answer": "An anonymous function defined with the `lambda` keyword.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the built-in `filter()` do?",
+          "answer": "Selects items from an iterable that meet a given condition.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the built-in `map()` do?",
+          "answer": "Applies a function to all items in an iterable.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the `sys` module?",
+          "answer": "Provides access to system-specific parameters and functions.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "When would you use a generator expression?",
+          "answer": "To create iterators on the fly, without storing the entire sequence.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a virtual environment?",
+          "answer": "Use `python -m venv venvName`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between Python 2 and Python 3 print statements?",
+          "answer": "Python 3 requires parentheses, e.g. `print(\"Hello\")`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `global` keyword do?",
+          "answer": "Declares that a variable is in the global scope.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you read all lines from a file?",
+          "answer": "Use `file.readlines()` or iterate over the file object.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are decorators in Python?",
+          "answer": "Functions that modify or enhance other functions.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you get the current working directory?",
+          "answer": "Use `os.getcwd()` from the `os` module.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you rename a file in Python?",
+          "answer": "Use `os.rename(oldName, newName)`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `import as` do?",
+          "answer": "Renames a module upon import, e.g. `import numpy as np`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between `==` and `is`?",
+          "answer": "`==` checks equality, `is` checks identity.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a set from a list?",
+          "answer": "Use `set(listName)`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is short-circuit evaluation in Python?",
+          "answer": "Stops evaluating boolean expressions once the result is known.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you define a constant in Python?",
+          "answer": "By convention, use uppercase names, e.g. `MAX_WIDTH = 800`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `break` statement do?",
+          "answer": "Exits the current loop immediately.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `continue` statement do?",
+          "answer": "Skips the rest of the loop body for the current iteration.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you exit a Python program?",
+          "answer": "Use `sys.exit()` or raise `SystemExit`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'docstring' for a class method?",
+          "answer": "A string literal that describes the method\\'s behavior and usage.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a slice of a list?",
+          "answer": "Use `[start:end]`, `start` inclusive, `end` exclusive.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is `__name__` in Python?",
+          "answer": "A special variable that holds the name of the module.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you handle multiple exceptions in one block?",
+          "answer": "Use `except (Exception1, Exception2):` syntax.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between `sorted()` and `.sort()`?",
+          "answer": "`sorted()` returns a new list, `.sort()` modifies in place.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `type()` return?",
+          "answer": "The object\\'s type or class info.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you delete a key-value pair from a dictionary?",
+          "answer": "Use `del dictName[key]`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are list methods like `.extend()` or `.insert()`?",
+          "answer": "They add items to a list at specific positions.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a module in Python?",
+          "answer": "By saving Python code in a `.py` file.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `__file__` represent?",
+          "answer": "The path of the current file being executed.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is `min()` and `max()` used for?",
+          "answer": "They find the smallest or largest item in an iterable.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you exit an infinite loop?",
+          "answer": "Use a `break` statement or press Ctrl + C at runtime.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is `*` (unpacking) when calling a function?",
+          "answer": "Unpacks a list or tuple into separate arguments.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you retrieve a substring?",
+          "answer": "Use slicing, e.g. `someString[start:end]`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between `input()` in Python 2 and 3?",
+          "answer": "Python 2 has `raw_input()`, Python 3 uses `input()` only.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What method checks if a string starts with a substring?",
+          "answer": "Use `.startswith(substring)`.",
+          "flag": "None",
+          "cardState": "New"
+        }
+      ]
+    }
+  },
+  "dummy_environments": {
+    "none": {
+      "decks": []
+    },
+    "empty_deck": {
+      "decks": [
+        "empty_deck"
+      ]
+    },
+    "latin": {
+      "decks": [
+        "latin"
+      ]
+    },
+    "java": {
+      "decks": [
+        "java"
+      ]
+    },
+    "java_10": {
+      "decks": [
+        "java_10"
+      ]
+    },
+    "python": {
+      "decks": [
+        "python"
+      ]
+    },
+    "programming": {
+      "decks": [
+        "java",
+        "python"
+      ]
+    },
+    "all": {
+      "decks": [
+        "java",
+        "python",
+        "latin"
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "create_deck",
+      "description": "",
+      "environment": "none",
+      "queries": [
+        [
+          "Create a new deck with the name '<name>'.",
+          "Please create a new deck with named <name>.",
+          "Go make new deck name <name>.",
+          "Could you kindly go ahead and make a brand new deck for me with the name '<name>' because I really need it right now and it would be super helpful if you could do that as soon as possible, thank you so much in advance for your help and support."
+        ]
+      ],
+      "params": {
+        "name": [
+          "Natural Language Processing",
+          "Machine Learning",
+          "Deep Learning",
+          "Computer Vision",
+          "Reinforcement Learning"
+        ]
+      },
+      "expected_result": {
+        "decks": [
+          {
+            "name": "<name>",
+            "cards": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "add_card",
+      "environment": "empty_deck",
+      "queries": [
+        [
+          "Add <question> and <answer> to the deck.",
+          "New card: <question>, <answer> add it.",
+          "Add a new card with the question '<question>' and answer '<answer>' to the deck 'empty deck'.",
+          "Please add a new card with the question '<question>' and answer '<answer>' to the deck.",
+          "Go make new card with question '<question>' and answer '<answer>'.",
+          "Could you kindly go ahead and add a brand new card with the question '<question>' and answer '<answer>' to the deck because I really need it right now and it would be super helpful if you could do that as soon as possible, thank you so much in advance for your help and support."
+        ]
+      ],
+      "params": {
+        "question": [
+          "What is the capital of France?",
+          "What is the largest planet in our solar system?",
+          "What is the square root of 16?",
+          "What is the chemical symbol for gold?",
+          "Who wrote 'To Kill a Mockingbird'?"
+        ],
+        "answer": [
+          "Paris",
+          "Jupiter",
+          "4",
+          "Au",
+          "Harper Lee"
+        ],
+        "join": "zip"
+      },
+      "expected_result": {
+        "decks": [
+          {
+            "name": "empty_deck",
+            "cards": [
+              {
+                "question": "<question>",
+                "answer": "<answer>",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "create_add_card_flagged",
+      "description": "",
+      "environment": "none",
+      "queries": [
+        [
+          "Create a new deck with the name '<name>' and add <question> and <answer> to it. Flag it as <flag>.",
+          "Please create a new deck with named <name> and add a new card with the question '<question>' and answer '<answer>' to it, it should have the flag <flag>.",
+          "Go make new deck name <name> and add a new card (flag: <flag>) with question '<question>' and answer '<answer>'.",
+          "Could you kindly go ahead and make a brand new deck for me with the name '<name>' and add a brand new card with the question '<question>' and answer '<answer>' to it because I really need it right now and it would be super helpful if you could do that as soon as possible, thank you so much in advance for your help and support. Ah, and maybe the flag of the card should be - uhm. The flag should be <flag>."
+        ]
+      ],
+      "params": {
+        "name": [
+          "Geography",
+          "Astronomy",
+          "Mathematics",
+          "Chemistry",
+          "Literature"
+        ],
+        "question": [
+          "What is the capital of France?",
+          "What is the largest planet in our solar system?",
+          "What is the square root of 16?",
+          "What is the chemical symbol for gold?",
+          "Who wrote 'To Kill a Mockingbird'?"
+        ],
+        "answer": [
+          "Paris",
+          "Jupiter",
+          "4",
+          "Au",
+          "Harper Lee"
+        ],
+        "flag": [
+          "Red",
+          "Pink",
+          "Purple",
+          "Turquoise",
+          "Green"
+        ],
+        "join": "zip"
+      },
+      "expected_result": {
+        "decks": [
+          {
+            "name": "<name>",
+            "cards": [
+              {
+                "question": "<question>",
+                "answer": "<answer>",
+                "flag": "<flag>",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_deck",
+      "description": "",
+      "environment": "programming",
+      "queries": [
+        [
+          "Delete the deck Java Programmieren 10'. Also, delete the deck 'python'.",
+          "Please delete all decks but Java Programmieren.",
+          "Please delete the python deck ans the smaller java deck."
+        ]
+      ],
+      "params": {
+      },
+      "expected_result": {
+        "decks": [
+          "java"
+        ]
+      }
+    },
+    {
+      "name": "edit_card_exact",
+      "description": "Edits a single card in the java_10 deck.",
+      "environment": "programming",
+      "queries": [
+        [
+          "In the deck Java Programming 10, edit the card with question 'What is the difference between '==' and 'equals()' in Java?' to have the answer '== compares references; 'equals()' can be overridden to compare values.'",
+          "In the smaller Java Programming Deck, edit the card asking about the difference between == and equals in java to have the answer '== compares references; 'equals()' can be overridden to compare values.'"
+        ]
+      ],
+      "params": {},
+      "expected_result": {
+        "decks": [
+          "java",
+          "python",
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "== compares references; 'equals()' can be overridden to compare values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "edit_card_fuzzy",
+      "description": "Edits a single card in the java_10 deck.",
+      "environment": "programming",
+      "queries": [
+        [
+          "In the deck Java Programming 10, edit the card with question 'What is the difference between '==' and 'equals()' in Java?' to have the answer reflect that equals needs to be overridden to compare values.",
+          "In the smaller Java Programming Deck, edit the card asking about the difference between == and equals in java to have the answer that the == compares references, while equals() needs to be overridden to compare values.'"
+        ]
+      ],
+      "params": {},
+      "expected_result": {
+        "decks": [
+          "java",
+          "python",
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "== compares references; 'equals()' can be overridden to compare values.",
+                "flag": "None",
+                "cardState": "New",
+                "__fuzzymatch": [
+                  "answer"
+                ]
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_card",
+      "description": "Deletes a single card in the java_10 deck.",
+      "environment": "programming",
+      "queries": [
+        [
+          "In the deck Java Programming 10, delete the card with question 'What is 'static' in Java?'",
+          "In the smaller Java Programming Deck, delete the card with the answer 'Belongs to the class rather than instances of it.'."
+        ]
+      ],
+      "params": {},
+      "expected_result": {
+        "decks": [
+          "java",
+          "python",
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_first_7_cards",
+      "description": "Deletes the first 7 cards in the java_10 deck.",
+      "environment": "programming",
+      "queries": [
+        [
+          "In the deck Java Programming 10, delete the first 7 cards.",
+          "In the smaller Java Programming Deck, delete the first 7 cards."
+        ]
+      ],
+      "params": {},
+      "expected_result": {
+        "decks": [
+          "java",
+          "python",
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_first_3_cards",
+      "description": "Deletes the first 3 cards in the java_10 deck.",
+      "environment": "programming",
+      "queries": [
+        [
+          "In the deck Java Programming 10, delete the first 3 cards.",
+          "In the smaller Java Programming Deck, delete the first 3 cards."
+        ]
+      ],
+      "params": {},
+      "expected_result": {
+        "decks": [
+          "java",
+          "python",
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "create_deck_by_keyword"
+    },
+    {
+      "name": "create_deck_by_content"
+    },
+    {
+      "name": "delete_cards_by_keyword"
+    },
+    {
+      "name": "delete_cards_by_content"
+    },
+    {
+      "name": "edit_cards_by_keyword"
+    },
+    {
+      "name": "edit_cards_by_content"
+    },
+    {
+      "name": "multistep_create_add"
+    },
+    {
+      "name": "multistep_create_add_remove_undo"
+    },
+    {
+      "name": "multistep_find_edit_remove"
+    },
+    {
+      "name": "multistep_find_edit_undo_partial"
+    }
+  ]
+}

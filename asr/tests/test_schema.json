@@ -1,0 +1,411 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "test_decks": {
+      "type": "object",
+      "properties": {
+        "empty_deck": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "cards": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "cards",
+            "name"
+          ]
+        },
+        "latin": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "cards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string"
+                  },
+                  "answer": {
+                    "type": "string"
+                  },
+                  "flag": {
+                    "type": "string"
+                  },
+                  "cardState": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "answer",
+                  "cardState",
+                  "flag",
+                  "question"
+                ]
+              }
+            }
+          },
+          "required": [
+            "cards",
+            "name"
+          ]
+        },
+        "java": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "cards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string"
+                  },
+                  "answer": {
+                    "type": "string"
+                  },
+                  "flag": {
+                    "type": "string"
+                  },
+                  "cardState": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "answer",
+                  "cardState",
+                  "flag",
+                  "question"
+                ]
+              }
+            }
+          },
+          "required": [
+            "cards",
+            "name"
+          ]
+        },
+        "java_10": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "cards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string"
+                  },
+                  "answer": {
+                    "type": "string"
+                  },
+                  "flag": {
+                    "type": "string"
+                  },
+                  "cardState": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "answer",
+                  "cardState",
+                  "flag",
+                  "question"
+                ]
+              }
+            }
+          },
+          "required": [
+            "cards",
+            "name"
+          ]
+        },
+        "python": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "cards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string"
+                  },
+                  "answer": {
+                    "type": "string"
+                  },
+                  "flag": {
+                    "type": "string"
+                  },
+                  "cardState": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "answer",
+                  "cardState",
+                  "flag",
+                  "question"
+                ]
+              }
+            }
+          },
+          "required": [
+            "cards",
+            "name"
+          ]
+        }
+      },
+      "required": [
+        "empty_deck",
+        "java",
+        "java_10",
+        "latin",
+        "python"
+      ]
+    },
+    "dummy_environments": {
+      "type": "object",
+      "properties": {
+        "none": {
+          "type": "object",
+          "properties": {
+            "decks": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "decks"
+          ]
+        },
+        "empty_deck": {
+          "type": "object",
+          "properties": {
+            "decks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "decks"
+          ]
+        },
+        "latin": {
+          "type": "object",
+          "properties": {
+            "decks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "decks"
+          ]
+        },
+        "java": {
+          "type": "object",
+          "properties": {
+            "decks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "decks"
+          ]
+        },
+        "java_10": {
+          "type": "object",
+          "properties": {
+            "decks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "decks"
+          ]
+        },
+        "python": {
+          "type": "object",
+          "properties": {
+            "decks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "decks"
+          ]
+        },
+        "programming": {
+          "type": "object",
+          "properties": {
+            "decks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "decks"
+          ]
+        },
+        "all": {
+          "type": "object",
+          "properties": {
+            "decks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "decks"
+          ]
+        }
+      },
+      "required": [
+        "all",
+        "empty_deck",
+        "java",
+        "java_10",
+        "latin",
+        "none",
+        "programming",
+        "python"
+      ]
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
+          },
+          "queries": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "params": {
+            "type": "object",
+            "join": {
+              "type": "string"
+            }
+          },
+          "expected_result": {
+            "type": "object",
+            "properties": {
+              "decks": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "cards": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "question": {
+                                "type": "string"
+                              },
+                              "answer": {
+                                "type": "string"
+                              },
+                              "flag": {
+                                "type": "string"
+                              },
+                              "cardState": {
+                                "type": "string"
+                              },
+                              "__fuzzymatch": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "answer",
+                              "cardState",
+                              "flag",
+                              "question"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "cards",
+                        "name"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "decks"
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    }
+  },
+  "required": [
+    "dummy_environments",
+    "test_decks",
+    "tests"
+  ]
+}
