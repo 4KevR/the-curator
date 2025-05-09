@@ -1950,34 +1950,675 @@
       }
     },
     {
-      "name": "create_deck_by_keyword"
+      "name": "create_deck_by_keyword_1",
+      "environment": "programming",
+      "queries": [
+        [
+          "Create a new deck with the name 'constructors' and add all cards with the keyword 'constructor'.",
+          "Please create a new deck with named constructors and add all cards with the keyword constructor either in the question or the answer.",
+          "Go make new deck name constructors and add all cards with the keyword constructor."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "constructors",
+            "cards": [
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'super' refer to in a subclass?",
+                "answer": "It refers to the parent class, allowing calls to parent constructors/methods.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does the term 'Java Bean' refer to?",
+                "answer": "A class with private fields, getters, setters, and a no-arg constructor.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is `__init__` in a Python class?",
+                "answer": "The constructor method automatically called upon object creation.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
-      "name": "create_deck_by_content"
+      "name": "create_deck_by_keyword_2",
+      "environment": "all",
+      "queries": [
+        [
+          "Create a new deck with the name 'change' and add all cards that contain the substring 'change'.",
+          "With all the cards that have 'change' anywhere, does not need to be a full word match, create a new deck named 'change'."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "constructors",
+            "cards": [
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'super' refer to in a subclass?",
+                "answer": "It refers to the parent class, allowing calls to parent constructors/methods.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does the term 'Java Bean' refer to?",
+                "answer": "A class with private fields, getters, setters, and a no-arg constructor.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is `__init__` in a Python class?",
+                "answer": "The constructor method automatically called upon object creation.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
-      "name": "delete_cards_by_keyword"
+      "name": "create_deck_by_content",
+      "environment": "all",
+      "queries": [
+        [
+          "Please add a deck called tmp that contains card regarding calling functions with a non-predetermined amount of arguments.",
+          "There are some cards that contain information about calling functions with a variable amount of arguments (decided at runtime). Please create a new deck out of those cards called tmp."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "tmp",
+            "cards": [
+              {
+                "question": "What is the advantage of 'varargs' in method parameters?",
+                "answer": "Allows passing a variable number of arguments to a method.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is `*` (unpacking) when calling a function?",
+                "answer": "Unpacks a list or tuple into separate arguments.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does `*args` do in a function?",
+                "answer": "Collects extra positional arguments into a tuple.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does `**kwargs` do in a function?",
+                "answer": "Collects extra keyword arguments into a dictionary.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
-      "name": "delete_cards_by_content"
+      "name": "delete_cards_by_keyword",
+      "environment": "java_10",
+      "queries": [
+        [
+          "Delete all cards that mention 'method'.",
+          "In the java_10 deck, delete all cards about methods"
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
-      "name": "edit_cards_by_keyword"
+      "name": "delete_cards_by_content",
+      "environment": "java_10",
+      "queries": [
+        [
+          "Delete all cards that are mainly about object-oriented concepts.",
+          "I do not like object-orientation. Please delete all cards from the java_10 deck that refer to object-oriented concepts."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
-      "name": "edit_cards_by_content"
+      "name": "edit_cards_by_keyword",
+      "environment": "java_10",
+      "queries": [
+        [
+          "In the java_10 deck, replace all mentions of 'methods' by 'function'. Also, the deck is about java, so please remove all mentions of 'in Java' etc.'",
+          "In the java_10 deck, please execute the following two tasks:\n* Replace all mentions of 'methods' by 'function'.\n* Remove all mentions of 'in Java' etc.\n\nThanks!"
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' function?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a function declaration?",
+                "answer": "It means the function is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()'?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special function used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is function overloading?",
+                "answer": "Having functions with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is function overriding?",
+                "answer": "Redefining a parent class function in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static'?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
-      "name": "multistep_create_add"
+      "name": "edit_cards_by_content",
+      "environment": "java_10",
+      "queries": [
+        [
+          "In the java_10 deck, there is a card talking about constructors. However, it does not mention the fact that even final properties may be null during the constructor call. Please add this information.",
+          "My professor in uni mentioned, that even final properties that are non-null once the constructor finishes may be null during the constructor call. This may cause problems if calling other object-methods during the constructor. Please add this information to the deck. If there is already a card talking about constructors, please add this information to this card; else create a new card."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A constructor is a special method in a class that is executed when an object is instantiated. It is used to initialize the object. In Java, even immutable (final) parameters may temporarily hold null values until the constructor completes.",
+                "flag": "None",
+                "cardState": "New",
+                "__fuzzymatch": [
+                  "answer"
+                ]
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
-      "name": "multistep_create_add_remove_undo"
+      "name": "multistep_create_add",
+      "environment": "none",
+      "queries": [
+        [
+          "Please create a new deck called 'kit facts'."
+        ],
+        [
+          "Add a new card with the question 'Is the KIT a university?'"
+        ],
+        [
+          "Add the answer 'No. It is a public entity sui generis, that - among others - carries out university tasks."
+        ],
+        [
+          "Please add another card called 'How many students study at the KIT?"
+        ],
+        [
+          "The answer should be '22 761'."
+        ],
+        [
+          "Oh, and by the way, give the KIT-university card a green flag."
+        ],
+        [
+          "Sorry, and regarding the number of students at the KIT: Please add the to the answer of the card that the number is from the winter term 2024/2025."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "kit facts",
+            "cards": [
+              {
+                "question": "Is the KIT a universtiy?",
+                "answer": "No. It is a public entity sui generis, that - among others - carries out university tasks.",
+                "cardState": "New",
+                "flag": "Green"
+              },
+              {
+                "question": "How many students study at the KIT?",
+                "answer": "22 761 (winter term 2024/2025).",
+                "cardState": "New",
+                "flag": "None",
+                "__fuzzymatch": [
+                  "answer"
+                ]
+              }
+            ]
+          }
+        ]
+      }
     },
     {
-      "name": "multistep_find_edit_remove"
+      "name": "multistep_create_edit_remove_undo",
+      "environment": "none",
+      "queries": [
+        [
+          "Please create a new deck called 'default'."
+        ],
+        [
+          "Please create a new card with the question 'What is an immutable list in Java?' and the answer 'A list that cannot be modified after creation.'"
+        ],
+        [
+          "Add another card with the question 'How do you create a singleton list?'"
+        ],
+        [
+          "The answer should be 'Use Collections.singletonList(element) to create a list with a single, immutable element.'"
+        ],
+        [
+          "Remove the first card created."
+        ],
+        [
+          "Oh, changed my mind, please do not delete it. Instead, update the answer to mention that immutable lists still have callable methods like .add, but they throw UnsupportedOperationException."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "default",
+            "cards": [
+              {
+                "question": "What is an immutable list in Java?",
+                "answer": "A list that cannot be modified after creation. However, methods like .add or .remove are callable but throw UnsupportedOperationException.",
+                "flag": "None",
+                "cardState": "New",
+                "__fuzzymatch": [
+                  "answer"
+                ]
+              },
+              {
+                "question": "How do you create a singleton list?",
+                "answer": "Use Collections.singletonList(element) to create a list with a single, immutable element.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
-      "name": "multistep_find_edit_undo_partial"
+      "name": "multistep_find_edit_remove",
+      "environment": "java_10",
+      "queries": [
+        [
+          "Please find all cards that talk about visibility modifiers."
+        ],
+        [
+          "The card talking about the difference between 'public', 'protected', and 'private' access should mention the default, package-private access as well."
+        ],
+        [
+          "Remove all other cards you found from the deck."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', 'default' and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in the same package, 'default' in <here>, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_find_edit_undo_partial",
+      "environment": "java_10",
+      "queries": [
+        [
+          "Please find all cards that talk about the relationship of multiple functions with the same name, but different classes/parameters."
+        ],
+        [
+          "Now create a new card combining all the cards you have found."
+        ],
+        [
+          "Delete all the other cards you have found."
+        ],
+        [
+          "Uh, nevermind, please keep the old overriding card."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What are the method overloading and overriding?",
+                "answer": "Overloading is having multiple methods with the same name but different parameters. Overriding is redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
