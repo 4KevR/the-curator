@@ -1,9 +1,9 @@
-import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sys
 
-from tts import initialize_tts_model, tts_and_play
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from src.cli.tts import tts_and_play
 
 # Recommendation:
 # Do not use sentences that are too long.
@@ -18,10 +18,12 @@ if __name__ == "__main__":
     # Illegal character
     text4 = "Hello, @world!"
     # It will be divided into multiple small sentences
-    text5 = "Hello, world! Hello, world! Hello, world! Hello, world! Hello, world! Hello, world! Hello, world! Hello, world! Hello, world! Hello, world! Hello, world! Hello, world! Hello, world!"
+    text5 = """Hello, world! Hello, world! Hello, world! Hello, world! Hello, world!
+    Hello, world!Hello, world! Hello, world! Hello, world! Hello, world! Hello, world!
+    Hello, world! Hello, world!"""
     # It doesn't work if the sentence is too long
-    text6 = "Hello, this is tts, this is tts, this is tts, this is tts, this is tts, this is tts, this is tts, this is tts, this is tts."
-    
-    initialize_tts_model()
+    text6 = """Hello, this is tts, this is tts, this is tts, this is tts,
+    this is tts, this is tts, this is tts, this is tts, this is tts."""
+
     tts_and_play(text1)
     tts_and_play(text2)

@@ -1,28 +1,27 @@
-import sys
+import base64
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sys
 
-from asr import remote_ASRmodel, parseArgs
+from dotenv import load_dotenv
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from src.backend.adapter.lecture_translator import LectureTranslatorASR
+from src.cli.recording.recording_client import RecordingClient
 
 if __name__ == "__main__":
-    args = parseArgs()
-    args.token = ""
+    load_dotenv(".env")
+    load_dotenv(".env.local")
+    print(os.getenv("AUDIO_DEVICE"))
+    asr = LectureTranslatorASR()
+    recording_client = RecordingClient()
 
-    asr = remote_ASRmodel(args)
-    from threading import Thread
-    Thread(target=asr.run_session, daemon=True).start()
-
-    for i in range(3):
+    for _ in range(3):
         input("Press Enter to indicate you're done:")
 
-        collected = []
-
-        while not asr.text_queue.empty():
-            sentence = asr.text_queue.get()
-            collected.append(sentence)
-
-        final_text = " ".join(collected).strip()
+        batch = recording_client.get_next_batch()
+        encoded_batch = base64.b64encode(batch).decode("ascii")
+        final_text = asr.transcribe(encoded_batch, len(batch) / 32000)
 
         if final_text:
             print("Content recognized:", final_text)
