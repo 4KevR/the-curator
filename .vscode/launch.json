@@ -1,0 +1,41 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Flask",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run.py",
+            "console": "integratedTerminal",
+            "env": {
+                "FLASK_ENV": "development"
+            },
+        },
+        {
+            "name": "CLI application: Transcribe",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run-cli.py",
+            "console": "integratedTerminal",
+            "args": ["transcribe"]
+        },
+        {
+            "name": "CLI application: Transcribe with TTS",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run-cli.py",
+            "console": "integratedTerminal",
+            "args": ["transcribe", "--enable-tts"]
+        },
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+    ]
+}

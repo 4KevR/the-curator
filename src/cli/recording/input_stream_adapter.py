@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
-
-from typing import Any, Optional
 from abc import ABCMeta, abstractmethod
+from typing import Any, Optional
 
 
 class BaseAdapter(metaclass=ABCMeta):
@@ -48,7 +46,7 @@ class BaseAdapter(metaclass=ABCMeta):
     @abstractmethod
     def set_input(self, input: Any) -> None:
         """
-        Should be called to set an input, which can be for example an id, string etc
+        Should be called to set an input, which can be for
+        example an id, string etc
         """
         pass
-

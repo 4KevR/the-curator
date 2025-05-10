@@ -1,10 +1,8 @@
-# pip install -r requirements.txt
-PyPDF2
-openai
-TTS
-sounddevice
-numpy
-scipy
-pyaudio
-requests
-sseclient
+PyPDF2==3.0.1
+openai==1.77.0
+numpy==1.22.0
+requests==2.32.3
+sseclient==0.0.27
+python-dotenv==1.1.0
+gunicorn==23.0.0
+Flask==3.1.0
