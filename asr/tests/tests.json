@@ -1604,8 +1604,6 @@
           "Please delete the python deck ans the smaller java deck."
         ]
       ],
-      "params": {
-      },
       "expected_result": {
         "decks": [
           "java"
@@ -1622,7 +1620,6 @@
           "In the smaller Java Programming Deck, edit the card asking about the difference between == and equals in java to have the answer '== compares references; 'equals()' can be overridden to compare values.'"
         ]
       ],
-      "params": {},
       "expected_result": {
         "decks": [
           "java",
@@ -1705,7 +1702,6 @@
           "In the smaller Java Programming Deck, edit the card asking about the difference between == and equals in java to have the answer that the == compares references, while equals() needs to be overridden to compare values.'"
         ]
       ],
-      "params": {},
       "expected_result": {
         "decks": [
           "java",
@@ -1791,7 +1787,6 @@
           "In the smaller Java Programming Deck, delete the card with the answer 'Belongs to the class rather than instances of it.'."
         ]
       ],
-      "params": {},
       "expected_result": {
         "decks": [
           "java",
@@ -1868,7 +1863,6 @@
           "In the smaller Java Programming Deck, delete the first 7 cards."
         ]
       ],
-      "params": {},
       "expected_result": {
         "decks": [
           "java",
@@ -1909,7 +1903,6 @@
           "In the smaller Java Programming Deck, delete the first 3 cards."
         ]
       ],
-      "params": {},
       "expected_result": {
         "decks": [
           "java",
