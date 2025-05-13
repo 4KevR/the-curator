@@ -4,23 +4,8 @@
   "properties": {
     "test_decks": {
       "type": "object",
-      "properties": {
-        "empty_deck": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "cards": {
-              "type": "array"
-            }
-          },
-          "required": [
-            "cards",
-            "name"
-          ]
-        },
-        "latin": {
+      "patternProperties": {
+        "^.*$": {
           "type": "object",
           "properties": {
             "name": {
@@ -49,153 +34,23 @@
                   "cardState",
                   "flag",
                   "question"
-                ]
+                ],
+                "additionalProperties": false
               }
             }
           },
           "required": [
             "cards",
             "name"
-          ]
-        },
-        "java": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "cards": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "question": {
-                    "type": "string"
-                  },
-                  "answer": {
-                    "type": "string"
-                  },
-                  "flag": {
-                    "type": "string"
-                  },
-                  "cardState": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "answer",
-                  "cardState",
-                  "flag",
-                  "question"
-                ]
-              }
-            }
-          },
-          "required": [
-            "cards",
-            "name"
-          ]
-        },
-        "java_10": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "cards": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "question": {
-                    "type": "string"
-                  },
-                  "answer": {
-                    "type": "string"
-                  },
-                  "flag": {
-                    "type": "string"
-                  },
-                  "cardState": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "answer",
-                  "cardState",
-                  "flag",
-                  "question"
-                ]
-              }
-            }
-          },
-          "required": [
-            "cards",
-            "name"
-          ]
-        },
-        "python": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "cards": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "question": {
-                    "type": "string"
-                  },
-                  "answer": {
-                    "type": "string"
-                  },
-                  "flag": {
-                    "type": "string"
-                  },
-                  "cardState": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "answer",
-                  "cardState",
-                  "flag",
-                  "question"
-                ]
-              }
-            }
-          },
-          "required": [
-            "cards",
-            "name"
-          ]
+          ],
+          "additionalProperties": false
         }
-      },
-      "required": [
-        "empty_deck",
-        "java",
-        "java_10",
-        "latin",
-        "python"
-      ]
+      }
     },
     "dummy_environments": {
       "type": "object",
-      "properties": {
-        "none": {
-          "type": "object",
-          "properties": {
-            "decks": {
-              "type": "array"
-            }
-          },
-          "required": [
-            "decks"
-          ]
-        },
-        "empty_deck": {
+      "patternProperties": {
+        "^.*$": {
           "type": "object",
           "properties": {
             "decks": {
@@ -207,103 +62,10 @@
           },
           "required": [
             "decks"
-          ]
-        },
-        "latin": {
-          "type": "object",
-          "properties": {
-            "decks": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "required": [
-            "decks"
-          ]
-        },
-        "java": {
-          "type": "object",
-          "properties": {
-            "decks": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "required": [
-            "decks"
-          ]
-        },
-        "java_10": {
-          "type": "object",
-          "properties": {
-            "decks": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "required": [
-            "decks"
-          ]
-        },
-        "python": {
-          "type": "object",
-          "properties": {
-            "decks": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "required": [
-            "decks"
-          ]
-        },
-        "programming": {
-          "type": "object",
-          "properties": {
-            "decks": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "required": [
-            "decks"
-          ]
-        },
-        "all": {
-          "type": "object",
-          "properties": {
-            "decks": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "required": [
-            "decks"
-          ]
+          ],
+          "additionalProperties": false
         }
-      },
-      "required": [
-        "all",
-        "empty_deck",
-        "java",
-        "java_10",
-        "latin",
-        "none",
-        "programming",
-        "python"
-      ]
+      }
     },
     "tests": {
       "type": "array",
@@ -379,14 +141,16 @@
                               "cardState",
                               "flag",
                               "question"
-                            ]
+                            ],
+                            "additionalProperties": false
                           }
                         }
                       },
                       "required": [
                         "cards",
                         "name"
-                      ]
+                      ],
+                      "additionalProperties": false
                     }
                   ]
                 }
@@ -402,12 +166,13 @@
           "environment",
           "queries",
           "expected_result"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "question_answering": {
       "type": "object",
-      "properties": {
+      "additionalProperties": {
         "type": "array",
         "items": {
           "type": "object",
@@ -436,17 +201,14 @@
           },
           "required": [
             "name",
+            "description",
             "environment",
             "queries",
             "expected_answer"
-          ]
+          ],
+          "additionalProperties": false
         }
       }
     }
-  },
-  "required": [
-    "dummy_environments",
-    "test_decks",
-    "tests"
-  ]
+  }
 }

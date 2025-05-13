@@ -2858,6 +2858,2168 @@
         ],
         "expected_answer": "The Aeneid tells of a heroe's journey shaped by fate, while the Metamorphoses are multiple separate poems about change."
       }
+    ],
+    "java": [
+      {
+        "name": "java_0",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What role does the 'main' method play in a Java application, and why is it crucial for program execution?"
+          ]
+        ],
+        "expected_answer": "The 'main' method serves as the entry point of a Java application, initiating program execution."
+      },
+      {
+        "name": "java_1",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the syntax for declaring an integer variable named 'x' in Java?"
+          ]
+        ],
+        "expected_answer": "int x;"
+      },
+      {
+        "name": "java_2",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of a 'class' in Java relate to object creation and what role does it play in defining the attributes and behaviors of those objects?"
+          ]
+        ],
+        "expected_answer": "A class in Java is a blueprint that defines how objects are created and what attributes and behaviors they have."
+      },
+      {
+        "name": "java_3",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the visibility modifier 'public' affect the accessibility of a method within a Java class?"
+          ]
+        ],
+        "expected_answer": "The 'public' modifier makes the method accessible from any other class, not just within its own package or class."
+      },
+      {
+        "name": "java_4",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "When comparing two String objects, what method would you use to check if they have identical contents? And why wouldn't using '==' be sufficient for this task?"
+          ]
+        ],
+        "expected_answer": "'equals()'. Using '==' checks if the references are the same, not if the values of the strings are equal."
+      },
+      {
+        "name": "java_5",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In the context of object-oriented programming in Java, what is the primary purpose of a constructor when creating an instance of a class?"
+          ]
+        ],
+        "expected_answer": "A constructor is a special method used to create and initialize objects."
+      },
+      {
+        "name": "java_6",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, how can you create multiple methods with the same name?"
+          ]
+        ],
+        "expected_answer": "By having methods with the same name but different parameter lists."
+      },
+      {
+        "name": "java_7",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In object-oriented programming, how does a subclass modify the behavior of a method inherited from its superclass?"
+          ]
+        ],
+        "expected_answer": "By redefining (overriding) the method in the subclass."
+      },
+      {
+        "name": "java_8",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of static variables differ from instance variables in Java?"
+          ]
+        ],
+        "expected_answer": "Static variables belong to the class and are shared among all instances, whereas instance variables are specific to each object created from the class."
+      },
+      {
+        "name": "java_9",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In a Java class, how does the 'this' keyword help differentiate between instance variables and method parameters with the same name?"
+          ]
+        ],
+        "expected_answer": "'this' refers to the current object instance, allowing it to access instance variables that have the same name as method parameters."
+      },
+      {
+        "name": "java_10",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, is 'int' or 'Integer' a primitive type?"
+          ]
+        ],
+        "expected_answer": "'int' is a primitive type; 'Integer' is an object wrapper."
+      },
+      {
+        "name": "java_11",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the effect of declaring a variable with the 'final' keyword in Java?"
+          ]
+        ],
+        "expected_answer": "Prevents the variable's value from changing once it is assigned."
+      },
+      {
+        "name": "java_12",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What syntax is used to add a single-line comment in Java code?"
+          ]
+        ],
+        "expected_answer": "Use `//` at the beginning of the comment."
+      },
+      {
+        "name": "java_13",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the 'package' keyword in Java contribute to code organization and maintainability?"
+          ]
+        ],
+        "expected_answer": "The 'package' keyword organizes classes into namespaces, improving code manageability and reducing naming conflicts."
+      },
+      {
+        "name": "java_14",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the execution of Java programs differ from other programming languages in terms of runtime environments?"
+          ]
+        ],
+        "expected_answer": "Java programs are executed in the Java Virtual Machine (JVM), which runs Java bytecode, whereas other languages may run directly on the hardware or require compilation to machine code."
+      },
+      {
+        "name": "java_15",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "Describe the syntax used to define a loop that initializes a counter, checks a condition before each iteration, and increments the counter after each iteration."
+          ]
+        ],
+        "expected_answer": "The syntax is: for (initialization; condition; increment) { ... }"
+      },
+      {
+        "name": "java_16",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In a for-loop, what will happen if you use 'break' versus using 'continue'?"
+          ]
+        ],
+        "expected_answer": "'break' will terminate the loop immediately, while 'continue' will skip the rest of the current iteration and move to the next one."
+      },
+      {
+        "name": "java_17",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In a Java program, if you want to use classes from another package, what must you include at the beginning of your source code file?"
+          ]
+        ],
+        "expected_answer": "You must include an 'import' statement to make those classes accessible."
+      },
+      {
+        "name": "java_18",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, how do classes and interfaces differ in terms of their ability to provide implementation details?"
+          ]
+        ],
+        "expected_answer": "A class can contain both methods and properties with full implementation details, whereas an interface only defines method signatures without any implementation."
+      },
+      {
+        "name": "java_19",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of inheritance in Java facilitate code reuse and abstraction?"
+          ]
+        ],
+        "expected_answer": "Inheritance allows a subclass to inherit properties and methods from a superclass, promoting code reuse and abstraction by avoiding redundancy."
+      },
+      {
+        "name": "java_20",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using 'super()' in the constructor of a Java subclass?"
+          ]
+        ],
+        "expected_answer": "It calls the constructor of the superclass (parent class), allowing access to its properties and methods."
+      },
+      {
+        "name": "java_21",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the key differences in usage between the 'throw' and 'throws' keywords in Java, and what do they signify?"
+          ]
+        ],
+        "expected_answer": "'throw' is used to generate an exception explicitly, while 'throws' is used to declare that a method or function can throw one or more exceptions."
+      },
+      {
+        "name": "java_22",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the syntax for initializing an integer array with five elements in Java?"
+          ]
+        ],
+        "expected_answer": "int[] arr = new int[5];"
+      },
+      {
+        "name": "java_23",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does polymorphism in Java allow for more flexible and reusable code?"
+          ]
+        ],
+        "expected_answer": "Polymorphism allows objects to be treated as instances of their parent class, promoting flexibility and reusability."
+      },
+      {
+        "name": "java_24",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does encapsulation in Java programming contribute to code safety and maintainability?"
+          ]
+        ],
+        "expected_answer": "Encapsulation contributes to code safety by hiding internal data and implementation details, which prevents external interference with the object's state. It also enhances maintainability by allowing changes to be made internally without affecting other parts of the program."
+      },
+      {
+        "name": "java_25",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of ordering and duplication in a List differ from that of a Set in Java?"
+          ]
+        ],
+        "expected_answer": "A List in Java allows for an ordered collection with duplicate elements, whereas a Set does not allow duplicates and maintains no specific order."
+      },
+      {
+        "name": "java_26",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the primary mechanisms for handling and managing exceptions in Java?"
+          ]
+        ],
+        "expected_answer": "Use try/catch blocks, possibly a finally block, or rethrow them."
+      },
+      {
+        "name": "java_27",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary benefit of using an 'else if' statement over multiple independent 'if' statements when dealing with a series of mutually exclusive conditions?"
+          ]
+        ],
+        "expected_answer": "To handle mutually exclusive conditions efficiently."
+      },
+      {
+        "name": "java_28",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, how are textual data typically handled and what kind of object represents a string?"
+          ]
+        ],
+        "expected_answer": "Textual data in Java is handled using the 'String' class which represents sequences of characters as objects."
+      },
+      {
+        "name": "java_29",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the two main methods to concatenate strings in Java and which one is more efficient for multiple concatenations?"
+          ]
+        ],
+        "expected_answer": "The '+' operator and StringBuilder. StringBuilder is more efficient for multiple concatenations."
+      },
+      {
+        "name": "java_30",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the default value assigned to an uninitialized integer variable declared as a class field in Java?"
+          ]
+        ],
+        "expected_answer": "Zero"
+      },
+      {
+        "name": "java_31",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of a method that returns 'void' in Java programming?"
+          ]
+        ],
+        "expected_answer": "It performs an action without returning a value."
+      },
+      {
+        "name": "java_32",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the 'switch' statement in Java differ from using multiple 'if-else' statements when evaluating a single variable for different conditions?"
+          ]
+        ],
+        "expected_answer": "A 'switch' statement is an alternative to multiple 'if-else' checks, providing a more concise way to match a variable against several cases."
+      },
+      {
+        "name": "java_33",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens in a Java program when you use a 'try-catch-finally' structure and an exception is thrown within the 'try' block?"
+          ]
+        ],
+        "expected_answer": "The 'finally' block will execute, running code that should run regardless of whether an exception was thrown or not."
+      },
+      {
+        "name": "java_34",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of extending the 'Exception' class when defining a new exception in Java?"
+          ]
+        ],
+        "expected_answer": "To create a custom exception that inherits from the 'Exception' class or one of its subclasses."
+      },
+      {
+        "name": "java_35",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What convention is typically used for naming Java packages in a project hosted on example.com?"
+          ]
+        ],
+        "expected_answer": "The package name would be 'com.example.project'."
+      },
+      {
+        "name": "java_36",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using an abstract class in Java when designing a hierarchy of classes?"
+          ]
+        ],
+        "expected_answer": "An abstract class in Java is used to declare methods and variables that can be shared by multiple subclasses, while also defining some methods as abstract which must be implemented by any non-abstract subclass. Additionally, it cannot be instantiated directly."
+      },
+      {
+        "name": "java_37",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the syntax for instantiating an object in Java, and provide an example using a custom class named 'MyClass'."
+          ]
+        ],
+        "expected_answer": "The syntax is 'new ClassName()', e.g., MyClass obj = new MyClass();"
+      },
+      {
+        "name": "java_38",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In the context of Java programming, what keyword combination is used to declare a constant value and provide an example of its usage?"
+          ]
+        ],
+        "expected_answer": "The keyword combination 'static final' is used to declare a constant. For example: static final int MAX = 100;"
+      },
+      {
+        "name": "java_39",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What does the 'instanceof' operator determine about an object in Java?"
+          ]
+        ],
+        "expected_answer": "It determines whether an object is an instance of a specified type or class."
+      },
+      {
+        "name": "java_40",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, which access modifier allows a method to be accessed within the same package but not outside of it?"
+          ]
+        ],
+        "expected_answer": "Protected"
+      },
+      {
+        "name": "java_41",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the relationship between a nested class and its enclosing class in Java?"
+          ]
+        ],
+        "expected_answer": "A nested class is defined within another class (the enclosing class)."
+      },
+      {
+        "name": "java_42",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method in Java is used to output text to the standard output stream followed by a new line?"
+          ]
+        ],
+        "expected_answer": "System.out.println prints text to the console and adds a newline."
+      },
+      {
+        "name": "java_43",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of enums in Java differ from traditional classes?"
+          ]
+        ],
+        "expected_answer": "An enum in Java is a special class that represents a fixed set of constants, unlike traditional classes which can have instances with varying states."
+      },
+      {
+        "name": "java_44",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does Java ensure that memory used by unreferenced objects is freed up without manual intervention?"
+          ]
+        ],
+        "expected_answer": "Java uses automatic memory management, known as garbage collection, to clear unused objects."
+      },
+      {
+        "name": "java_45",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the correct syntax to initialize a StringBuilder object in Java?"
+          ]
+        ],
+        "expected_answer": "Specify: StringBuilder sb = new StringBuilder();"
+      },
+      {
+        "name": "java_46",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How do Java annotations contribute to the functionality of the compiler and JVM in terms of metadata?"
+          ]
+        ],
+        "expected_answer": "Java annotations provide metadata that offer additional information to the compiler and JVM, enhancing their functionality."
+      },
+      {
+        "name": "java_47",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How would you iterate over a list of integers in Java without using an index variable?"
+          ]
+        ],
+        "expected_answer": "Using the 'for-each' loop syntax, e.g., for (int item : list) { ... }"
+      },
+      {
+        "name": "java_48",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What would be the outcome of calling the 'return' statement in a Java method declared as 'void'? Provide an explanation."
+          ]
+        ],
+        "expected_answer": "Calling 'return' in a 'void' method ends the method execution immediately."
+      },
+      {
+        "name": "java_49",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In the context of Java programming, what is the purpose of an object like 'HashMap', and how does it relate to data structures?"
+          ]
+        ],
+        "expected_answer": "A Map in Java, such as HashMap, is used to store key-value pairs where each unique key maps to a value. It allows efficient retrieval of values based on keys."
+      },
+      {
+        "name": "java_50",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the 'try-with-resources' block in Java ensure proper resource management?"
+          ]
+        ],
+        "expected_answer": "It automatically closes resources after execution, ensuring proper resource management."
+      },
+      {
+        "name": "java_51",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What steps should be taken to ensure safe comparison of objects in Java?"
+          ]
+        ],
+        "expected_answer": "Use 'obj != null' and 'obj instanceof' checks, then call 'equals()'."
+      },
+      {
+        "name": "java_52",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What feature of Java 10 allows developers to declare local variables without specifying their types explicitly?"
+          ]
+        ],
+        "expected_answer": "The 'var' keyword allows local variable type inference at compile time."
+      },
+      {
+        "name": "java_53",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, what distinguishes a checked exception from an unchecked one in terms of handling requirements?"
+          ]
+        ],
+        "expected_answer": "Checked exceptions must be declared or handled by the programmer, whereas unchecked exceptions do not require such declaration or handling."
+      },
+      {
+        "name": "java_54",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the basic syntax for creating an ArrayList in Java and how can you start adding elements to it?"
+          ]
+        ],
+        "expected_answer": "Use 'new ArrayList<>()' and add elements using methods like 'add()'."
+      },
+      {
+        "name": "java_55",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary advantage of using StringBuilder over the concatenation operator (+) when dealing with multiple string manipulations in Java?"
+          ]
+        ],
+        "expected_answer": "Better performance for building/manipulating large strings."
+      },
+      {
+        "name": "java_56",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you check if the contents of two StringBuilder objects are equal?"
+          ]
+        ],
+        "expected_answer": "Convert both StringBuilder objects to Strings and then use the equals() method."
+      },
+      {
+        "name": "java_57",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java programming, what design pattern is exemplified by the concept of a 'Java Bean', and what are its key characteristics?"
+          ]
+        ],
+        "expected_answer": "A Java Bean exemplifies the Properties Pattern in object-oriented programming. Its key characteristics include private fields with public getter and setter methods, and a no-arg constructor."
+      },
+      {
+        "name": "java_58",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What does the 'javac' command do in the context of compiling a Java program?"
+          ]
+        ],
+        "expected_answer": "Compiles Java source code into bytecode."
+      },
+      {
+        "name": "java_59",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the key differences in functionality between Callable and Runnable interfaces in Java, particularly regarding exception handling and return values?"
+          ]
+        ],
+        "expected_answer": "'Callable' can return a value via Future and throw checked exceptions, while 'Runnable' does not return any value and only throws runtime exceptions."
+      },
+      {
+        "name": "java_60",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does lambda expression simplify the implementation of functional interfaces in Java?"
+          ]
+        ],
+        "expected_answer": "A lambda expression provides a concise way to implement functional interfaces by representing an anonymous function, making the code more readable and expressive."
+      },
+      {
+        "name": "java_61",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, which functional interface would you use if you need to define a method that does not take any arguments and returns void?"
+          ]
+        ],
+        "expected_answer": "'Runnable'"
+      },
+      {
+        "name": "java_62",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What design pattern or feature in Java helps prevent NullPointerException by explicitly indicating the possibility of a missing value?"
+          ]
+        ],
+        "expected_answer": "The Optional class is used to avoid null checks and clearly indicate the potential absence of values."
+      },
+      {
+        "name": "java_63",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of a stream in Java differ from traditional collections like lists or arrays?"
+          ]
+        ],
+        "expected_answer": "A stream in Java represents a sequence of elements supporting sequential and parallel operations, whereas traditional collections like lists or arrays store elements and provide specific methods to manipulate them. Streams focus on declarative operations rather than imperative loops."
+      },
+      {
+        "name": "java_64",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How would you modify a stream of integers to include only those that are divisible by two?"
+          ]
+        ],
+        "expected_answer": "Use '.filter(n -> n % 2 == 0)'"
+      },
+      {
+        "name": "java_65",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java Streams, how does '.flatMap()' differ from '.map()' when dealing with collections of objects?"
+          ]
+        ],
+        "expected_answer": "'.flatMap()' is used to flatten a stream of collections into a single stream, whereas '.map()' applies a transformation to each element without changing the structure of the stream."
+      },
+      {
+        "name": "java_66",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of the 'Collectors.toList()' method in Java Streams and what type of collection does it return?"
+          ]
+        ],
+        "expected_answer": "The 'Collectors.toList()' method collects stream elements into a List."
+      },
+      {
+        "name": "java_67",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you use method reference in Java to refer to a static method of a class named 'StringUtils' with the method name 'join'? Provide an example."
+          ]
+        ],
+        "expected_answer": "You can use 'StringUtils::join' as a method reference. Example: Stream.of(\"a\", \"b\").collect(Collectors.toList(), StringUtils::join)."
+      },
+      {
+        "name": "java_68",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How do 'Record' classes in Java contribute to code efficiency and readability?"
+          ]
+        ],
+        "expected_answer": "They offer concise data carriers with minimal boilerplate, enhancing both efficiency and readability."
+      },
+      {
+        "name": "java_69",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the 'synchronized' keyword affect concurrency in Java methods?"
+          ]
+        ],
+        "expected_answer": "It ensures that only one thread can execute the method at any given time, preventing concurrent access and potential data inconsistencies."
+      },
+      {
+        "name": "java_70",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What new feature in Java 8 enables more efficient concurrent processing?"
+          ]
+        ],
+        "expected_answer": "Parallel streams for concurrent processing."
+      },
+      {
+        "name": "java_71",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the key differences between ReentrantLock and synchronized in terms of functionality and control?"
+          ]
+        ],
+        "expected_answer": "ReentrantLock provides more flexibility than synchronized, including features like tryLock methods for conditional locking and options to configure lock fairness."
+      },
+      {
+        "name": "java_72",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does ConcurrentHashMap differ from Hashtable in terms of concurrent performance?"
+          ]
+        ],
+        "expected_answer": "ConcurrentHashMap provides better concurrency than Hashtable."
+      },
+      {
+        "name": "java_73",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the correct way to start executing a thread in Java, and why can't you simply call '.run()' instead?"
+          ]
+        ],
+        "expected_answer": "Call '.start()' on a 'Thread' object. You cannot simply call '.run()' because it does not invoke the thread's scheduler."
+      },
+      {
+        "name": "java_74",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does declaring a variable as 'volatile' in Java affect thread visibility and synchronization?"
+          ]
+        ],
+        "expected_answer": "Changes to the variable are always visible to other threads, ensuring that all threads see the most up-to-date value."
+      },
+      {
+        "name": "java_75",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using the 'assert' keyword in Java and what happens when an assertion fails?"
+          ]
+        ],
+        "expected_answer": "The 'assert' keyword enables testing assumptions in code by throwing an AssertionError if the condition specified is false."
+      },
+      {
+        "name": "java_76",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What role do daemon threads play in a Java application, and how do they differ from regular threads?"
+          ]
+        ],
+        "expected_answer": "Daemon threads are background service threads that do not prevent the JVM from exiting when they are the only threads left running. Regular threads keep the JVM alive until they finish execution."
+      },
+      {
+        "name": "java_77",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does using generics in Java improve code safety and maintainability?"
+          ]
+        ],
+        "expected_answer": "Using generics provides compile-time type checking, which improves code safety by catching type errors early. It also eliminates the need for casting, making the code cleaner and easier to maintain."
+      },
+      {
+        "name": "java_78",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What syntax is used to define a lower-bounded wildcard in Java generics, and what does it signify?"
+          ]
+        ],
+        "expected_answer": "Use '? super SomeType' to specify a lower-bounded wildcard, which means the type can be 'SomeType' or any of its supertypes."
+      },
+      {
+        "name": "java_79",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of Type Erasure affect the use of generics in Java during runtime?"
+          ]
+        ],
+        "expected_answer": "At runtime, generic type information is erased and only base types are retained."
+      },
+      {
+        "name": "java_80",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What problem does the diamond operator solve in Java generics and how is it implemented?"
+          ]
+        ],
+        "expected_answer": "The diamond operator solves the issue of redundant type specification when creating generic instances, such as new ArrayList<>() instead of needing to specify types twice."
+      },
+      {
+        "name": "java_81",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What feature of Java methods enables them to accept a flexible number of input parameters, enhancing their versatility?"
+          ]
+        ],
+        "expected_answer": "The varargs feature allows methods to accept a variable number of arguments."
+      },
+      {
+        "name": "java_82",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary benefit of using StringJoiner for combining multiple strings in Java?"
+          ]
+        ],
+        "expected_answer": "It allows building a single string from multiple parts with a specified delimiter."
+      },
+      {
+        "name": "java_83",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In what scenario would you prefer using 'StringBuffer' over 'StringBuilder', considering their key differences?"
+          ]
+        ],
+        "expected_answer": "'StringBuffer' should be preferred in scenarios where thread safety is required, as it is synchronized, whereas 'StringBuilder' is not."
+      },
+      {
+        "name": "java_84",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method should be used within a loop to read each line from a file using BufferedReader, and how do you know when to stop reading?"
+          ]
+        ],
+        "expected_answer": "Use the 'readLine()' method in a loop until it returns null."
+      },
+      {
+        "name": "java_85",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary purpose of the NIO package in Java programming?"
+          ]
+        ],
+        "expected_answer": "The NIO package stands for New I/O and is designed to enhance Java's I/O operations."
+      },
+      {
+        "name": "java_86",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What potential issues can arise if I/O resources are not properly closed after use in Java programming?"
+          ]
+        ],
+        "expected_answer": "Potential issues include memory or resource leaks, which can lead to system instability."
+      },
+      {
+        "name": "java_87",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In the context of Java inheritance, what role does the 'java.lang.Object' class play?"
+          ]
+        ],
+        "expected_answer": "It serves as the root or base class for all classes in Java."
+      },
+      {
+        "name": "java_88",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are two methods to create a deep copy of an object in Java, and how do they differ?"
+          ]
+        ],
+        "expected_answer": "Two methods are manually copying each field or using serialization-based approaches. Manual copying involves creating a new instance and setting fields individually, while serialization creates a byte stream representation of the object which can then be deserialized into a new object."
+      },
+      {
+        "name": "java_89",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of the @Override annotation in Java when used with a method?"
+          ]
+        ],
+        "expected_answer": "It ensures that the method overrides a method from one of its superclasses."
+      },
+      {
+        "name": "java_90",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What new feature in Java 14 helps developers perform more efficient null checks and improve code readability?"
+          ]
+        ],
+        "expected_answer": "The 'instanceof' pattern matching preview feature."
+      },
+      {
+        "name": "java_91",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method should be used to iterate through all the key-value pairs of a Map object, and how would you implement it in Java?"
+          ]
+        ],
+        "expected_answer": "Use the 'entrySet()' method along with a for-each loop to iterate over the entries in a Map. Example: \n```java\nfor (Map.Entry<String, Integer> entry : myMap.entrySet()) {\n    System.out.println(\"Key: \" + entry.getKey() + \", Value: \" + entry.getValue());\n}```"
+      },
+      {
+        "name": "java_92",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the primary reasons behind making the 'String' class immutable in Java?"
+          ]
+        ],
+        "expected_answer": "To ensure security, enable caching, and facilitate efficient string pooling."
+      },
+      {
+        "name": "java_93",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can the reflection API be used to dynamically inspect and modify objects at runtime in Java?"
+          ]
+        ],
+        "expected_answer": "The reflection API allows for examining and modifying the runtime behavior of classes, enabling dynamic inspection and modification of objects."
+      },
+      {
+        "name": "java_94",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method in the Object class can be overridden to provide a meaningful string representation of an object, especially useful for debugging?"
+          ]
+        ],
+        "expected_answer": "'toString()' is often overridden for providing a meaningful string representation that aids in debugging."
+      },
+      {
+        "name": "java_95",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you perform both type checking and casting in a single statement when using Java 16?"
+          ]
+        ],
+        "expected_answer": "Pattern matching for 'instanceof'"
+      },
+      {
+        "name": "java_96",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the key components required to define a sealed class in Java 17, including how it restricts subclassing?"
+          ]
+        ],
+        "expected_answer": "To define a sealed class in Java 17, use the 'sealed' keyword and explicitly permit subclasses within the class definition."
+      },
+      {
+        "name": "java_97",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What keyword prevents a Java class from being inherited by other classes?"
+          ]
+        ],
+        "expected_answer": "'final'"
+      },
+      {
+        "name": "java_98",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What advantage does using the 'record' keyword provide in terms of immutability and code readability compared to traditional classes?"
+          ]
+        ],
+        "expected_answer": "Using the 'record' keyword provides immutable data objects with a more concise syntax, enhancing code readability."
+      },
+      {
+        "name": "java_99",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you ensure that a List of custom objects is sorted based on a specific attribute in Java?"
+          ]
+        ],
+        "expected_answer": "Use Collections.sort(list, Comparator) or list.sort(...)."
+      },
+      {
+        "name": "java_100",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the Service Loader mechanism facilitate dynamic discovery of service implementations in Java?"
+          ]
+        ],
+        "expected_answer": "The Service Loader mechanism locates and loads service implementations at runtime, enabling dynamic discovery."
+      },
+      {
+        "name": "java_101",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What structure in Java ensures that certain code will always run regardless of whether an exception is thrown or not?"
+          ]
+        ],
+        "expected_answer": "Use a 'try-finally' block without 'catch'."
+      },
+      {
+        "name": "java_102",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, how do you ensure that one thread waits until another thread has completed a specific task before proceeding?"
+          ]
+        ],
+        "expected_answer": "They synchronize thread activities by using 'Object.wait()' to make a thread wait for notification and 'Object.notify()' to notify waiting threads."
+      }
+    ],
+    "python": [
+      {
+        "name": "python_0",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does Python's design philosophy prioritize developer experience compared to other programming languages?"
+          ]
+        ],
+        "expected_answer": "Python emphasizes readability and simplicity, prioritizing the developer's experience over performance or low-level control."
+      },
+      {
+        "name": "python_1",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the process of declaring a variable in Python and how does it differ from other programming languages like C++?"
+          ]
+        ],
+        "expected_answer": "In Python, you declare a variable by simply assigning a name to a value without specifying a data type. This differs from languages like C++, where you must explicitly specify the data type when declaring a variable."
+      },
+      {
+        "name": "python_2",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What data structure in Python allows for storing an ordered sequence of elements that can be modified after creation?"
+          ]
+        ],
+        "expected_answer": "A list."
+      },
+      {
+        "name": "python_3",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What syntax is used to define a list in Python and provide an example of creating a list with three elements?"
+          ]
+        ],
+        "expected_answer": "Use square brackets, e.g., [1, 2, 3]."
+      },
+      {
+        "name": "python_4",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does Python handle code block delimitation compared to languages like Java or C++?"
+          ]
+        ],
+        "expected_answer": "Python uses indentation to indicate code blocks, whereas languages like Java and C++ use braces ({}) for the same purpose."
+      },
+      {
+        "name": "python_5",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What symbol is used to start a single-line comment in Python code?"
+          ]
+        ],
+        "expected_answer": "Use `#` for single-line comments."
+      },
+      {
+        "name": "python_6",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the immutability of tuples affect their use in Python programs?"
+          ]
+        ],
+        "expected_answer": "Tuples are used to store collections of items that should not change after creation."
+      },
+      {
+        "name": "python_7",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In which scenario would it be more appropriate to use a tuple instead of a list in Python?"
+          ]
+        ],
+        "expected_answer": "When you need an unchangeable sequence."
+      },
+      {
+        "name": "python_8",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How would you describe the data structure that stores elements with unique keys and their associated values in Python?"
+          ]
+        ],
+        "expected_answer": "A collection of key-value pairs in curly braces, known as a dictionary."
+      },
+      {
+        "name": "python_9",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python code would you use to retrieve the value associated with the key 'exampleKey' from a dictionary named 'dataDict'? Provide an example."
+          ]
+        ],
+        "expected_answer": "Use `dataDict['exampleKey']` syntax. For example, if `dataDict = {'exampleKey': 'value'}`, then `dataDict['exampleKey']` retrieves the value 'value'."
+      },
+      {
+        "name": "python_10",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What does the Python keyword 'None' signify in terms of data representation?"
+          ]
+        ],
+        "expected_answer": "Represents the absence of a value."
+      },
+      {
+        "name": "python_11",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How would you determine the number of elements in a list called 'my_list'?"
+          ]
+        ],
+        "expected_answer": "Use the len() function, e.g., len(my_list), to get the number of elements in the list."
+      },
+      {
+        "name": "python_12",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What syntax is required to create a basic function in Python that takes no arguments?"
+          ]
+        ],
+        "expected_answer": "Use the `def` keyword followed by the function name and parentheses."
+      },
+      {
+        "name": "python_13",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the `return` statement affect the flow of execution in a Python function?"
+          ]
+        ],
+        "expected_answer": "The `return` statement ends the function call and outputs a specified value."
+      },
+      {
+        "name": "python_14",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you use a 'for' loop to iterate through a list and print each element?"
+          ]
+        ],
+        "expected_answer": "A 'for' loop can be used to iterate through a list by accessing each element in the list one at a time and performing an action, such as printing each element."
+      },
+      {
+        "name": "python_15",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the general syntax for creating an indefinite loop in Python that continues until a specific condition is met?"
+          ]
+        ],
+        "expected_answer": "`while condition: block of code`"
+      },
+      {
+        "name": "python_16",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary purpose of the `range()` function in Python and how can it be used to iterate over sequences?"
+          ]
+        ],
+        "expected_answer": "The primary purpose of the `range()` function in Python is to generate a sequence of integers. It is commonly used for iterating over sequences or for creating loops with specific start, stop, and step values."
+      },
+      {
+        "name": "python_17",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What mechanism can be used to catch and handle errors in Python code?"
+          ]
+        ],
+        "expected_answer": "Use a try-except block."
+      },
+      {
+        "name": "python_18",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens in Python when you use a `try-except-finally` structure and an exception occurs inside the `try` block?"
+          ]
+        ],
+        "expected_answer": "The `except` block handles the exception, and then the `finally` block executes regardless of whether an exception was raised."
+      },
+      {
+        "name": "python_19",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the syntax for importing a standard library module in Python?"
+          ]
+        ],
+        "expected_answer": "Use the `import` keyword followed by the module name, e.g., `import math`."
+      },
+      {
+        "name": "python_20",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you generate a new list that contains only the even numbers from an existing list?"
+          ]
+        ],
+        "expected_answer": "Use a list comprehension like [x for x in existing_list if x % 2 == 0]."
+      },
+      {
+        "name": "python_21",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Python, what is the purpose of using the `pass` statement in a function or loop when you haven't implemented the body yet?"
+          ]
+        ],
+        "expected_answer": "The `pass` statement serves as a placeholder and performs no operation."
+      },
+      {
+        "name": "python_22",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of uniqueness in sets differ from lists in Python?"
+          ]
+        ],
+        "expected_answer": "In Python, a set contains only unique elements, whereas a list can contain duplicate elements."
+      },
+      {
+        "name": "python_23",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python syntax would you use to determine if an element exists within a given collection like a list or a set?"
+          ]
+        ],
+        "expected_answer": "Use the `in` keyword, e.g., `if x in myList:`."
+      },
+      {
+        "name": "python_24",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you create a list of even numbers from 0 to 10 using Python slicing?"
+          ]
+        ],
+        "expected_answer": "[0, 2, 4, 6, 8, 10]"
+      },
+      {
+        "name": "python_25",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python function is used to receive user input from the console?"
+          ]
+        ],
+        "expected_answer": "Use the `input()` function."
+      },
+      {
+        "name": "python_26",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens when you try to modify a string variable in Python, and why can't strings be modified once assigned?"
+          ]
+        ],
+        "expected_answer": "Attempting to modify a string variable results in an error because strings are immutable in Python; once a string is created, it cannot be changed."
+      },
+      {
+        "name": "python_27",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What function can be used in Python to convert a string containing a number into an integer?"
+          ]
+        ],
+        "expected_answer": "Use `int(string_value)`. "
+      },
+      {
+        "name": "python_28",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Python, what happens if you call a function with fewer arguments than defined parameters?"
+          ]
+        ],
+        "expected_answer": "If a function is called with fewer arguments than defined parameters, it results in a TypeError."
+      },
+      {
+        "name": "python_29",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does using keyword arguments improve the readability and maintainability of code when calling functions?"
+          ]
+        ],
+        "expected_answer": "Using keyword arguments improves readability and maintainability because it clearly associates each argument with its corresponding parameter name, making the function call self-explanatory."
+      },
+      {
+        "name": "python_30",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using `*args` as an argument in Python functions, and how does it handle additional parameters?"
+          ]
+        ],
+        "expected_answer": "Collects extra positional arguments into a tuple."
+      },
+      {
+        "name": "python_31",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using `**kwargs` when defining a Python function and how is it utilized inside the function?"
+          ]
+        ],
+        "expected_answer": "It collects extra keyword arguments into a dictionary, allowing the function to access these arguments by key."
+      },
+      {
+        "name": "python_32",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the syntax for formatting a string with an f-string in Python, and how would you use it to include a variable named 'username'?"
+          ]
+        ],
+        "expected_answer": "Use `f'{username}'` syntax."
+      },
+      {
+        "name": "python_33",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens when a Python file containing a __main__ block is executed directly?"
+          ]
+        ],
+        "expected_answer": "The code inside the __main__ block is executed, indicating it is the entry point of the script."
+      },
+      {
+        "name": "python_34",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of multi-line strings in Python when defining functions and modules?"
+          ]
+        ],
+        "expected_answer": "Multi-line strings (docstrings) are used to describe the functionality and purpose of modules, classes, or functions."
+      },
+      {
+        "name": "python_35",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary mechanism for defining a new class in Python, and what can be included within it?"
+          ]
+        ],
+        "expected_answer": "The primary mechanism for defining a new class in Python is using the `class` keyword, which allows you to define methods and other attributes."
+      },
+      {
+        "name": "python_36",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What role does the `__init__` method play when creating an instance of a Python class?"
+          ]
+        ],
+        "expected_answer": "The `__init__` method is the constructor that is automatically called to initialize objects of the class."
+      },
+      {
+        "name": "python_37",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does Python support code reusability between classes?"
+          ]
+        ],
+        "expected_answer": "Python supports code reusability through inheritance, where a class can inherit and reuse the methods of a parent class."
+      },
+      {
+        "name": "python_38",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does method overriding in Python allow for polymorphism?"
+          ]
+        ],
+        "expected_answer": "Method overriding allows subclasses to redefine methods from the superclass, enabling different behaviors while maintaining the same interface (polymorphism)."
+      },
+      {
+        "name": "python_39",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method can be used to determine the data type of a Python variable?"
+          ]
+        ],
+        "expected_answer": "Use the built-in `type()` function."
+      },
+      {
+        "name": "python_40",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What can the `dir()` function be used to determine about a Python object?"
+          ]
+        ],
+        "expected_answer": "It shows the available attributes and methods of an object."
+      },
+      {
+        "name": "python_41",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does one typically manage dependencies in a Python project, such as installing and updating libraries?"
+          ]
+        ],
+        "expected_answer": "Using pip to install and manage Python packages."
+      },
+      {
+        "name": "python_42",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the Python programming language handle multiple conditions in a conditional statement after an initial if condition has been evaluated?"
+          ]
+        ],
+        "expected_answer": "It uses the `elif` keyword to continue the if-else chain by introducing another condition."
+      },
+      {
+        "name": "python_43",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method can be used to add an element to the end of a Python list?"
+          ]
+        ],
+        "expected_answer": "Use the `.append()` method."
+      },
+      {
+        "name": "python_44",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What methods can be used to delete elements from a Python list, and how do they differ in usage?"
+          ]
+        ],
+        "expected_answer": "Use .remove(value) to remove an element by its value, or use .pop(index) to remove an element at a specific index."
+      },
+      {
+        "name": "python_45",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the `with` statement in Python help ensure that resources are properly managed and cleaned up, even if an error occurs?"
+          ]
+        ],
+        "expected_answer": "The `with` statement simplifies exception handling by automatically managing resources such as file streams or database connections. It ensures that resources are properly closed or released after their use, even if an error occurs."
+      },
+      {
+        "name": "python_46",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary purpose of the `open()` function when working with files in Python?"
+          ]
+        ],
+        "expected_answer": "The primary purpose of the `open()` function is to open a file and return a file object."
+      },
+      {
+        "name": "python_47",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python function allows iterating over a list while accessing both the index and value simultaneously?"
+          ]
+        ],
+        "expected_answer": "Use the built-in `enumerate()` function."
+      },
+      {
+        "name": "python_48",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python function can be used to iterate over elements from two lists simultaneously?"
+          ]
+        ],
+        "expected_answer": "Use the built-in `zip()` function."
+      },
+      {
+        "name": "python_49",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you calculate the square root of a number in Python without using any external libraries?"
+          ]
+        ],
+        "expected_answer": "You can use the `sqrt()` function from the built-in `math` module to calculate the square root of a number."
+      },
+      {
+        "name": "python_50",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the difference between a named function and an anonymous function in Python, and how do you define an anonymous function?"
+          ]
+        ],
+        "expected_answer": "A named function is defined using the 'def' keyword, while an anonymous function (also known as a lambda function) is defined using the 'lambda' keyword. An example of defining an anonymous function would be `lambda x: x + 1`."
+      },
+      {
+        "name": "python_51",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you use Python's `filter()` function to select even numbers from a list of integers?"
+          ]
+        ],
+        "expected_answer": "You can use `filter()` with a lambda function that checks if a number is even, like this: `filter(lambda x: x % 2 == 0, [1, 2, 3, 4])`."
+      },
+      {
+        "name": "python_52",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you use Python's `map()` function to apply a given function to elements of a list?"
+          ]
+        ],
+        "expected_answer": "You can use Python's `map()` function to apply a given function to each element of an iterable, such as a list. For example, if you have a list and want to apply a function to each item in the list, you pass the function and the list to `map()`, which returns an iterator yielding the results."
+      },
+      {
+        "name": "python_53",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary purpose of the `sys` module in Python, and how can it be used to interact with the environment?"
+          ]
+        ],
+        "expected_answer": "The `sys` module provides access to system-specific parameters and functions. It can be used to interact with the Python runtime environment."
+      },
+      {
+        "name": "python_54",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary advantage of using a generator expression over a list comprehension in Python?"
+          ]
+        ],
+        "expected_answer": "To create iterators on the fly, without storing the entire sequence."
+      },
+      {
+        "name": "python_55",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What command would you use to set up a Python virtual environment named 'projectEnv'?"
+          ]
+        ],
+        "expected_answer": "Use `python -m venv projectEnv`."
+      },
+      {
+        "name": "python_56",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the syntax for the print statement differ between Python 2 and Python 3?"
+          ]
+        ],
+        "expected_answer": "In Python 3, the print statement requires parentheses, e.g., `print(\"Hello\"). In Python 2, you can use `print Hello` without parentheses."
+      },
+      {
+        "name": "python_57",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the effect of using the `global` keyword inside a function when declaring a variable?"
+          ]
+        ],
+        "expected_answer": "Using the `global` keyword inside a function declares that the variable is in the global scope, making it accessible and modifiable throughout the entire program."
+      },
+      {
+        "name": "python_58",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are two methods to read all lines from a file in Python?"
+          ]
+        ],
+        "expected_answer": "Use `file.readlines()` or iterate over the file object."
+      },
+      {
+        "name": "python_59",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you use decorators to add logging functionality to a function in Python?"
+          ]
+        ],
+        "expected_answer": "Decorators can be used to wrap a function and add logging before or after the function execution."
+      },
+      {
+        "name": "python_60",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What function can be used to retrieve the current working directory in Python and which module does it belong to?"
+          ]
+        ],
+        "expected_answer": "Use `os.getcwd()` from the `os` module."
+      },
+      {
+        "name": "python_61",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What function in the os module can be used to change the name of an existing file?"
+          ]
+        ],
+        "expected_answer": "Use `os.rename(oldName, newName)`."
+      },
+      {
+        "name": "python_62",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using 'as' in an import statement and provide an example?"
+          ]
+        ],
+        "expected_answer": "It renames a module for convenience during import. For example: `import numpy as np`."
+      },
+      {
+        "name": "python_63",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "Which of the following variables are equal (==) and which are identical (is)? .\n```python\na = [1, 2, 3]\nb = a\nc = list(a)\nd = b.copy()\ne = c[:]\n```"
+          ]
+        ],
+        "expected_answer": "All lists are equal, but only a and b are identical."
+      },
+      {
+        "name": "python_64",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method can be used to remove duplicate elements from a list in Python?"
+          ]
+        ],
+        "expected_answer": "Use `set(listName)`."
+      },
+      {
+        "name": "python_65",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does Python handle boolean expressions when one part of the expression guarantees the final outcome?"
+          ]
+        ],
+        "expected_answer": "Python uses short-circuit evaluation, which means it stops evaluating a boolean expression as soon as the outcome is determined."
+      },
+      {
+        "name": "python_66",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the conventional way to define constants in Python and provide an example?"
+          ]
+        ],
+        "expected_answer": "By convention, constants are defined using uppercase names, for example: MAX_WIDTH = 800."
+      },
+      {
+        "name": "python_67",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Python, what happens when you use the `break` statement inside a loop?"
+          ]
+        ],
+        "expected_answer": "It exits the current loop immediately."
+      },
+      {
+        "name": "python_68",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens when a `continue` statement is encountered within a Python loop?"
+          ]
+        ],
+        "expected_answer": "The `continue` statement skips the remaining code in the loop body for the current iteration and moves to the next iteration."
+      },
+      {
+        "name": "python_69",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the two primary methods to terminate a Python script immediately?"
+          ]
+        ],
+        "expected_answer": "Use `sys.exit()` or raise `SystemExit`."
+      },
+      {
+        "name": "python_70",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of including a docstring in a Python class method?"
+          ]
+        ],
+        "expected_answer": "A docstring describes the method's behavior and usage."
+      },
+      {
+        "name": "python_71",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python syntax allows you to extract a subset of elements from a list while specifying the starting and ending indices?"
+          ]
+        ],
+        "expected_answer": "Use `[start:end]`, where `start` is inclusive and `end` is exclusive."
+      },
+      {
+        "name": "python_72",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What does the __name__ attribute represent when used within a Python script or module?"
+          ]
+        ],
+        "expected_answer": "The __name__ attribute represents the name of the module or script, holding the string '__main__' if the script is executed as the main program."
+      },
+      {
+        "name": "python_73",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the correct syntax for handling two different types of exceptions (e.g., ValueError and IndexError) within a single except clause?"
+          ]
+        ],
+        "expected_answer": "Use `except (ValueError, IndexError):` syntax."
+      },
+      {
+        "name": "python_74",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the key differences between using `sorted()` and `.sort()` methods on Python lists?"
+          ]
+        ],
+        "expected_answer": "`sorted()` returns a new sorted list without modifying the original, whereas `.sort()` sorts the list in place."
+      },
+      {
+        "name": "python_75",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python function can be used to determine the data type of a variable?"
+          ]
+        ],
+        "expected_answer": "The function `type()` returns the object's type or class information."
+      },
+      {
+        "name": "python_76",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method would you use to remove an element from a Python dictionary if you know the key?"
+          ]
+        ],
+        "expected_answer": "Use `del dictName[key]`."
+      },
+      {
+        "name": "python_77",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How do you add elements to a Python list using the `extend()` and `insert()` methods?"
+          ]
+        ],
+        "expected_answer": "The `extend()` method adds all items of another iterable (like a list or tuple) to the end of the list, while the `insert()` method inserts an item at a specified position in the list."
+      },
+      {
+        "name": "python_78",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the basic step to make a reusable piece of Python code that can be imported into other scripts?"
+          ]
+        ],
+        "expected_answer": "By saving Python code in a .py file."
+      },
+      {
+        "name": "python_79",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What variable in Python contains the absolute path of the script that is currently running?"
+          ]
+        ],
+        "expected_answer": "The variable __file__ represents the path of the current file being executed."
+      },
+      {
+        "name": "python_80",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using Python's built-in functions `min()` and `max()` when working with lists or tuples?"
+          ]
+        ],
+        "expected_answer": "They are used to find the smallest or largest item in an iterable such as a list or tuple."
+      },
+      {
+        "name": "python_81",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the two methods to terminate an infinite loop in Python?"
+          ]
+        ],
+        "expected_answer": "Use a `break` statement or press Ctrl + C at runtime."
+      },
+      {
+        "name": "python_82",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens when you use the * operator before an iterable while calling a Python function?"
+          ]
+        ],
+        "expected_answer": "The * operator unpacks the iterable into individual elements as function arguments."
+      },
+      {
+        "name": "python_83",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you extract a portion of a string in Python starting from index 3 up to but not including index 8?"
+          ]
+        ],
+        "expected_answer": "Use slicing with `someString[3:8]`."
+      },
+      {
+        "name": "python_84",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does user input handling differ between Python 2 and 3?"
+          ]
+        ],
+        "expected_answer": "Python 2 uses `raw_input()` for getting user input, while Python 3 uses `input()`."
+      },
+      {
+        "name": "python_85",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you determine if a given string in Python begins with a specific substring?"
+          ]
+        ],
+        "expected_answer": "Use the `.startswith(substring)` method."
+      }
+    ],
+    "programming": [
+      {
+        "name": "programming_1",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "How do Python and Java handle functions that may take an arbitrary number of arguments?"
+          ]
+        ],
+        "expected_answer": "In Python, you can use *args to accept a variable number of positional arguments in a function. In Java, you can use varargs."
+      },
+      {
+        "name": "programming_2",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "How is the entry point specified in java and python?"
+          ]
+        ],
+        "expected_answer": "In Java, the entry point of an application must be public static void main(String[] args). In Python, there's no enforced main function or entry point. You can check __main__ to find out if the script is run directly."
+      },
+      {
+        "name": "programming_3",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "How do you test for equivalence of objects in java and python?"
+          ]
+        ],
+        "expected_answer": "In Java, to check if two objects are equivalent you can use the equals() method defined by the class. In Python, you can use the == operator to test for object equivalence."
+      },
+      {
+        "name": "programming_4",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "How do you test if two objects are the same object in java and python?"
+          ]
+        ],
+        "expected_answer": "In Java, to check if two references refer to exactly the same object, use the == operator. In Python, use the is keyword to determine if two variables point to the exact same object."
+      },
+      {
+        "name": "programming_5",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "How do you comment a single line in java and python?"
+          ]
+        ],
+        "expected_answer": "In Java, use // for a single-line comment. In Python, you can also use # at the beginning of a line to add a comment."
+      },
+      {
+        "name": "programming_6",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "Do lambda functions exist in java and python?"
+          ]
+        ],
+        "expected_answer": "Both Java (since version 8) and Python support the concept of lambda functions."
+      },
+      {
+        "name": "programming_7",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "What are key-value-parings called in java and python?"
+          ]
+        ],
+        "expected_answer": "In Java, key-value pairs are called Maps, in Python they are called dicts."
+      }
     ]
   }
 }
