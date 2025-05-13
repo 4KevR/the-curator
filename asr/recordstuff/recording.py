@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
-from typing import List, Tuple
-
+from typing import List, Tuple, Dict
 import pandas as pd
 import sounddevice as sd
 import soundfile as sf
@@ -10,9 +9,9 @@ import numpy as np
 import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from functional import seq
-
-from poetry.console.commands import self
+import itertools
+import pystreamapi
+from pystreamapi import Stream
 
 
 class PromptRecorderApp:
@@ -134,15 +133,57 @@ class PromptRecorderApp:
         self.prompt_index += 1
         self.display_prompt()
 
+def replace_many(s: str, replacements: dict) -> str:
+    for old, new in replacements.items():
+        s = s.replace(old, new)
+    return s
+
+# returns prompt and file name suffix
+def get_prompt_with_parameters(prompt: str, parameters: Dict[str, List[str]]) -> List[Tuple[str, str]]:
+    if len(parameters) == 0:
+        return [(prompt, "")]
+
+
+    keys = parameters.keys()
+    keysWithAngles = [f"<{it}>" for it in keys]
+    values = parameters.values()
+    indices = [range(len(it)) for it in values]
+
+    only_zip = "join" not in parameters or parameters.pop("join") == "zip"
+
+    if not only_zip: # cross product
+        combinations = itertools.product(*values)
+        combinations_idx = itertools.product(*indices)
+    else:    # zip
+        assert len({len(it) for it in parameters.values()}) == 1, "all parameters must have the same length"
+        combinations = zip(*values)
+        combinations_idx = zip(*indices)
+
+    substitutions = [dict(zip(keysWithAngles, combination)) for combination in combinations]
+    res = [(replace_many(prompt, params), "_prm_" + "_".join(str(id) for id in idx)) for params, idx in zip(substitutions, combinations_idx)]
+    return res
+
 
 def get_prompts_from_tests():
     json_object = json.load(open("../tests/tests.json"))
+
     prompts_test_single_turn = [
-        (it["name"] + f"_{q_id}", q)
+        (
+            it["name"] + f"_{q_id}",
+            q,
+            {} if "params" not in it else it["params"]
+        )
         for it in json_object["tests"]
         for (q_id, q) in enumerate(it["queries"][0])
         if len(it["queries"]) == 1
     ]
+    # expand template parameters
+    prompts_test_single_turn = [
+        (name + suffix, prompt)
+        for (name, prompt_template, params) in prompts_test_single_turn
+        for prompt, suffix in get_prompt_with_parameters(prompt_template, params)
+    ]
+
     prompts_test_multi_turn = len([
         1
         for it in json_object["tests"]
