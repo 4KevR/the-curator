@@ -1452,7 +1452,8 @@
           "Create a new deck with the name '<name>'.",
           "Please create a new deck with named <name>.",
           "Go make new deck name <name>.",
-          "Could you kindly go ahead and make a brand new deck for me with the name '<name>' because I really need it right now and it would be super helpful if you could do that as soon as possible, thank you so much in advance for your help and support."
+          "Could you kindly go ahead and make a brand new deck for me with the name '<name>' because I really need it right now and it would be super helpful if you could do that as soon as possible, thank you so much in advance for your help and support.",
+          "I want to have a new deck with the name <name>."
         ]
       ],
       "params": {
@@ -1461,7 +1462,11 @@
           "Machine Learning",
           "Deep Learning",
           "Computer Vision",
-          "Reinforcement Learning"
+          "Reinforcement Learning",
+          "Business Administration",
+          "Astronomy",
+          "Physics",
+          "Japanese"
         ]
       },
       "expected_result": {
@@ -1483,7 +1488,9 @@
           "Add a new card with the question '<question>' and answer '<answer>' to the deck 'empty deck'.",
           "Please add a new card with the question '<question>' and answer '<answer>' to the deck.",
           "Go make new card with question '<question>' and answer '<answer>'.",
-          "Could you kindly go ahead and add a brand new card with the question '<question>' and answer '<answer>' to the deck because I really need it right now and it would be super helpful if you could do that as soon as possible, thank you so much in advance for your help and support."
+          "Could you kindly go ahead and add a brand new card with the question '<question>' and answer '<answer>' to the deck because I really need it right now and it would be super helpful if you could do that as soon as possible, thank you so much in advance for your help and support.",
+          "Please create a new card with the frontside '<question>' and the backside '<answer>'",
+          "I want to have a new card with the question '<question>' and answer '<answer>' in the deck."
         ]
       ],
       "params": {
@@ -1492,14 +1499,22 @@
           "What is the largest planet in our solar system?",
           "What is the square root of 16?",
           "What is the chemical symbol for gold?",
-          "Who wrote 'To Kill a Mockingbird'?"
+          "Who wrote 'To Kill a Mockingbird'?",
+          "What is the capital of Japan?",
+          "Which planet in our solar system is known as the Red Planet?",
+          "What is the longest river in the world?",
+          "What is the tallest mountain in the world?"
         ],
         "answer": [
           "Paris",
           "Jupiter",
           "4",
           "Au",
-          "Harper Lee"
+          "Harper Lee",
+          "Tokio",
+          "Mars",
+          "Nile",
+          "Mount Everest"
         ],
         "join": "zip"
       },
@@ -2401,6 +2416,135 @@
                 "__fuzzymatch": [
                   "answer"
                 ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_create_add_2",
+      "description": "Create a new deck for Natural Language Processing and add a card with a question and answer.",
+      "environment": "none",
+      "queries": [
+        [
+          "I want to learn content about Natural Language Processing. Please create a new deck."
+        ],
+        [
+          "Create a new card"
+        ],
+        [
+          "The question is 'What is Natural Language Processing?'"
+        ],
+        [
+          "The answer is 'NLP is a field of AI that focuses on the interaction between computers and humans through natural language.'"
+        ],
+        [
+           "The flag should be 'Red'."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Natural Language Processing",
+            "cards": [
+              {
+                "question": "What is Natural Language Processing?",
+                "answer": "NLP is a field of AI that focuses on the interaction between computers and humans through natural language.",
+                "flag": "Red",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_create_add_3",
+      "description": "Create a new deck for Deep Learning and add three cards with questions and answers.",
+      "environment": "none",
+      "queries": [
+        [
+          "I have an exam about Deep Learning coming up. Please create a new deck."
+        ],
+        [
+          "Create a new card with the question 'What is Deep Learning?'"
+        ],
+        [
+          "The answer should be 'Deep Learning is a subset of machine learning that uses neural networks with many layers.'"
+        ],
+        [
+          "Now another card."
+        ],
+        [
+          "The question is 'What is a neural network?'"
+        ],
+        [
+          "The answer should be 'A neural network is a series of algorithms that mimic the operations of a human brain to recognize relationships in data.'"
+        ],
+        [
+          "Please add a third card with the question 'What is overfitting?'"
+        ],
+        [
+          "The answer should be 'Overfitting occurs when a model learns the training data too well, including noise and outliers, leading to poor performance on new data.'"
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Deep Learning",
+            "cards": [
+              {
+                "question": "What is Deep Learning?",
+                "answer": "Deep Learning is a subset of machine learning that uses neural networks with many layers.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a neural network?",
+                "answer": "A neural network is a series of algorithms that mimic the operations of a human brain to recognize relationships in data.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is overfitting?",
+                "answer": "Overfitting occurs when a model learns the training data too well, including noise and outliers, leading to poor performance on new data.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_create_add_4",
+      "description": "Trivia question about continents with a correction.",
+      "environment": "empty_deck",
+      "queries": [
+        [
+          "Create a new card"
+        ],
+        [
+          "The front side should be 'How many continents are there on Earth?'"
+        ],
+        [
+          "The back side should say 6."
+        ],
+        [
+          "Actually, I meant to say 7."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "empty_deck",
+            "cards": [
+              {
+                "question": "How many continents are there on Earth?",
+                "answer": "7.",
+                "flag": "None",
+                "cardState": "New"
               }
             ]
           }
@@ -5019,6 +5163,85 @@
           ]
         ],
         "expected_answer": "In Java, key-value pairs are called Maps, in Python they are called dicts."
+      }
+    ],
+    "misc": [
+      {
+        "name": "misc_0",
+        "description": "Get the number of cards in a deck",
+        "environment": "java_10",
+        "queries": [
+          [
+            "How many cards are available in the java_10 deck?"
+          ],
+          [
+            "What is the total number of cards in the java_10 deck?"
+          ],
+          [
+            "Can you give me the amount of cards in the java_10 deck?"
+          ]
+        ],
+        "expected_answer": "There are 10 cards in the java_10 deck."
+      },
+      {
+        "name": "misc_1",
+        "description": "Get a list of available decks",
+        "environment": "all",
+        "queries": [
+          [
+            "What decks are available?"
+          ],
+          [
+            "What different content can I learn?"
+          ],
+          [
+            "What are the names of the decks?"
+          ],
+          [
+            "Can you list the available decks?"
+          ],
+          [
+            "What decks do you have?"
+          ]
+        ],
+        "expected_answer": "The available decks are: java, python and latin."
+      },
+      {
+        "name": "misc_2",
+        "description": "Get the amount of required revisions in one deck",
+        "environment": "java_10",
+        "queries": [
+          [
+            "How many revisions do I need to do in the java_10 deck?"
+          ],
+          [
+            "How much do I need to revise in the java_10 deck?"
+          ],
+          [
+            "What is the amount of revisions in the java_10 deck today?"
+          ]
+        ],
+        "expected_answer": "You need to do 10 revisions in the java_10 deck today."
+      },
+      {
+        "name": "misc_3",
+        "description": "Get the amount of required revisions in all available decks (20 max per decks, assuming initial state)",
+        "environment": "all",
+        "queries": [
+          [
+            "How many cards do I need to do learn in all decks?"
+          ],
+          [
+            "How much do I need to revise today?"
+          ],
+          [
+            "What is the amount of cards to learn in all decks today?"
+          ],
+          [
+            "How many cards today?"
+          ]
+        ],
+        "expected_answer": "You need to learn 60 cards today."
       }
     ]
   }
