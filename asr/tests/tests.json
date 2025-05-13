@@ -98,7 +98,7 @@
           "cardState": "New"
         },
         {
-          "question": "How does Book VI foreshadow future events through the Underworld visit\\?",
+          "question": "How does Book VI of the Aeneid foreshadow future events through the Underworld visit\\?",
           "answer": "Encounters with shades predict key outcomes.",
           "flag": "None",
           "cardState": "New"
@@ -116,7 +116,7 @@
           "cardState": "New"
         },
         {
-          "question": "How does Juno\\'s opposition reflect divine conflicts influencing the plot\\?",
+          "question": "How does Juno\\'s opposition reflect divine conflicts influencing the plot of the Aeneid\\?",
           "answer": "Shows competing wills of gods vs. fate.",
           "flag": "None",
           "cardState": "New"
@@ -164,7 +164,7 @@
           "cardState": "New"
         },
         {
-          "question": "In what ways does Ovid use vivid imagery to convey the visceral aspects of metamorphosis\\?",
+          "question": "In what ways does Ovid use vivid imagery to convey the sensual aspects of metamorphosis\\?",
           "answer": "Graphic details highlight physical and emotional chaos.",
           "flag": "None",
           "cardState": "New"
@@ -176,7 +176,7 @@
           "cardState": "New"
         },
         {
-          "question": "Why is the final transformation in Book XV significant to the poem\\'s theme of change\\?",
+          "question": "Why is the final transformation in Book XV of Metamorphoses significant to the poem\\'s theme of change\\?",
           "answer": "Cements the perpetual cycle of creation and renewal.",
           "flag": "None",
           "cardState": "New"
@@ -2620,5 +2620,244 @@
         ]
       }
     }
-  ]
+  ],
+  "question_answering": {
+    "latin": [
+      {
+        "name": "latin_1",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Which latin authors are in my deck?"
+          ]
+        ],
+        "expected_answer": "Catullus, Cicero, Horace, Ovid, and Virgil"
+      },
+      {
+        "name": "latin_2_advanced_reasoning",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "The Aeneid references passages from the Odyssey, such as the trick of the wooden horse. Which values are compared? Which position does Vergil take? "
+          ]
+        ],
+        "expected_answer": "Vergil contrasts the Greek cunning and the pious trust of the Trojans (pietas). Vergil favors the Trojans."
+      },
+      {
+        "name": "latin_3",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What is the main virtue of Aeneas? Please state the latin term too."
+          ]
+        ],
+        "expected_answer": "Its pietas (duty, devotion)."
+      },
+      {
+        "name": "latin_4",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Contrast the godly interventions in the Aeneid and the Odyssey."
+          ]
+        ],
+        "expected_answer": "There is not information about the godly interventions in the Odyssey in your cards."
+      },
+      {
+        "name": "latin_5",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What is a key example of the costs of fatum?"
+          ]
+        ],
+        "expected_answer": "Dido's downfall."
+      },
+      {
+        "name": "latin_6",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What was the chapter with all the foreshadowing? Which book?"
+          ]
+        ],
+        "expected_answer": "The underworld visit in book VI."
+      },
+      {
+        "name": "latin_7",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Which political motive is behind the creation of the Aeneid?"
+          ]
+        ],
+        "expected_answer": "Providing a (divine) epic justifying Augustus' rule."
+      },
+      {
+        "name": "latin_8",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Which god opposes Aeneas' journey?"
+          ]
+        ],
+        "expected_answer": "Juno."
+      },
+      {
+        "name": "latin_9",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How does Aeneas know his actions align with fate?"
+          ]
+        ],
+        "expected_answer": "Through prophecies."
+      },
+      {
+        "name": "metamorphoses_1",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How does the overarching theme of transformation in 'Metamorphoses' symbolize life's instability?",
+            "What does transformation in 'Metamorphoses' suggest about human vulnerability?"
+          ]
+        ],
+        "expected_answer": "Shifts in form mirror human vulnerabilities."
+      },
+      {
+        "name": "metamorphoses_2",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What does Apollo and Daphne's myth reveal about boundaries between pursuit and violation?",
+            "Explain how Apollo and Daphne's myth addresses the limits of pursuit and violation."
+          ]
+        ],
+        "expected_answer": "Explores unrequited desire and forced change."
+      },
+      {
+        "name": "metamorphoses_3",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What is the typical way of divine retribution in Metamorphoses?",
+            "What is the role of transformation as divine retribution in Ovid's narratives?"
+          ]
+        ],
+        "expected_answer": "Gods' quickly impose extreme fates through transformation."
+      },
+      {
+        "name": "metamorphoses_4",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How are the various myths connected by frame narratives throughout 'Metamorphoses'?",
+            "Describe the connection of myths through frame narratives in 'Metamorphoses'."
+          ]
+        ],
+        "expected_answer": "Stories transition smoothly via thematic links."
+      },
+      {
+        "name": "metamorphoses_5",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Which tale in Metamorphoses focuses on the connection between fiction and reality?"
+          ]
+        ],
+        "expected_answer": "Pygmalion's tale."
+      },
+      {
+        "name": "metamorphoses_6",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What is the relationship between mortal and divine life in Metamorphoses?"
+          ]
+        ],
+        "expected_answer": "Mortal life is instable and subjet to divine whim."
+      },
+      {
+        "name": "metamorphoses_7",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How does Ovid convey sensual, emotional aspects of metamorphosis?"
+          ]
+        ],
+        "expected_answer": "Through vivid imagery and graphic details."
+      },
+      {
+        "name": "metamorphoses_8",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How does Metamorphoses comment on the gender dynamics of the time?"
+          ]
+        ],
+        "expected_answer": "It discusses trauma, power imbalances, and retaliation, e.g. in the tale of Procne and Philomela."
+      },
+      {
+        "name": "metamorphoses_9",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How does Metamorphoses stress the theme of change in its last book?"
+          ]
+        ],
+        "expected_answer": "The final transformation in Book XV cements the perpetual cycle of creation and renewal."
+      },
+      {
+        "name": "metamorphoses_10",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Explain how the transformations in Ovid's work convey his perspective on divine fairness."
+          ]
+        ],
+        "expected_answer": "According to Ovid, the gods act arbitrary, without any notion of justice or equity."
+      },
+      {
+        "name": "mix_1",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "In the Aeneid, the gods are a instrument of fate, shaping Aeneis' path. In the Metamorphoses, the gods are a source of arbitrary and extreme punishment."
+          ]
+        ],
+        "expected_answer": ""
+      },
+      {
+        "name": "mix_1",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Why is it plausible to say that the Aeneid and Metamorphoses are opposites?"
+          ]
+        ],
+        "expected_answer": "The Aeneid tells of a heroe's journey shaped by fate, while the Metamorphoses are multiple separate poems about change."
+      }
+    ]
+  }
 }

@@ -398,8 +398,49 @@
           }
         },
         "required": [
-          "name"
+          "name",
+          "environment",
+          "queries",
+          "expected_result"
         ]
+      }
+    },
+    "question_answering": {
+      "type": "object",
+      "properties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string"
+            },
+            "queries": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "expected_answer": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "environment",
+            "queries",
+            "expected_answer"
+          ]
+        }
       }
     }
   },
