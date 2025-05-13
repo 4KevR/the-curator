@@ -104,6 +104,7 @@ class PromptRecorderApp:
         if self.recording_data is not None:
             self.recording_data = None
         self.recording = sd.rec(int(60 * self.fs), samplerate=self.fs, channels=1, device=selected_device)
+        self.recording[:] = 0  # No idea why i need that now, it was not necessary last version? Maybe python/package version???
         print("Recording started...")
 
     def stop_recording(self):
@@ -167,6 +168,9 @@ def get_prompt_with_parameters(prompt: str, parameters: Dict[str, List[str]]) ->
 def get_prompts_from_tests():
     json_object = json.load(open("../tests/tests.json"))
 
+
+    # Oh my god I miss java/kotlin streams so much. This is torture.
+
     prompts_test_single_turn = [
         (
             it["name"] + f"_{q_id}",
@@ -184,11 +188,24 @@ def get_prompts_from_tests():
         for prompt, suffix in get_prompt_with_parameters(prompt_template, params)
     ]
 
-    prompts_test_multi_turn = len([
-        1
+    prompts_test_multi_turn = [
+        (
+            it["name"] + f"_multistep_{step_id}_{q_id}",
+            q,
+            {} if "params" not in it else it["params"]
+        )
         for it in json_object["tests"]
+        for (step_id, step) in enumerate(it["queries"])
+        for (q_id, q) in enumerate(step)
         if len(it["queries"]) != 1
-    ])
+    ]
+    # expand template parameters
+    prompts_test_multi_turn = [
+        (name + suffix, prompt)
+        for (name, prompt_template, params) in prompts_test_multi_turn
+        for prompt, suffix in get_prompt_with_parameters(prompt_template, params)
+    ]
+
     prompts_test_question_answering_single = [
         (it["name"] + f"_{q_id}", q)
         for subject in json_object["question_answering"]
@@ -196,24 +213,49 @@ def get_prompts_from_tests():
         for (q_id, q) in enumerate(it["queries"][0])
         if len(it["queries"]) == 1
     ]
-    prompts_test_question_answering_multi_turn = len([
-        1
+
+    prompts_test_question_answering_multi_turn = [
+        (it["name"] + f"_multistep_{step_id}_{q_id}", q)
         for subject in json_object["question_answering"]
         for it in json_object["question_answering"][subject]
+        for (step_id, step) in enumerate(it["queries"])
+        for (q_id, q) in enumerate(step)
         if len(it["queries"]) != 1
-    ])
+    ]
 
-    print(f"There are {prompts_test_multi_turn} multi-turn test prompts and {prompts_test_question_answering_multi_turn} multi-turn question answering prompts – you have to record them manually!")
+    single_step = prompts_test_single_turn + prompts_test_question_answering_single
+    multi_step = prompts_test_multi_turn + prompts_test_question_answering_multi_turn
+    sizes = f"""
+Sizes:
+    tests_single:              {len(prompts_test_single_turn):>5},
+    tests_multi:               {len(prompts_test_multi_turn):>5},
+    question_answering_single: {len(prompts_test_question_answering_single):>5},
+    question_answering_multi:  {len(prompts_test_question_answering_multi_turn):>5},
+"""
+    print(sizes)
 
-    return prompts_test_single_turn + prompts_test_question_answering_single
+    return single_step, multi_step
 
+
+########## CHANGE VARIABLES HERE ##################
+SINGLE_STEP_SAMPLE_SIZE = 0
+RANDOM_STATE = 2308421
+RECORD_MULTISTEP_QUERIES = True
+###################################################
 
 if __name__ == "__main__":
-    single_prompts = get_prompts_from_tests()
-    single_prompts_sample = pd.Series(single_prompts).sample(50, random_state=2308421)
+    single_prompts, multi_prompts = get_prompts_from_tests()
 
+    single_prompts_sample = pd.Series(single_prompts).sample(SINGLE_STEP_SAMPLE_SIZE, random_state=RANDOM_STATE)
+    multi_prompts_sample = multi_prompts if RECORD_MULTISTEP_QUERIES else []
+
+    print("Single step prompts:")
     print("\n".join(str(it) for it in single_prompts_sample))
 
+    print("Multi step prompts:")
+    print("\n".join(str(it) for it in multi_prompts_sample))
+    print("DONE")
+
     root = tk.Tk()
-    app = PromptRecorderApp(root, list(single_prompts_sample))
+    app = PromptRecorderApp(root, list(single_prompts_sample) + list(multi_prompts_sample))
     root.mainloop()

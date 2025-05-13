@@ -2979,10 +2979,10 @@
         "environment": "latin",
         "queries": [
           [
-            "In the Aeneid, the gods are a instrument of fate, shaping Aeneis' path. In the Metamorphoses, the gods are a source of arbitrary and extreme punishment."
+            "Contrast the role of gods in the Aeneid and the Metamorphoses."
           ]
         ],
-        "expected_answer": ""
+        "expected_answer": "In the Aeneid, the gods are a instrument of fate, shaping Aeneis' path. In the Metamorphoses, the gods are a source of arbitrary and extreme punishment."
       },
       {
         "name": "mix_2",
