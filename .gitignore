@@ -184,3 +184,5 @@ data
 
 # Recordings
 asr/*/recording session*/
+
+.idea/
