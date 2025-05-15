@@ -178,6 +178,7 @@ cython_debug/
 
 # Data
 data
+!tests/data
 
 # Env
 .env.local
