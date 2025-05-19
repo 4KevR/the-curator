@@ -227,7 +227,8 @@ class AnkiModule:
     # Card
     def delete_cards_by_ids(self, card_ids: list[int]) -> None:
         """Delete the specified cards. 
-        If the card is the last card from a note, this note will also be automatically deleted.
+        If the card is the last card from a note, 
+        this note will also be automatically deleted.
 
         :param card_ids: List of card IDs to delete
         """
@@ -243,7 +244,8 @@ class AnkiModule:
 
         new_note_ids = self.list_all_notes()
         deleted_notes = [x for x in old_note_ids if x not in new_note_ids]
-        logger.debug(f"Delete Cards: {deleted_cards}. Automatically delete notes: {deleted_notes}")
+        logger.debug(f"Delete Cards: {deleted_cards}."
+                     f"Automatically delete notes: {deleted_notes}")
 
     def list_cards_from_note(self, note_id: int) -> list[int]:
         """List all card IDs from the specified note."""
@@ -269,7 +271,7 @@ class AnkiModule:
 
     def get_card_info(self, card_id: int) -> dict:
         """
-        Get detailed information of the specified card and return a dictionary containing:
+        Get detailed information of the card and return a dictionary containing:
         - card_id, note_id, deck_id, template_index
         - card type (new card/studying/reviewing/relearning)
         - queue type (queue number and name)
@@ -291,7 +293,7 @@ class AnkiModule:
             -1: "Suspended", # Not participating in review
              0: "Preview", 
              1: "New", # New cards waiting for first learning
-             2: "Learning", # In the learning queue, still in the early stages of the memory curve
+             2: "Learning", # In the learning queue
              3: "Review", # In the normal review queue, indicating long-term memory cards
              4: "Filtered"
         }
@@ -357,7 +359,11 @@ class AnkiModule:
         card.factor = factor
         card.flush()
     
-    def set_review_stats(self, card_id: int, reps: int = None, lapses: int = None, left: int = None):
+    def set_review_stats(self, card_id: int, 
+            reps: int = None, 
+            lapses: int = None, 
+            left: int = None
+        ):
         """
         :reps: total number of reviews
         :lapses: number of abandonments (forgetting)
