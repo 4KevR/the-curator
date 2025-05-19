@@ -2,16 +2,19 @@ import logging
 import os
 
 from anki.collection import Collection
+from anki.exporting import AnkiPackageExporter
+from anki.importing.apkg import AnkiPackageImporter
+from anki.lang import set_lang
 from anki.notes import Note
 
-logger = logging.getLogger(__name__) 
+logger = logging.getLogger(__name__)
 
-# General directory for storing Anki collections 
+# General directory for storing Anki collections
 # base_dir\user_name\collection.anki2
-base_dir = r"your_base_directory"
+base_dir = os.getenv("ANKI_COLLECTION_PATH", "data/anki_collection")
 
 
-'''
+"""
 The following methods are implemented:
 - Deck: add, 
         delete, 
@@ -35,19 +38,20 @@ The following methods are implemented:
         activate_preview_cards,
         count_cards_due_today
         # More will be added later if necessary.
-'''
+"""
+
+
 class AnkiModule:
     def __init__(self, user_name: str):
         if user_name == "":
             raise ValueError("User_name cannot be empty string.")
-        
+
         user_dir = os.path.join(base_dir, user_name)
         if os.path.exists(user_dir):
             logger.debug("User already exists.")
         else:
             logger.debug("User does not exist, will create...")
-        
-        os.makedirs(user_dir, exist_ok=True)
+            os.makedirs(user_dir)
         self.user_dir = user_dir
         collection_path = os.path.join(user_dir, "collection.anki2")
         self.col = Collection(collection_path)
@@ -60,14 +64,14 @@ class AnkiModule:
         """
         if deck_name == "":
             raise ValueError("Deck_name cannot be empty string.")
-        
+
         deck_id = self.get_deck_id(deck_name)
         if deck_id is None:
             deck_id = self.col.decks.id(deck_name)
             logger.debug(f"Deck '{deck_name}' is added.")
         else:
             logger.debug(f"Deck '{deck_name}' already exists.")
-        
+
         return deck_id
 
     def delete_deck(self, deck_name: str) -> None:
@@ -96,7 +100,7 @@ class AnkiModule:
         return [(deck.name, deck.id) for deck in decks]
 
     def rename_deck(self, old_name: str, new_name: str) -> None:
-        #  Rename 
+        # Rename
         deck_id = self.get_deck_id(old_name)
         if deck_id is None:
             raise ValueError(f"Cannot find deck: {old_name}")
@@ -110,11 +114,10 @@ class AnkiModule:
         deck_id = self.get_deck_id(deck_name)
         if deck_id is None:
             raise ValueError(f"Cannot find deck: {deck_name}")
-        
+
         if path is None:
             path = os.path.join(self.user_dir, f"{deck_name}.apkg")
 
-        from anki.exporting import AnkiPackageExporter
         exp = AnkiPackageExporter(self.col)
         exp.did = deck_id
         exp.exportInto(path)
@@ -126,28 +129,23 @@ class AnkiModule:
         """
         if not os.path.exists(path):
             raise FileNotFoundError(f"Cannot find file: {path}")
-        from anki.importing.apkg import AnkiPackageImporter
-        from anki.lang import set_lang
+
         importer = AnkiPackageImporter(self.col, path)
-        set_lang("en_US") # If not set, an error will be reported.
+        set_lang("en_US")  # If not set, an error will be reported.
         importer.run()
         logger.debug(f"Deck is imported from {path}.")
 
-
     # Note
-    def add_note(self,
-                 deck_name: str,
-                 front: str,
-                 back: str,
-                 model_name: str = "Basic"
-                 ) -> tuple[int, list[int]]:
+    def add_note(
+        self, deck_name: str, front: str, back: str, model_name: str = "Basic"
+    ) -> tuple[int, list[int]]:
         """
         Create a Note with the specified NoteType (model).
         Front/back correspond to the field content respectively.
 
         Notably, creating a note will automatically create cards in the specified deck.
 
-        return: the note_id of the new Note, 
+        return: the note_id of the new Note,
                 and automatically added card_ids from this new note.
         """
         # Make sure Deck exists
@@ -160,13 +158,13 @@ class AnkiModule:
         model = self.col.models.by_name(model_name)
         if model is None:
             raise ValueError(f"Cannot find NoteType: {model_name}.")
-        
+
         # Add note
         note: Note = self.col.new_note(model)
         note.fields[0] = front
         note.fields[1] = back
-        
-        # 1. When adding a note, Anki will automatically generate one or more cards 
+
+        # 1. When adding a note, Anki will automatically generate one or more cards
         # based on the NoteType template to which the note belongs.
         # 2. The note_id may equals the first card's card_id.
         self.col.add_note(note, deck_id)
@@ -187,23 +185,24 @@ class AnkiModule:
                 try:
                     note = self.col.get_note(note_id)
                     card_ids = [card.id for card in note.cards()]
-                    logger.debug(f"Note {note_id} is deleted. "
-                                 f"Also deleted Cards: {card_ids}.")
+                    logger.debug(
+                        f"Note {note_id} is deleted. Also deleted Cards: {card_ids}."
+                    )
                 except Exception as e:
                     # Note might already be deleted or invalid
                     logger.debug(f"Note ID {note_id} is invalid: {e}")
 
             self.col.remove_notes(note_ids)
 
-    def list_all_notes(self)  -> list[int]:
+    def list_all_notes(self) -> list[int]:
         """List all notes in collection."""
-        note_ids = self.col.find_notes("") # The empty string matches all notes
+        note_ids = self.col.find_notes("")  # The empty string matches all notes
         return note_ids
 
     def list_notes_for_cards_in_deck(
-            self, deck_name: str
-        ) -> list[tuple[int, str, str]]:
-        """List all Notes for cards in the specified Deck, 
+        self, deck_name: str
+    ) -> list[tuple[int, str, str]]:
+        """List all Notes for cards in the specified Deck,
         returning a list of (note_id, front, back)."""
         deck = self.get_deck_id(deck_name)
         if not deck:
@@ -223,11 +222,10 @@ class AnkiModule:
         """Given a card ID, return the Note ID it belongs to."""
         return self.col.get_card(card_id).nid
 
-
     # Card
     def delete_cards_by_ids(self, card_ids: list[int]) -> None:
-        """Delete the specified cards. 
-        If the card is the last card from a note, 
+        """Delete the specified cards.
+        If the card is the last card from a note,
         this note will also be automatically deleted.
 
         :param card_ids: List of card IDs to delete
@@ -244,8 +242,10 @@ class AnkiModule:
 
         new_note_ids = self.list_all_notes()
         deleted_notes = [x for x in old_note_ids if x not in new_note_ids]
-        logger.debug(f"Delete Cards: {deleted_cards}."
-                     f"Automatically delete notes: {deleted_notes}")
+        logger.debug(
+            f"Delete Cards: {deleted_cards}. "
+            + f"Automatically deleted notes: {deleted_notes}"
+        )
 
     def list_cards_from_note(self, note_id: int) -> list[int]:
         """List all card IDs from the specified note."""
@@ -264,7 +264,7 @@ class AnkiModule:
         deck_id = self.get_deck_id(deck_name)
         if not deck_id:
             return []
-        
+
         card_ids = self.col.find_cards(f"deck:{deck_name}")
 
         return len(card_ids), card_ids
@@ -283,19 +283,19 @@ class AnkiModule:
         note = self.col.get_note(card.nid)
 
         type_map = {
-            0: "New", # New card
-            1: "Learn", # Learning
-            2: "Review", # Review
-            3: "Relearn" # Relearn, once mastered but forgotten
+            0: "New",  # New card
+            1: "Learn",  # Learning
+            2: "Review",  # Review
+            3: "Relearn",  # Relearn, once mastered but forgotten
         }
-        
+
         queue_map = {
-            -1: "Suspended", # Not participating in review
-             0: "Preview", # Preview
-             1: "New", # New cards waiting for first learning
-             2: "Learning", # In the learning queue
-             3: "Review", # In the review queue
-             4: "Filtered"
+            -1: "Suspended",  # Not participating in review
+            0: "Preview",  # Preview
+            1: "New",  # New cards waiting for first learning
+            2: "Learning",  # In the learning queue
+            3: "Review",  # In the review queue
+            4: "Filtered",
         }
 
         info = {
@@ -303,26 +303,17 @@ class AnkiModule:
             "note_id": card.nid,
             "deck_id": card.did,
             "template_index": card.ord,
-            
-            "type": {
-                "code": card.type,
-                "name": type_map.get(card.type, "Unknown")
-            },
-            "queue": {
-                "code": card.queue,
-                "name": queue_map.get(card.queue, "Unknown")
-            },
-            
-            "due": card.due, # due number/days
-            "ivl": card.ivl, # current interval (days)
-            "ease": card.factor, # factor
-            "reps": card.reps, # total number of reviews
-            "lapses": card.lapses, # number of abandonments
-            "left": card.left, # number of remaining study times for the day
-
-            "flags": card.flags, # user tags
-            "tags": note.tags, # list of tags for this note
-            "fields": note.fields # all fields of this note
+            "type": {"code": card.type, "name": type_map.get(card.type, "Unknown")},
+            "queue": {"code": card.queue, "name": queue_map.get(card.queue, "Unknown")},
+            "due": card.due,  # due number/days
+            "ivl": card.ivl,  # current interval (days)
+            "ease": card.factor,  # factor
+            "reps": card.reps,  # total number of reviews
+            "lapses": card.lapses,  # number of abandonments
+            "left": card.left,  # number of remaining study times for the day
+            "flags": card.flags,  # user tags
+            "tags": note.tags,  # list of tags for this note
+            "fields": note.fields,  # all fields of this note
         }
         return info
 
@@ -342,28 +333,26 @@ class AnkiModule:
         card = self.col.get_card(card_id)
         card.did = self.get_deck_id(new_deck_name)
         card.flush()
-    
+
     def set_due(self, card_id: int, due: int):
         card = self.col.get_card(card_id)
         card.due = due
         card.flush()
-    
+
     def set_interval(self, card_id: int, ivl: int):
         card = self.col.get_card(card_id)
         card.ivl = ivl
         card.flush()
-    
+
     def set_ease_factor(self, card_id: int, factor: int):
         """Modify ease (factor, integer, e.g. 2500 means 2.5 times)"""
         card = self.col.get_card(card_id)
         card.factor = factor
         card.flush()
-    
-    def set_review_stats(self, card_id: int, 
-            reps: int = None, 
-            lapses: int = None, 
-            left: int = None
-        ):
+
+    def set_review_stats(
+        self, card_id: int, reps: int = None, lapses: int = None, left: int = None
+    ):
         """
         :reps: total number of reviews
         :lapses: number of abandonments (forgetting)
@@ -380,13 +369,13 @@ class AnkiModule:
 
     def activate_preview_cards(self, deck_name: str):
         """
-        Activate all new cards in queue=0 (Preview) 
-        of the specified deck to queue=1 (New), 
+        Activate all new cards in queue=0 (Preview)
+        of the specified deck to queue=1 (New),
         so that it can enter the normal learning process.
         """
         self.col.db.execute(
             "UPDATE cards SET queue = 1 WHERE did = ? AND type = 0 AND queue = 0",
-            self.get_deck_id(deck_name)
+            self.get_deck_id(deck_name),
         )
 
     def count_cards_due_today(self, deck_name: str) -> dict:
@@ -395,8 +384,8 @@ class AnkiModule:
 
         # Query all active cards
         cards = self.col.db.list(
-            "SELECT id FROM cards WHERE did = ? AND queue IN (1, 2, 3)", 
-            self.get_deck_id(deck_name)
+            "SELECT id FROM cards WHERE did = ? AND queue IN (1, 2, 3)",
+            self.get_deck_id(deck_name),
         )
 
         count = {key: 0 for key in ("new", "learning", "review", "relearn")}

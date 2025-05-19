@@ -1,3 +1,3 @@
-__all__ = ['AnkiModule']
+__all__ = ["AnkiModule"]
 
 from .anki_module import AnkiModule
