@@ -1,6 +1,5 @@
 import logging
 import os
-from datetime import datetime
 
 from anki.collection import Collection
 from anki.notes import Note
@@ -148,7 +147,8 @@ class AnkiModule:
 
         Notably, creating a note will automatically create cards in the specified deck.
 
-        return: the note_id of the new Note, and automatically added card_ids from this new note.
+        return: the note_id of the new Note, 
+                and automatically added card_ids from this new note.
         """
         # Make sure Deck exists
         deck_id = self.get_deck_id(deck_name)
@@ -187,10 +187,11 @@ class AnkiModule:
                 try:
                     note = self.col.get_note(note_id)
                     card_ids = [card.id for card in note.cards()]
-                    logger.debug(f"Note {note_id} is deleted. Also deleted Cards: {card_ids}.")
+                    logger.debug(f"Note {note_id} is deleted. "
+                                 f"Also deleted Cards: {card_ids}.")
                 except Exception as e:
                     # Note might already be deleted or invalid
-                    logger.debug(f"Note ID {note_id} is invalid.")
+                    logger.debug(f"Note ID {note_id} is invalid: {e}")
 
             self.col.remove_notes(note_ids)
 
@@ -199,8 +200,11 @@ class AnkiModule:
         note_ids = self.col.find_notes("") # The empty string matches all notes
         return note_ids
 
-    def list_notes_for_cards_in_deck(self, deck_name: str) -> list[tuple[int, str, str]]:
-        """List all Notes for cards in the specified Deck, returning a list of (note_id, front, back)."""
+    def list_notes_for_cards_in_deck(
+            self, deck_name: str
+        ) -> list[tuple[int, str, str]]:
+        """List all Notes for cards in the specified Deck, 
+        returning a list of (note_id, front, back)."""
         deck = self.get_deck_id(deck_name)
         if not deck:
             return []
@@ -234,8 +238,8 @@ class AnkiModule:
                 try:
                     self.col._backend.remove_cards([card_id])
                     deleted_cards.append(card_id)
-                except:
-                    logger.debug(f"Card ID {card_id} is invalid.")
+                except Exception as e:
+                    logger.debug(f"Card ID {card_id} is invalid: {e}")
 
         new_note_ids = self.list_all_notes()
         deleted_notes = [x for x in old_note_ids if x not in new_note_ids]
