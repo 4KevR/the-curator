@@ -291,10 +291,10 @@ class AnkiModule:
         
         queue_map = {
             -1: "Suspended", # Not participating in review
-             0: "Preview", 
+             0: "Preview", # Preview
              1: "New", # New cards waiting for first learning
              2: "Learning", # In the learning queue
-             3: "Review", # In the normal review queue, indicating long-term memory cards
+             3: "Review", # In the review queue
              4: "Filtered"
         }
 
@@ -380,7 +380,8 @@ class AnkiModule:
 
     def activate_preview_cards(self, deck_name: str):
         """
-        Activate all new cards in queue=0 (Preview) of the specified deck to queue=1 (New), 
+        Activate all new cards in queue=0 (Preview) 
+        of the specified deck to queue=1 (New), 
         so that it can enter the normal learning process.
         """
         self.col.db.execute(
