@@ -7,6 +7,16 @@ from anki.importing.apkg import AnkiPackageImporter
 from anki.lang import set_lang
 from anki.notes import Note
 
+from src.backend.domain.abstract_adapters import AbstractAnki
+from src.backend.domain.srs import (
+    CardInfo,
+    CardsDueToday,
+    DeckCardsInfo,
+    DeckInfo,
+    NoteCreationResult,
+    NoteInfo,
+)
+
 logger = logging.getLogger(__name__)
 
 # General directory for storing Anki collections
@@ -41,7 +51,7 @@ The following methods are implemented:
 """
 
 
-class AnkiModule:
+class Anki(AbstractAnki):
     def __init__(self, user_name: str):
         if user_name == "":
             raise ValueError("User_name cannot be empty string.")
@@ -94,10 +104,10 @@ class AnkiModule:
             return deck["id"]
         return None
 
-    def list_all_decks(self) -> list[tuple[str, int]]:
+    def list_all_decks(self) -> list[DeckInfo]:
         """Returns all deck names and corresponding IDs."""
         decks = self.col.decks.all_names_and_ids()
-        return [(deck.name, deck.id) for deck in decks]
+        return [DeckInfo(name=deck.name, id=deck.id) for deck in decks]
 
     def rename_deck(self, old_name: str, new_name: str) -> None:
         # Rename
@@ -138,7 +148,7 @@ class AnkiModule:
     # Note
     def add_note(
         self, deck_name: str, front: str, back: str, model_name: str = "Basic"
-    ) -> tuple[int, list[int]]:
+    ) -> NoteCreationResult:
         """
         Create a Note with the specified NoteType (model).
         Front/back correspond to the field content respectively.
@@ -172,7 +182,7 @@ class AnkiModule:
         card_ids = [card.id for card in note.cards()]
         logger.debug(f"Automatically added Cards: {card_ids}")
 
-        return note.id, card_ids
+        return NoteCreationResult(note_id=note.id, card_ids=card_ids)
 
     def delete_notes_by_ids(self, note_ids: list[int]) -> None:
         """
@@ -199,9 +209,7 @@ class AnkiModule:
         note_ids = self.col.find_notes("")  # The empty string matches all notes
         return note_ids
 
-    def list_notes_for_cards_in_deck(
-        self, deck_name: str
-    ) -> list[tuple[int, str, str]]:
+    def list_notes_for_cards_in_deck(self, deck_name: str) -> list[NoteInfo]:
         """List all Notes for cards in the specified Deck,
         returning a list of (note_id, front, back)."""
         deck = self.get_deck_id(deck_name)
@@ -215,7 +223,9 @@ class AnkiModule:
         for nid in note_ids:
             note = self.col.get_note(nid)
             if len(note.fields) >= 2:
-                result.append((note.id, note.fields[0], note.fields[1]))
+                result.append(
+                    NoteInfo(note_id=note.id, front=note.fields[0], back=note.fields[1])
+                )
         return result
 
     def get_note_id_by_card_id(self, card_id: int) -> int:
@@ -254,7 +264,7 @@ class AnkiModule:
             card_ids = [card.id for card in note.cards()]
             return card_ids
 
-    def list_cards_in_deck(self, deck_name: str) -> tuple[int, list[int]]:
+    def list_cards_in_deck(self, deck_name: str) -> DeckCardsInfo:
         """
         List all card IDs in the specified deck.
 
@@ -267,9 +277,9 @@ class AnkiModule:
 
         card_ids = self.col.find_cards(f"deck:{deck_name}")
 
-        return len(card_ids), card_ids
+        return DeckCardsInfo(total_cards=len(card_ids), card_ids=card_ids)
 
-    def get_card_info(self, card_id: int) -> dict:
+    def get_card_info(self, card_id: int) -> CardInfo:
         """
         Get detailed information of the card and return a dictionary containing:
         - card_id, note_id, deck_id, template_index
@@ -298,53 +308,52 @@ class AnkiModule:
             4: "Filtered",
         }
 
-        info = {
-            "card_id": card.id,
-            "note_id": card.nid,
-            "deck_id": card.did,
-            "template_index": card.ord,
-            "type": {"code": card.type, "name": type_map.get(card.type, "Unknown")},
-            "queue": {"code": card.queue, "name": queue_map.get(card.queue, "Unknown")},
-            "due": card.due,  # due number/days
-            "ivl": card.ivl,  # current interval (days)
-            "ease": card.factor,  # factor
-            "reps": card.reps,  # total number of reviews
-            "lapses": card.lapses,  # number of abandonments
-            "left": card.left,  # number of remaining study times for the day
-            "flags": card.flags,  # user tags
-            "tags": note.tags,  # list of tags for this note
-            "fields": note.fields,  # all fields of this note
-        }
-        return info
+        return CardInfo(
+            card_id=card.id,
+            note_id=card.nid,
+            deck_id=card.did,
+            template_index=card.ord,
+            type={"code": card.type, "name": type_map.get(card.type, "Unknown")},
+            queue={"code": card.queue, "name": queue_map.get(card.queue, "Unknown")},
+            due=card.due,  # due number/days
+            ivl=card.ivl,  # current interval (days)
+            ease=card.factor,  # factor
+            reps=card.reps,  # total number of reviews
+            lapses=card.lapses,  # number of abandonments
+            left=card.left,  # number of remaining study times for the day
+            flags=card.flags,  # user tags
+            tags=note.tags,  # list of tags for this note
+            fields=note.fields,  # all fields of this note
+        )
 
-    def set_type(self, card_id: int, type_code: int):
+    def set_type(self, card_id: int, type_code: int) -> None:
         assert type_code in [0, 1, 2, 3]
         card = self.col.get_card(card_id)
         card.type = type_code
         card.flush()
 
-    def set_queue(self, card_id: int, queue_code: int):
+    def set_queue(self, card_id: int, queue_code: int) -> None:
         assert queue_code in [-1, 0, 1, 2, 3, 4]
         card = self.col.get_card(card_id)
         card.queue = queue_code
         card.flush()
 
-    def set_deck(self, card_id: int, new_deck_name: str):
+    def set_deck(self, card_id: int, new_deck_name: str) -> None:
         card = self.col.get_card(card_id)
         card.did = self.get_deck_id(new_deck_name)
         card.flush()
 
-    def set_due(self, card_id: int, due: int):
+    def set_due(self, card_id: int, due: int) -> None:
         card = self.col.get_card(card_id)
         card.due = due
         card.flush()
 
-    def set_interval(self, card_id: int, ivl: int):
+    def set_interval(self, card_id: int, ivl: int) -> None:
         card = self.col.get_card(card_id)
         card.ivl = ivl
         card.flush()
 
-    def set_ease_factor(self, card_id: int, factor: int):
+    def set_ease_factor(self, card_id: int, factor: int) -> None:
         """Modify ease (factor, integer, e.g. 2500 means 2.5 times)"""
         card = self.col.get_card(card_id)
         card.factor = factor
@@ -352,7 +361,7 @@ class AnkiModule:
 
     def set_review_stats(
         self, card_id: int, reps: int = None, lapses: int = None, left: int = None
-    ):
+    ) -> None:
         """
         :reps: total number of reviews
         :lapses: number of abandonments (forgetting)
@@ -367,7 +376,7 @@ class AnkiModule:
             card.left = left
         card.flush()
 
-    def activate_preview_cards(self, deck_name: str):
+    def activate_preview_cards(self, deck_name: str) -> None:
         """
         Activate all new cards in queue=0 (Preview)
         of the specified deck to queue=1 (New),
@@ -378,7 +387,7 @@ class AnkiModule:
             self.get_deck_id(deck_name),
         )
 
-    def count_cards_due_today(self, deck_name: str) -> dict:
+    def count_cards_due_today(self, deck_name: str) -> CardsDueToday:
         """How many cards need to be learned today."""
         today = self.col.sched.today
 
@@ -405,4 +414,10 @@ class AnkiModule:
 
         count["total"] = sum(count.values())
 
-        return count
+        return CardsDueToday(
+            new=count["new"],
+            learning=count["learning"],
+            review=count["review"],
+            relearn=count["relearn"],
+            total=count["total"],
+        )

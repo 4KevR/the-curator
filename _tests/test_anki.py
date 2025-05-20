@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from anki_module import AnkiModule
+from src.backend.adapter import Anki
 
 if __name__ == "__main__":
     load_dotenv(".env")
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     )
 
     username = "test_user"
-    myAnki = AnkiModule(user_name=username)
+    myAnki = Anki(user_name=username)
     myAnki.add_deck("test_deck")
     myAnki.add_note("test_deck", "1", "1", "Basic")
     myAnki.add_note("test_deck", "2", "2", "Basic")
