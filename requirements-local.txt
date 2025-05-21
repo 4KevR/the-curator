@@ -1,6 +1,10 @@
 -r ./requirements.txt
 TTS==0.22.0
 sounddevice==0.5.1
-PyAudio==0.2.14
+PyAudio==0.2.14  # needs "sudo apt-get install portaudio19-dev" on my system.
 ruff==0.11.7
+pandas==1.5.3
+soundfile==0.13.1
+streams.py==1.3.0
+nbstripout==0.8.1
 numpy==1.22.0

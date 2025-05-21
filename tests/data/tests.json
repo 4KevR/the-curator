@@ -1,0 +1,5241 @@
+{
+  "test_decks": {
+    "empty_deck": {
+      "name": "Empty Deck",
+      "cards": []
+    },
+    "latin": {
+      "name": "Latin Literature",
+      "cards": [
+        {
+          "question": "Who was Virgil?",
+          "answer": "A Roman poet known for the 'Aeneid'",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the 'Aeneid'?",
+          "answer": "An epic poem about Aeneas's journey",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Who was Horace?",
+          "answer": "A leading Roman lyric poet",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What type of work is 'Satires' by Horace?",
+          "answer": "A collection of satirical poems",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Who was Ovid?",
+          "answer": "A Roman poet famous for 'Metamorphoses'",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is 'Metamorphoses'?",
+          "answer": "A narrative poem of mythological transformations",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Who was Cicero?",
+          "answer": "A Roman statesman and orator",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What was Cicero's literary style known for?",
+          "answer": "Its eloquence and rhetorical skill",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Who was Catullus?",
+          "answer": "A Roman poet known for personal poetry",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is 'Carmina' by Catullus?",
+          "answer": "A collection of short poetic works",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does Virgil portray Aeneas\\' internal conflict between duty and personal desire\\?",
+          "answer": "Focus on 'pietas\\' and Aeneas\\' moral struggle.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the significance of the Trojan Horse story in highlighting Greek cunning\\?",
+          "answer": "Emphasizes deceit vs. Trojan trust.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do the gods\\' interventions affect Aeneas\\' journey\\?",
+          "answer": "Divine forces shape his fate and trials.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How is the concept of 'pietas\\' central to Aeneas\\' decisions\\?",
+          "answer": "Reflects duty to family, gods, and destiny.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What role does Dido\\'s tragic story play in exploring the cost of fate\\?",
+          "answer": "Her downfall highlights sacrifices for Rome.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does Book VI of the Aeneid foreshadow future events through the Underworld visit\\?",
+          "answer": "Encounters with shades predict key outcomes.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "In what ways does Virgil utilize epic similes to add depth to the narrative\\?",
+          "answer": "Similes enhance tension and highlight heroism.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the political undertone of the Aeneid regarding Roman origins\\?",
+          "answer": "Justifies Augustan rule and Roman identity.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does Juno\\'s opposition reflect divine conflicts influencing the plot of the Aeneid\\?",
+          "answer": "Shows competing wills of gods vs. fate.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why is prophecy crucial in guiding Aeneas\\' actions and resolve\\?",
+          "answer": "Prophecies ensure he aligns with destiny.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does the overarching theme of transformation in 'Metamorphoses\\' symbolize life\\'s instability\\?",
+          "answer": "Shifts in form mirror human vulnerabilities.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does Apollo and Daphne\\'s myth reveal about boundaries between pursuit and violation\\?",
+          "answer": "Explores unrequited desire and forced change.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does transformation serve as a form of divine punishment in Ovid\\'s work\\?",
+          "answer": "Reveals gods\\' quickness to impose extreme fates.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How are the various myths connected by frame narratives throughout 'Metamorphoses\\'\\?",
+          "answer": "Stories transition smoothly via thematic links.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does Pygmalion\\'s tale suggest about creative power and reality\\?",
+          "answer": "Blurs line between artistic vision and life.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does Ovid portray the gods\\' cruelty in stories like Io\\'s transformation\\?",
+          "answer": "Emphasizes instability of mortal life under divine whim.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "In what ways does Ovid use vivid imagery to convey the sensual aspects of metamorphosis\\?",
+          "answer": "Graphic details highlight physical and emotional chaos.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What commentary on gender dynamics emerges in tales like Procne and Philomela\\?",
+          "answer": "Examines trauma, power imbalances, and retaliation.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why is the final transformation in Book XV of Metamorphoses significant to the poem\\'s theme of change\\?",
+          "answer": "Cements the perpetual cycle of creation and renewal.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do these transformations reflect Ovid\\'s view on divine justice\\?",
+          "answer": "Punishments and rewards reveal divine arbitrariness.",
+          "flag": "None",
+          "cardState": "New"
+        }
+      ]
+    },
+    "java": {
+      "name": "Java Programming",
+      "cards": [
+        {
+          "question": "What is the purpose of the 'main' method in Java?",
+          "answer": "It's the entry point to start program execution.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you declare a variable in Java?",
+          "answer": "Specify type, then variable name, e.g. int x;",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a class in Java?",
+          "answer": "A blueprint for creating objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'public' mean in a method declaration?",
+          "answer": "It means the method is accessible from other classes.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between '==' and 'equals()' in Java?",
+          "answer": "'==' compares references; 'equals()' compares values.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a constructor?",
+          "answer": "A special method used to create and initialize objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method overloading?",
+          "answer": "Having methods with the same name but different parameter lists.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method overriding?",
+          "answer": "Redefining a parent class method in a subclass.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is 'static' in Java?",
+          "answer": "Belongs to the class rather than instances of it.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the role of the 'this' keyword in Java?",
+          "answer": "Refers to the current object instance.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'int' and 'Integer'?",
+          "answer": "'int' is a primitive type; 'Integer' is an object wrapper.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'final' do when used on a variable?",
+          "answer": "Prevents the variable's value from changing once assigned.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you comment a single line in Java?",
+          "answer": "Use `//` at the beginning of the comment.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of the 'package' keyword?",
+          "answer": "Organizes classes into namespaces for better management.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the Java Virtual Machine?",
+          "answer": "The environment where Java bytecode is executed.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the basic structure of a 'for' loop?",
+          "answer": "for (initialization; condition; increment) { ... }",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'break' and 'continue'?",
+          "answer": "'break' ends loop execution; 'continue' skips to the next iteration.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the 'import' statement do?",
+          "answer": "Makes classes from other packages accessible in the file.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between a class and an interface?",
+          "answer": "A class can hold implementations; an interface defines contracts.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is inheritance in Java?",
+          "answer": "A class can inherit properties and methods from a parent class.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'super' refer to in a subclass?",
+          "answer": "It refers to the parent class, allowing calls to parent constructors/methods.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'throw' and 'throws'?",
+          "answer": "'throw' generates an exception; 'throws' declares an exception can occur.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create an array in Java?",
+          "answer": "Define the type, then use 'new', e.g. int[] arr = new int[5];",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is polymorphism?",
+          "answer": "Objects can be treated as instances of their parent class, enabling flexibility.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the significance of encapsulation?",
+          "answer": "It hides internal data and implementation details, exposing only safe interfaces.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'List' in Java?",
+          "answer": "An ordered collection interface allowing duplicate elements.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you handle exceptions?",
+          "answer": "Use try/catch blocks, possibly a finally block, or rethrow them.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "When should you use 'else if' instead of multiple 'if' statements?",
+          "answer": "To handle mutually exclusive conditions efficiently.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the 'String' class?",
+          "answer": "A sequence of characters represented as objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you concatenate strings in Java?",
+          "answer": "With the '+' operator or using StringBuilder.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the default value for an uninitialized int in a class field?",
+          "answer": "Zero, for numeric types.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method returning 'void' used for?",
+          "answer": "It performs an action without returning a value.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'switch' statement?",
+          "answer": "An alternative to multiple 'if-else' checks, matching a variable against cases.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of the 'finally' block?",
+          "answer": "Executes code that should run regardless of exceptions.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you define a custom exception class?",
+          "answer": "Extend 'Exception' or a subclass of it.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the format of a typical Java package name?",
+          "answer": "Usually a reversed domain, e.g. com.example.project",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the keyword 'abstract' do?",
+          "answer": "Declares a class or method that cannot be instantiated or must be implemented.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create an object from a class?",
+          "answer": "Use 'new ClassName()', e.g. MyClass obj = new MyClass();",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What denotes a constant in Java?",
+          "answer": "A 'static final' variable, e.g. static final int MAX = 100;",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the 'instanceof' keyword used for?",
+          "answer": "Checks if an object is an instance of a particular type.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'public', 'protected', and 'private' access?",
+          "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a nested class?",
+          "answer": "A class defined within another class.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'System.out.println' do?",
+          "answer": "Prints text to the console, then a newline.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is an enum in Java?",
+          "answer": "A special class representing a fixed set of constants.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is garbage collection?",
+          "answer": "Automatic memory management clearing unused objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a 'StringBuilder'?",
+          "answer": "Specify: StringBuilder sb = new StringBuilder();",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are Java annotations?",
+          "answer": "Metadata that provide additional information to the compiler/JVM.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the 'for-each' loop syntax?",
+          "answer": "for (Type item : collection) { ... }",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What happens if you call 'return' in a 'void' method?",
+          "answer": "It ends the method execution immediately.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'Map' in Java?",
+          "answer": "An object that maps keys to values, e.g. HashMap.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'try-with-resources' block?",
+          "answer": "A block that automatically closes resources after execution.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you check object equality safely?",
+          "answer": "Use 'obj != null' and 'obj instanceof' checks, then 'equals()'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the 'var' keyword introduced in Java 10?",
+          "answer": "Allows local variable type inference at compile time.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between checked and unchecked exceptions?",
+          "answer": "Checked exceptions must be declared or handled; unchecked do not.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a mutable list using 'ArrayList'?",
+          "answer": "Use 'new ArrayList<>()' and add elements as needed.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'StringBuilder' provide that '+' doesn't?",
+          "answer": "Better performance for building/manipulating large strings.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which method is used to compare two 'StringBuilder' objects for content equality?",
+          "answer": "Convert to String and use 'equals()'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the term 'Java Bean' refer to?",
+          "answer": "A class with private fields, getters, setters, and a no-arg constructor.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of the 'javac' command?",
+          "answer": "Compiles Java source code into bytecode.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'Callable' and 'Runnable'?",
+          "answer": "'Callable' can return a value and throw checked exceptions; 'Runnable' cannot.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'lambda expression' in Java?",
+          "answer": "A concise way to represent an anonymous function.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which functional interface is used for defining a no-argument method returning no result?",
+          "answer": "'Runnable'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why is 'Optional' introduced in Java?",
+          "answer": "To avoid null checks and clarify potential absence of values.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'stream' in Java?",
+          "answer": "A sequence of elements supporting sequential and parallel operations.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you filter a stream of integers to only even numbers?",
+          "answer": "Use '.filter(n -> n % 2 == 0)'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between '.map()' and '.flatMap()' in streams?",
+          "answer": "'.map()' transforms elements; '.flatMap()' flattens nested structures.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the 'Collectors.toList()' method do?",
+          "answer": "Collects stream elements into a 'List'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method reference syntax?",
+          "answer": "A shorthand for lambda; 'ClassName::methodName'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the main advantage of 'Record' classes in Java?",
+          "answer": "They provide concise data carriers with minimal boilerplate.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'synchronized' do for a method?",
+          "answer": "Ensures only one thread can execute it at a time.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which concurrency feature was introduced in Java 8?",
+          "answer": "Parallel streams for concurrent processing.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does 'ReentrantLock' differ from 'synchronized'?",
+          "answer": "Offers more flexibility, such as tryLock methods, fairness options.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the role of 'ConcurrentHashMap'?",
+          "answer": "A thread-safe map with better concurrency than 'Hashtable'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which method is used to execute a thread in Java?",
+          "answer": "Call '.start()' on a 'Thread' object.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'volatile' mean for a variable?",
+          "answer": "Changes to the variable are always visible to other threads.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the 'assert' keyword do?",
+          "answer": "Enables testing assumptions in code, throwing an error if false.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'daemon' thread?",
+          "answer": "A background service thread that does not prevent JVM exit.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the main concept behind generics in Java?",
+          "answer": "To provide compile-time type checking and eliminate casting.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you specify a lower-bounded wildcard in generics?",
+          "answer": "Use '? super SomeType'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'Type Erasure' mean in Java generics?",
+          "answer": "Generic type info is removed at runtime; only base types remain.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why is the 'diamond operator' useful?",
+          "answer": "It simplifies generic instance creation, e.g. new ArrayList<>().",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the advantage of 'varargs' in method parameters?",
+          "answer": "Allows passing a variable number of arguments to a method.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How does 'StringJoiner' simplify string concatenation?",
+          "answer": "It builds a single string from multiple parts with a delimiter.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the main difference between 'StringBuilder' and 'StringBuffer'?",
+          "answer": "'StringBuffer' is synchronized; 'StringBuilder' is not.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you read a file line by line using 'BufferedReader'?",
+          "answer": "Use 'readLine()' in a loop until null is returned.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'NIO' stand for?",
+          "answer": "New I/O package, introduced to enhance Java I/O operations.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why should you close I/O resources?",
+          "answer": "To free system resources and avoid memory or resource leaks.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of 'java.lang.Object' class?",
+          "answer": "It's the root of the Java class hierarchy.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you achieve deep copying of an object?",
+          "answer": "Manually copy fields or use serialization-based approaches.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which annotation ensures a method overrides a superclass method?",
+          "answer": "@Override.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which feature was introduced in Java 14 for easier null checks?",
+          "answer": "The 'instanceof' pattern matching preview feature.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How can you iterate over entries in a 'Map'?",
+          "answer": "Use 'entrySet()' and a for-each loop.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Why is 'String' immutable in Java?",
+          "answer": "To ensure security, caching, and efficient string pooling.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is 'reflection' in Java?",
+          "answer": "An API to examine or modify runtime behavior of classes.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which method in 'Object' is often overridden for debugging messages?",
+          "answer": "'toString()'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which method allows type checking and downcasting in one step with Java 16?",
+          "answer": "Pattern matching for 'instanceof'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you define a sealed class in Java 17?",
+          "answer": "Use 'sealed' keyword and permit subclasses in the class definition.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "Which Java keyword is used to indicate a class cannot be subclassed?",
+          "answer": "'final' on the class definition.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the benefit of the 'record' keyword over regular classes?",
+          "answer": "Immutable data objects with concise syntax.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you sort a 'List' of objects by a property?",
+          "answer": "Use 'Collections.sort(list, Comparator)', or 'list.sort(...)'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the 'Service Loader' mechanism do?",
+          "answer": "Locates and loads service implementations at runtime.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you execute code if an exception is not thrown, but finalize if it is?",
+          "answer": "Use a 'try-finally' block without 'catch'.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of 'Object.wait()' and 'Object.notify()'?",
+          "answer": "They synchronize thread activities by waiting and notifying on a monitor.",
+          "flag": "None",
+          "cardState": "New"
+        }
+      ]
+    },
+    "java_10": {
+      "name": "Java Programming 10",
+      "cards": [
+        {
+          "question": "What is the purpose of the 'main' method in Java?",
+          "answer": "It's the entry point to start program execution.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you declare a variable in Java?",
+          "answer": "Specify type, then variable name, e.g. int x;",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a class in Java?",
+          "answer": "A blueprint for creating objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does 'public' mean in a method declaration?",
+          "answer": "It means the method is accessible from other classes.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between '==' and 'equals()' in Java?",
+          "answer": "'==' compares references; 'equals()' compares values.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a constructor?",
+          "answer": "A special method used to create and initialize objects.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method overloading?",
+          "answer": "Having methods with the same name but different parameter lists.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method overriding?",
+          "answer": "Redefining a parent class method in a subclass.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is 'static' in Java?",
+          "answer": "Belongs to the class rather than instances of it.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between 'public', 'protected', and 'private' access?",
+          "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+          "flag": "None",
+          "cardState": "New"
+        }
+      ]
+    },
+    "python": {
+      "name": "python",
+      "cards": [
+        {
+          "question": "What is Python?",
+          "answer": "It\\'s an interpreted, high-level language emphasizing readability.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you declare a variable in Python?",
+          "answer": "Just assign a name to a value, no explicit type needed.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a Python 'list'?",
+          "answer": "An ordered, mutable collection of items.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a list in Python?",
+          "answer": "Use square brackets, e.g. `[1, 2, 3]`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of indentation in Python?",
+          "answer": "Indicates code blocks instead of braces or keywords.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you write a comment in Python?",
+          "answer": "Use `#` for single-line comments.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'tuple' in Python?",
+          "answer": "An ordered, immutable sequence of items.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "When would you use a tuple over a list?",
+          "answer": "When you need an unchangeable sequence.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a dictionary in Python?",
+          "answer": "A collection of key-value pairs in curly braces.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you access a dictionary value by key?",
+          "answer": "Use `dictName[key]` syntax.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is Python's 'None' keyword?",
+          "answer": "Represents the absence of a value.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `len()` function do?",
+          "answer": "Returns the length of a sequence or collection.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you define a function in Python?",
+          "answer": "Use the `def` keyword, then function name, then parentheses.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the significance of the `return` statement?",
+          "answer": "Ends a function call and outputs a value.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'for' loop used for?",
+          "answer": "Iterating over a sequence or range of values.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you write a basic 'while' loop?",
+          "answer": "`while condition: block of code`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `range()` function do?",
+          "answer": "Generates a sequence of integers.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you handle exceptions in Python?",
+          "answer": "Use a `try-except` block.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `finally` block do?",
+          "answer": "Executes code regardless of whether an exception is raised.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you import another Python module?",
+          "answer": "Use the `import` keyword, e.g. `import math`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a list comprehension?",
+          "answer": "A concise way to create lists from iterables.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `pass` keyword do?",
+          "answer": "Serves as a placeholder with no operation.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'set' in Python?",
+          "answer": "An unordered collection of unique items.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you check membership in a list or set?",
+          "answer": "Use the `in` keyword, e.g. `if x in myList:`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is slicing in Python?",
+          "answer": "Extracting a sub-sequence using `[start:stop:step]`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you read user input?",
+          "answer": "Use the `input()` function.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is string immutability in Python?",
+          "answer": "Strings cannot be changed after they're created.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you convert a string to an integer?",
+          "answer": "Use `int(stringValue)`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are positional arguments in function calls?",
+          "answer": "Arguments passed in order, matching the function parameters.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are keyword arguments in function calls?",
+          "answer": "Arguments passed by name, e.g. `func(argName=value)`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `*args` do in a function?",
+          "answer": "Collects extra positional arguments into a tuple.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `**kwargs` do in a function?",
+          "answer": "Collects extra keyword arguments into a dictionary.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you format strings using f-strings?",
+          "answer": "Use `f\"{varName}\"` syntax.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the purpose of `__main__` in Python?",
+          "answer": "Indicates the entry point when the script is run directly.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are Python docstrings?",
+          "answer": "Multi-line strings that describe modules, classes, or functions.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you write a class in Python?",
+          "answer": "Use the `class` keyword and define methods.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is `__init__` in a Python class?",
+          "answer": "The constructor method automatically called upon object creation.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is inheritance in Python?",
+          "answer": "A class can derive from a parent class to reuse methods.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is method overriding?",
+          "answer": "Redefining a parent class method in a subclass.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you check the type of a variable?",
+          "answer": "Use the built-in `type()` function.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `dir()` function do?",
+          "answer": "Shows available attributes and methods of an object.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is `pip` used for?",
+          "answer": "Installs and manages Python packages.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `elif` do?",
+          "answer": "Continues an if-else chain with another condition.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you add an item to a list?",
+          "answer": "Use the `.append()` method.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you remove an item from a list?",
+          "answer": "Use `.remove(value)` or `.pop(index)`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the `with` statement used for?",
+          "answer": "Simplifies exception handling by automatically managing resources.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `open()` do in Python?",
+          "answer": "Opens a file and returns a file object.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you loop through both index and value of a list?",
+          "answer": "Use the built-in `enumerate()` function.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you combine items from two lists in parallel?",
+          "answer": "Use the built-in `zip()` function.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the Python `math` module offer?",
+          "answer": "Provides standard mathematical functions, e.g. `sqrt()`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a lambda function?",
+          "answer": "An anonymous function defined with the `lambda` keyword.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the built-in `filter()` do?",
+          "answer": "Selects items from an iterable that meet a given condition.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the built-in `map()` do?",
+          "answer": "Applies a function to all items in an iterable.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the `sys` module?",
+          "answer": "Provides access to system-specific parameters and functions.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "When would you use a generator expression?",
+          "answer": "To create iterators on the fly, without storing the entire sequence.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a virtual environment?",
+          "answer": "Use `python -m venv venvName`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between Python 2 and Python 3 print statements?",
+          "answer": "Python 3 requires parentheses, e.g. `print(\"Hello\")`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `global` keyword do?",
+          "answer": "Declares that a variable is in the global scope.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you read all lines from a file?",
+          "answer": "Use `file.readlines()` or iterate over the file object.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are decorators in Python?",
+          "answer": "Functions that modify or enhance other functions.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you get the current working directory?",
+          "answer": "Use `os.getcwd()` from the `os` module.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you rename a file in Python?",
+          "answer": "Use `os.rename(oldName, newName)`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `import as` do?",
+          "answer": "Renames a module upon import, e.g. `import numpy as np`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between `==` and `is`?",
+          "answer": "`==` checks equality, `is` checks identity.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a set from a list?",
+          "answer": "Use `set(listName)`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is short-circuit evaluation in Python?",
+          "answer": "Stops evaluating boolean expressions once the result is known.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you define a constant in Python?",
+          "answer": "By convention, use uppercase names, e.g. `MAX_WIDTH = 800`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `break` statement do?",
+          "answer": "Exits the current loop immediately.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does the `continue` statement do?",
+          "answer": "Skips the rest of the loop body for the current iteration.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you exit a Python program?",
+          "answer": "Use `sys.exit()` or raise `SystemExit`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is a 'docstring' for a class method?",
+          "answer": "A string literal that describes the method\\'s behavior and usage.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a slice of a list?",
+          "answer": "Use `[start:end]`, `start` inclusive, `end` exclusive.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is `__name__` in Python?",
+          "answer": "A special variable that holds the name of the module.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you handle multiple exceptions in one block?",
+          "answer": "Use `except (Exception1, Exception2):` syntax.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between `sorted()` and `.sort()`?",
+          "answer": "`sorted()` returns a new list, `.sort()` modifies in place.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `type()` return?",
+          "answer": "The object\\'s type or class info.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you delete a key-value pair from a dictionary?",
+          "answer": "Use `del dictName[key]`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What are list methods like `.extend()` or `.insert()`?",
+          "answer": "They add items to a list at specific positions.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you create a module in Python?",
+          "answer": "By saving Python code in a `.py` file.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What does `__file__` represent?",
+          "answer": "The path of the current file being executed.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is `min()` and `max()` used for?",
+          "answer": "They find the smallest or largest item in an iterable.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you exit an infinite loop?",
+          "answer": "Use a `break` statement or press Ctrl + C at runtime.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is `*` (unpacking) when calling a function?",
+          "answer": "Unpacks a list or tuple into separate arguments.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "How do you retrieve a substring?",
+          "answer": "Use slicing, e.g. `someString[start:end]`.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What is the difference between `input()` in Python 2 and 3?",
+          "answer": "Python 2 has `raw_input()`, Python 3 uses `input()` only.",
+          "flag": "None",
+          "cardState": "New"
+        },
+        {
+          "question": "What method checks if a string starts with a substring?",
+          "answer": "Use `.startswith(substring)`.",
+          "flag": "None",
+          "cardState": "New"
+        }
+      ]
+    }
+  },
+  "dummy_environments": {
+    "none": {
+      "decks": []
+    },
+    "empty_deck": {
+      "decks": [
+        "empty_deck"
+      ]
+    },
+    "latin": {
+      "decks": [
+        "latin"
+      ]
+    },
+    "java": {
+      "decks": [
+        "java"
+      ]
+    },
+    "java_10": {
+      "decks": [
+        "java_10"
+      ]
+    },
+    "python": {
+      "decks": [
+        "python"
+      ]
+    },
+    "programming": {
+      "decks": [
+        "java",
+        "python"
+      ]
+    },
+    "all": {
+      "decks": [
+        "java",
+        "python",
+        "latin"
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "create_deck",
+      "description": "",
+      "environment": "none",
+      "queries": [
+        [
+          "Create a new deck with the name '<name>'.",
+          "Please create a new deck with named <name>.",
+          "Go make new deck name <name>.",
+          "Could you kindly go ahead and make a brand new deck for me with the name '<name>' because I really need it right now and it would be super helpful if you could do that as soon as possible, thank you so much in advance for your help and support.",
+          "I want to have a new deck with the name <name>."
+        ]
+      ],
+      "params": {
+        "name": [
+          "Natural Language Processing",
+          "Machine Learning",
+          "Deep Learning",
+          "Computer Vision",
+          "Reinforcement Learning",
+          "Business Administration",
+          "Astronomy",
+          "Physics",
+          "Japanese"
+        ]
+      },
+      "expected_result": {
+        "decks": [
+          {
+            "name": "<name>",
+            "cards": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "add_card",
+      "environment": "empty_deck",
+      "queries": [
+        [
+          "Add <question> and <answer> to the deck.",
+          "New card: <question>, <answer> add it.",
+          "Add a new card with the question '<question>' and answer '<answer>' to the deck 'empty deck'.",
+          "Please add a new card with the question '<question>' and answer '<answer>' to the deck.",
+          "Go make new card with question '<question>' and answer '<answer>'.",
+          "Could you kindly go ahead and add a brand new card with the question '<question>' and answer '<answer>' to the deck because I really need it right now and it would be super helpful if you could do that as soon as possible, thank you so much in advance for your help and support.",
+          "Please create a new card with the frontside '<question>' and the backside '<answer>'",
+          "I want to have a new card with the question '<question>' and answer '<answer>' in the deck."
+        ]
+      ],
+      "params": {
+        "question": [
+          "What is the capital of France?",
+          "What is the largest planet in our solar system?",
+          "What is the square root of 16?",
+          "What is the chemical symbol for gold?",
+          "Who wrote 'To Kill a Mockingbird'?",
+          "What is the capital of Japan?",
+          "Which planet in our solar system is known as the Red Planet?",
+          "What is the longest river in the world?",
+          "What is the tallest mountain in the world?"
+        ],
+        "answer": [
+          "Paris",
+          "Jupiter",
+          "4",
+          "Au",
+          "Harper Lee",
+          "Tokio",
+          "Mars",
+          "Nile",
+          "Mount Everest"
+        ],
+        "join": "zip"
+      },
+      "expected_result": {
+        "decks": [
+          {
+            "name": "empty_deck",
+            "cards": [
+              {
+                "question": "<question>",
+                "answer": "<answer>",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "create_add_card_flagged",
+      "description": "",
+      "environment": "none",
+      "queries": [
+        [
+          "Create a new deck with the name '<name>' and add <question> and <answer> to it. Flag it as <flag>.",
+          "Please create a new deck with named <name> and add a new card with the question '<question>' and answer '<answer>' to it, it should have the flag <flag>.",
+          "Go make new deck name <name> and add a new card (flag: <flag>) with question '<question>' and answer '<answer>'.",
+          "Could you kindly go ahead and make a brand new deck for me with the name '<name>' and add a brand new card with the question '<question>' and answer '<answer>' to it because I really need it right now and it would be super helpful if you could do that as soon as possible, thank you so much in advance for your help and support. Ah, and maybe the flag of the card should be - uhm. The flag should be <flag>."
+        ]
+      ],
+      "params": {
+        "name": [
+          "Geography",
+          "Astronomy",
+          "Mathematics",
+          "Chemistry",
+          "Literature"
+        ],
+        "question": [
+          "What is the capital of France?",
+          "What is the largest planet in our solar system?",
+          "What is the square root of 16?",
+          "What is the chemical symbol for gold?",
+          "Who wrote 'To Kill a Mockingbird'?"
+        ],
+        "answer": [
+          "Paris",
+          "Jupiter",
+          "4",
+          "Au",
+          "Harper Lee"
+        ],
+        "flag": [
+          "Red",
+          "Pink",
+          "Purple",
+          "Turquoise",
+          "Green"
+        ],
+        "join": "zip"
+      },
+      "expected_result": {
+        "decks": [
+          {
+            "name": "<name>",
+            "cards": [
+              {
+                "question": "<question>",
+                "answer": "<answer>",
+                "flag": "<flag>",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_deck",
+      "description": "",
+      "environment": "programming",
+      "queries": [
+        [
+          "Delete the deck Java Programmieren 10'. Also, delete the deck 'python'.",
+          "Please delete all decks but Java Programmieren.",
+          "Please delete the python deck ans the smaller java deck."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          "java"
+        ]
+      }
+    },
+    {
+      "name": "edit_card_exact",
+      "description": "Edits a single card in the java_10 deck.",
+      "environment": "programming",
+      "queries": [
+        [
+          "In the deck Java Programming 10, edit the card with question 'What is the difference between '==' and 'equals()' in Java?' to have the answer '== compares references; 'equals()' can be overridden to compare values.'",
+          "In the smaller Java Programming Deck, edit the card asking about the difference between == and equals in java to have the answer '== compares references; 'equals()' can be overridden to compare values.'"
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          "java",
+          "python",
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "== compares references; 'equals()' can be overridden to compare values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "edit_card_fuzzy",
+      "description": "Edits a single card in the java_10 deck.",
+      "environment": "programming",
+      "queries": [
+        [
+          "In the deck Java Programming 10, edit the card with question 'What is the difference between '==' and 'equals()' in Java?' to have the answer reflect that equals needs to be overridden to compare values.",
+          "In the smaller Java Programming Deck, edit the card asking about the difference between == and equals in java to have the answer that the == compares references, while equals() needs to be overridden to compare values.'"
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          "java",
+          "python",
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "== compares references; 'equals()' can be overridden to compare values.",
+                "flag": "None",
+                "cardState": "New",
+                "__fuzzymatch": [
+                  "answer"
+                ]
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_card",
+      "description": "Deletes a single card in the java_10 deck.",
+      "environment": "programming",
+      "queries": [
+        [
+          "In the deck Java Programming 10, delete the card with question 'What is 'static' in Java?'",
+          "In the smaller Java Programming Deck, delete the card with the answer 'Belongs to the class rather than instances of it.'."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          "java",
+          "python",
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_first_7_cards",
+      "description": "Deletes the first 7 cards in the java_10 deck.",
+      "environment": "programming",
+      "queries": [
+        [
+          "In the deck Java Programming 10, delete the first 7 cards.",
+          "In the smaller Java Programming Deck, delete the first 7 cards."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          "java",
+          "python",
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_first_3_cards",
+      "description": "Deletes the first 3 cards in the java_10 deck.",
+      "environment": "programming",
+      "queries": [
+        [
+          "In the deck Java Programming 10, delete the first 3 cards.",
+          "In the smaller Java Programming Deck, delete the first 3 cards."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          "java",
+          "python",
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "create_deck_by_keyword_1",
+      "environment": "programming",
+      "queries": [
+        [
+          "Create a new deck with the name 'constructors' and add all cards with the keyword 'constructor'.",
+          "Please create a new deck with named constructors and add all cards with the keyword constructor either in the question or the answer.",
+          "Go make new deck name constructors and add all cards with the keyword constructor."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "constructors",
+            "cards": [
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'super' refer to in a subclass?",
+                "answer": "It refers to the parent class, allowing calls to parent constructors/methods.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does the term 'Java Bean' refer to?",
+                "answer": "A class with private fields, getters, setters, and a no-arg constructor.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is `__init__` in a Python class?",
+                "answer": "The constructor method automatically called upon object creation.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "create_deck_by_keyword_2",
+      "environment": "all",
+      "queries": [
+        [
+          "Create a new deck with the name 'change' and add all cards that contain the substring 'change'.",
+          "With all the cards that have 'change' anywhere, does not need to be a full word match, create a new deck named 'change'."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "constructors",
+            "cards": [
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'super' refer to in a subclass?",
+                "answer": "It refers to the parent class, allowing calls to parent constructors/methods.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does the term 'Java Bean' refer to?",
+                "answer": "A class with private fields, getters, setters, and a no-arg constructor.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is `__init__` in a Python class?",
+                "answer": "The constructor method automatically called upon object creation.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "create_deck_by_content",
+      "environment": "all",
+      "queries": [
+        [
+          "Please add a deck called tmp that contains card regarding calling functions with a non-predetermined amount of arguments.",
+          "There are some cards that contain information about calling functions with a variable amount of arguments (decided at runtime). Please create a new deck out of those cards called tmp."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "tmp",
+            "cards": [
+              {
+                "question": "What is the advantage of 'varargs' in method parameters?",
+                "answer": "Allows passing a variable number of arguments to a method.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is `*` (unpacking) when calling a function?",
+                "answer": "Unpacks a list or tuple into separate arguments.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does `*args` do in a function?",
+                "answer": "Collects extra positional arguments into a tuple.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does `**kwargs` do in a function?",
+                "answer": "Collects extra keyword arguments into a dictionary.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_cards_by_keyword",
+      "environment": "java_10",
+      "queries": [
+        [
+          "Delete all cards that mention 'method'.",
+          "In the java_10 deck, delete all cards about methods"
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete_cards_by_content",
+      "environment": "java_10",
+      "queries": [
+        [
+          "Delete all cards that are mainly about object-oriented concepts.",
+          "I do not like object-orientation. Please delete all cards from the java_10 deck that refer to object-oriented concepts."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "edit_cards_by_keyword",
+      "environment": "java_10",
+      "queries": [
+        [
+          "In the java_10 deck, replace all mentions of 'methods' by 'function'. Also, the deck is about java, so please remove all mentions of 'in Java' etc.'",
+          "In the java_10 deck, please execute the following two tasks:\n* Replace all mentions of 'methods' by 'function'.\n* Remove all mentions of 'in Java' etc.\n\nThanks!"
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' function?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a function declaration?",
+                "answer": "It means the function is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()'?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special function used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is function overloading?",
+                "answer": "Having functions with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is function overriding?",
+                "answer": "Redefining a parent class function in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static'?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "edit_cards_by_content",
+      "environment": "java_10",
+      "queries": [
+        [
+          "In the java_10 deck, there is a card talking about constructors. However, it does not mention the fact that even final properties may be null during the constructor call. Please add this information.",
+          "My professor in uni mentioned, that even final properties that are non-null once the constructor finishes may be null during the constructor call. This may cause problems if calling other object-methods during the constructor. Please add this information to the deck. If there is already a card talking about constructors, please add this information to this card; else create a new card."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A constructor is a special method in a class that is executed when an object is instantiated. It is used to initialize the object. In Java, even immutable (final) parameters may temporarily hold null values until the constructor completes.",
+                "flag": "None",
+                "cardState": "New",
+                "__fuzzymatch": [
+                  "answer"
+                ]
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_create_add",
+      "environment": "none",
+      "queries": [
+        [
+          "Please create a new deck called 'kit facts'."
+        ],
+        [
+          "Add a new card with the question 'Is the KIT a university?'"
+        ],
+        [
+          "Add the answer 'No. It is a public entity sui generis, that - among others - carries out university tasks."
+        ],
+        [
+          "Please add another card called 'How many students study at the KIT?"
+        ],
+        [
+          "The answer should be '22 761'."
+        ],
+        [
+          "Oh, and by the way, give the KIT-university card a green flag."
+        ],
+        [
+          "Sorry, and regarding the number of students at the KIT: Please add the to the answer of the card that the number is from the winter term 2024/2025."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "kit facts",
+            "cards": [
+              {
+                "question": "Is the KIT a universtiy?",
+                "answer": "No. It is a public entity sui generis, that - among others - carries out university tasks.",
+                "cardState": "New",
+                "flag": "Green"
+              },
+              {
+                "question": "How many students study at the KIT?",
+                "answer": "22 761 (winter term 2024/2025).",
+                "cardState": "New",
+                "flag": "None",
+                "__fuzzymatch": [
+                  "answer"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_create_add_2",
+      "description": "Create a new deck for Natural Language Processing and add a card with a question and answer.",
+      "environment": "none",
+      "queries": [
+        [
+          "I want to learn content about Natural Language Processing. Please create a new deck."
+        ],
+        [
+          "Create a new card"
+        ],
+        [
+          "The question is 'What is Natural Language Processing?'"
+        ],
+        [
+          "The answer is 'NLP is a field of AI that focuses on the interaction between computers and humans through natural language.'"
+        ],
+        [
+           "The flag should be 'Red'."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Natural Language Processing",
+            "cards": [
+              {
+                "question": "What is Natural Language Processing?",
+                "answer": "NLP is a field of AI that focuses on the interaction between computers and humans through natural language.",
+                "flag": "Red",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_create_add_3",
+      "description": "Create a new deck for Deep Learning and add three cards with questions and answers.",
+      "environment": "none",
+      "queries": [
+        [
+          "I have an exam about Deep Learning coming up. Please create a new deck."
+        ],
+        [
+          "Create a new card with the question 'What is Deep Learning?'"
+        ],
+        [
+          "The answer should be 'Deep Learning is a subset of machine learning that uses neural networks with many layers.'"
+        ],
+        [
+          "Now another card."
+        ],
+        [
+          "The question is 'What is a neural network?'"
+        ],
+        [
+          "The answer should be 'A neural network is a series of algorithms that mimic the operations of a human brain to recognize relationships in data.'"
+        ],
+        [
+          "Please add a third card with the question 'What is overfitting?'"
+        ],
+        [
+          "The answer should be 'Overfitting occurs when a model learns the training data too well, including noise and outliers, leading to poor performance on new data.'"
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Deep Learning",
+            "cards": [
+              {
+                "question": "What is Deep Learning?",
+                "answer": "Deep Learning is a subset of machine learning that uses neural networks with many layers.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a neural network?",
+                "answer": "A neural network is a series of algorithms that mimic the operations of a human brain to recognize relationships in data.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is overfitting?",
+                "answer": "Overfitting occurs when a model learns the training data too well, including noise and outliers, leading to poor performance on new data.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_create_add_4",
+      "description": "Trivia question about continents with a correction.",
+      "environment": "empty_deck",
+      "queries": [
+        [
+          "Create a new card"
+        ],
+        [
+          "The front side should be 'How many continents are there on Earth?'"
+        ],
+        [
+          "The back side should say 6."
+        ],
+        [
+          "Actually, I meant to say 7."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "empty_deck",
+            "cards": [
+              {
+                "question": "How many continents are there on Earth?",
+                "answer": "7.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_create_edit_remove_undo",
+      "environment": "none",
+      "queries": [
+        [
+          "Please create a new deck called 'default'."
+        ],
+        [
+          "Please create a new card with the question 'What is an immutable list in Java?' and the answer 'A list that cannot be modified after creation.'"
+        ],
+        [
+          "Add another card with the question 'How do you create a singleton list?'"
+        ],
+        [
+          "The answer should be 'Use Collections.singletonList(element) to create a list with a single, immutable element.'"
+        ],
+        [
+          "Remove the first card created."
+        ],
+        [
+          "Oh, changed my mind, please do not delete it. Instead, update the answer to mention that immutable lists still have callable methods like .add, but they throw UnsupportedOperationException."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "default",
+            "cards": [
+              {
+                "question": "What is an immutable list in Java?",
+                "answer": "A list that cannot be modified after creation. However, methods like .add or .remove are callable but throw UnsupportedOperationException.",
+                "flag": "None",
+                "cardState": "New",
+                "__fuzzymatch": [
+                  "answer"
+                ]
+              },
+              {
+                "question": "How do you create a singleton list?",
+                "answer": "Use Collections.singletonList(element) to create a list with a single, immutable element.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_find_edit_remove",
+      "environment": "java_10",
+      "queries": [
+        [
+          "Please find all cards that talk about visibility modifiers."
+        ],
+        [
+          "The card talking about the difference between 'public', 'protected', and 'private' access should mention the default, package-private access as well."
+        ],
+        [
+          "Remove all other cards you found from the deck."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overloading?",
+                "answer": "Having methods with the same name but different parameter lists.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', 'default' and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in the same package, 'default' in <here>, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "multistep_find_edit_undo_partial",
+      "environment": "java_10",
+      "queries": [
+        [
+          "Please find all cards that talk about the relationship of multiple functions with the same name, but different classes/parameters."
+        ],
+        [
+          "Now create a new card combining all the cards you have found."
+        ],
+        [
+          "Delete all the other cards you have found."
+        ],
+        [
+          "Uh, nevermind, please keep the old overriding card."
+        ]
+      ],
+      "expected_result": {
+        "decks": [
+          {
+            "name": "Java Programming 10",
+            "cards": [
+              {
+                "question": "What is the purpose of the 'main' method in Java?",
+                "answer": "It's the entry point to start program execution.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "How do you declare a variable in Java?",
+                "answer": "Specify type, then variable name, e.g. int x;",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a class in Java?",
+                "answer": "A blueprint for creating objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What does 'public' mean in a method declaration?",
+                "answer": "It means the method is accessible from other classes.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between '==' and 'equals()' in Java?",
+                "answer": "'==' compares references; 'equals()' compares values.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is a constructor?",
+                "answer": "A special method used to create and initialize objects.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is method overriding?",
+                "answer": "Redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is 'static' in Java?",
+                "answer": "Belongs to the class rather than instances of it.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What is the difference between 'public', 'protected', and 'private' access?",
+                "answer": "'public' is visible everywhere, 'protected' in subclass/package, 'private' inside the class.",
+                "flag": "None",
+                "cardState": "New"
+              },
+              {
+                "question": "What are the method overloading and overriding?",
+                "answer": "Overloading is having multiple methods with the same name but different parameters. Overriding is redefining a parent class method in a subclass.",
+                "flag": "None",
+                "cardState": "New"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "question_answering": {
+    "latin": [
+      {
+        "name": "latin_1",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Which latin authors are in my deck?"
+          ]
+        ],
+        "expected_answer": "Catullus, Cicero, Horace, Ovid, and Virgil"
+      },
+      {
+        "name": "latin_2_advanced_reasoning",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "The Aeneid references passages from the Odyssey, such as the trick of the wooden horse. Which values are compared? Which position does Vergil take? "
+          ]
+        ],
+        "expected_answer": "Vergil contrasts the Greek cunning and the pious trust of the Trojans (pietas). Vergil favors the Trojans."
+      },
+      {
+        "name": "latin_3",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What is the main virtue of Aeneas? Please state the latin term too."
+          ]
+        ],
+        "expected_answer": "Its pietas (duty, devotion)."
+      },
+      {
+        "name": "latin_4",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Contrast the godly interventions in the Aeneid and the Odyssey."
+          ]
+        ],
+        "expected_answer": "There is not information about the godly interventions in the Odyssey in your cards."
+      },
+      {
+        "name": "latin_5",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What is a key example of the costs of fatum?"
+          ]
+        ],
+        "expected_answer": "Dido's downfall."
+      },
+      {
+        "name": "latin_6",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What was the chapter with all the foreshadowing? Which book?"
+          ]
+        ],
+        "expected_answer": "The underworld visit in book VI."
+      },
+      {
+        "name": "latin_7",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Which political motive is behind the creation of the Aeneid?"
+          ]
+        ],
+        "expected_answer": "Providing a (divine) epic justifying Augustus' rule."
+      },
+      {
+        "name": "latin_8",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Which god opposes Aeneas' journey?"
+          ]
+        ],
+        "expected_answer": "Juno."
+      },
+      {
+        "name": "latin_9",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How does Aeneas know his actions align with fate?"
+          ]
+        ],
+        "expected_answer": "Through prophecies."
+      },
+      {
+        "name": "metamorphoses_1",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How does the overarching theme of transformation in 'Metamorphoses' symbolize life's instability?",
+            "What does transformation in 'Metamorphoses' suggest about human vulnerability?"
+          ]
+        ],
+        "expected_answer": "Shifts in form mirror human vulnerabilities."
+      },
+      {
+        "name": "metamorphoses_2",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What does Apollo and Daphne's myth reveal about boundaries between pursuit and violation?",
+            "Explain how Apollo and Daphne's myth addresses the limits of pursuit and violation."
+          ]
+        ],
+        "expected_answer": "Explores unrequited desire and forced change."
+      },
+      {
+        "name": "metamorphoses_3",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What is the typical way of divine retribution in Metamorphoses?",
+            "What is the role of transformation as divine retribution in Ovid's narratives?"
+          ]
+        ],
+        "expected_answer": "Gods' quickly impose extreme fates through transformation."
+      },
+      {
+        "name": "metamorphoses_4",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How are the various myths connected by frame narratives throughout 'Metamorphoses'?",
+            "Describe the connection of myths through frame narratives in 'Metamorphoses'."
+          ]
+        ],
+        "expected_answer": "Stories transition smoothly via thematic links."
+      },
+      {
+        "name": "metamorphoses_5",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Which tale in Metamorphoses focuses on the connection between fiction and reality?"
+          ]
+        ],
+        "expected_answer": "Pygmalion's tale."
+      },
+      {
+        "name": "metamorphoses_6",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "What is the relationship between mortal and divine life in Metamorphoses?"
+          ]
+        ],
+        "expected_answer": "Mortal life is instable and subjet to divine whim."
+      },
+      {
+        "name": "metamorphoses_7",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How does Ovid convey sensual, emotional aspects of metamorphosis?"
+          ]
+        ],
+        "expected_answer": "Through vivid imagery and graphic details."
+      },
+      {
+        "name": "metamorphoses_8",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How does Metamorphoses comment on the gender dynamics of the time?"
+          ]
+        ],
+        "expected_answer": "It discusses trauma, power imbalances, and retaliation, e.g. in the tale of Procne and Philomela."
+      },
+      {
+        "name": "metamorphoses_9",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "How does Metamorphoses stress the theme of change in its last book?"
+          ]
+        ],
+        "expected_answer": "The final transformation in Book XV cements the perpetual cycle of creation and renewal."
+      },
+      {
+        "name": "metamorphoses_10",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Explain how the transformations in Ovid's work convey his perspective on divine fairness."
+          ]
+        ],
+        "expected_answer": "According to Ovid, the gods act arbitrary, without any notion of justice or equity."
+      },
+      {
+        "name": "mix_1",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Contrast the role of gods in the Aeneid and the Metamorphoses."
+          ]
+        ],
+        "expected_answer": "In the Aeneid, the gods are a instrument of fate, shaping Aeneis' path. In the Metamorphoses, the gods are a source of arbitrary and extreme punishment."
+      },
+      {
+        "name": "mix_2",
+        "description": "",
+        "environment": "latin",
+        "queries": [
+          [
+            "Why is it plausible to say that the Aeneid and Metamorphoses are opposites?"
+          ]
+        ],
+        "expected_answer": "The Aeneid tells of a heroe's journey shaped by fate, while the Metamorphoses are multiple separate poems about change."
+      }
+    ],
+    "java": [
+      {
+        "name": "java_0",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What role does the 'main' method play in a Java application, and why is it crucial for program execution?"
+          ]
+        ],
+        "expected_answer": "The 'main' method serves as the entry point of a Java application, initiating program execution."
+      },
+      {
+        "name": "java_1",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the syntax for declaring an integer variable named 'x' in Java?"
+          ]
+        ],
+        "expected_answer": "int x;"
+      },
+      {
+        "name": "java_2",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of a 'class' in Java relate to object creation and what role does it play in defining the attributes and behaviors of those objects?"
+          ]
+        ],
+        "expected_answer": "A class in Java is a blueprint that defines how objects are created and what attributes and behaviors they have."
+      },
+      {
+        "name": "java_3",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the visibility modifier 'public' affect the accessibility of a method within a Java class?"
+          ]
+        ],
+        "expected_answer": "The 'public' modifier makes the method accessible from any other class, not just within its own package or class."
+      },
+      {
+        "name": "java_4",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "When comparing two String objects, what method would you use to check if they have identical contents? And why wouldn't using '==' be sufficient for this task?"
+          ]
+        ],
+        "expected_answer": "'equals()'. Using '==' checks if the references are the same, not if the values of the strings are equal."
+      },
+      {
+        "name": "java_5",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In the context of object-oriented programming in Java, what is the primary purpose of a constructor when creating an instance of a class?"
+          ]
+        ],
+        "expected_answer": "A constructor is a special method used to create and initialize objects."
+      },
+      {
+        "name": "java_6",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, how can you create multiple methods with the same name?"
+          ]
+        ],
+        "expected_answer": "By having methods with the same name but different parameter lists."
+      },
+      {
+        "name": "java_7",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In object-oriented programming, how does a subclass modify the behavior of a method inherited from its superclass?"
+          ]
+        ],
+        "expected_answer": "By redefining (overriding) the method in the subclass."
+      },
+      {
+        "name": "java_8",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of static variables differ from instance variables in Java?"
+          ]
+        ],
+        "expected_answer": "Static variables belong to the class and are shared among all instances, whereas instance variables are specific to each object created from the class."
+      },
+      {
+        "name": "java_9",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In a Java class, how does the 'this' keyword help differentiate between instance variables and method parameters with the same name?"
+          ]
+        ],
+        "expected_answer": "'this' refers to the current object instance, allowing it to access instance variables that have the same name as method parameters."
+      },
+      {
+        "name": "java_10",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, is 'int' or 'Integer' a primitive type?"
+          ]
+        ],
+        "expected_answer": "'int' is a primitive type; 'Integer' is an object wrapper."
+      },
+      {
+        "name": "java_11",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the effect of declaring a variable with the 'final' keyword in Java?"
+          ]
+        ],
+        "expected_answer": "Prevents the variable's value from changing once it is assigned."
+      },
+      {
+        "name": "java_12",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What syntax is used to add a single-line comment in Java code?"
+          ]
+        ],
+        "expected_answer": "Use `//` at the beginning of the comment."
+      },
+      {
+        "name": "java_13",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the 'package' keyword in Java contribute to code organization and maintainability?"
+          ]
+        ],
+        "expected_answer": "The 'package' keyword organizes classes into namespaces, improving code manageability and reducing naming conflicts."
+      },
+      {
+        "name": "java_14",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the execution of Java programs differ from other programming languages in terms of runtime environments?"
+          ]
+        ],
+        "expected_answer": "Java programs are executed in the Java Virtual Machine (JVM), which runs Java bytecode, whereas other languages may run directly on the hardware or require compilation to machine code."
+      },
+      {
+        "name": "java_15",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "Describe the syntax used to define a loop that initializes a counter, checks a condition before each iteration, and increments the counter after each iteration."
+          ]
+        ],
+        "expected_answer": "The syntax is: for (initialization; condition; increment) { ... }"
+      },
+      {
+        "name": "java_16",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In a for-loop, what will happen if you use 'break' versus using 'continue'?"
+          ]
+        ],
+        "expected_answer": "'break' will terminate the loop immediately, while 'continue' will skip the rest of the current iteration and move to the next one."
+      },
+      {
+        "name": "java_17",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In a Java program, if you want to use classes from another package, what must you include at the beginning of your source code file?"
+          ]
+        ],
+        "expected_answer": "You must include an 'import' statement to make those classes accessible."
+      },
+      {
+        "name": "java_18",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, how do classes and interfaces differ in terms of their ability to provide implementation details?"
+          ]
+        ],
+        "expected_answer": "A class can contain both methods and properties with full implementation details, whereas an interface only defines method signatures without any implementation."
+      },
+      {
+        "name": "java_19",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of inheritance in Java facilitate code reuse and abstraction?"
+          ]
+        ],
+        "expected_answer": "Inheritance allows a subclass to inherit properties and methods from a superclass, promoting code reuse and abstraction by avoiding redundancy."
+      },
+      {
+        "name": "java_20",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using 'super()' in the constructor of a Java subclass?"
+          ]
+        ],
+        "expected_answer": "It calls the constructor of the superclass (parent class), allowing access to its properties and methods."
+      },
+      {
+        "name": "java_21",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the key differences in usage between the 'throw' and 'throws' keywords in Java, and what do they signify?"
+          ]
+        ],
+        "expected_answer": "'throw' is used to generate an exception explicitly, while 'throws' is used to declare that a method or function can throw one or more exceptions."
+      },
+      {
+        "name": "java_22",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the syntax for initializing an integer array with five elements in Java?"
+          ]
+        ],
+        "expected_answer": "int[] arr = new int[5];"
+      },
+      {
+        "name": "java_23",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does polymorphism in Java allow for more flexible and reusable code?"
+          ]
+        ],
+        "expected_answer": "Polymorphism allows objects to be treated as instances of their parent class, promoting flexibility and reusability."
+      },
+      {
+        "name": "java_24",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does encapsulation in Java programming contribute to code safety and maintainability?"
+          ]
+        ],
+        "expected_answer": "Encapsulation contributes to code safety by hiding internal data and implementation details, which prevents external interference with the object's state. It also enhances maintainability by allowing changes to be made internally without affecting other parts of the program."
+      },
+      {
+        "name": "java_25",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of ordering and duplication in a List differ from that of a Set in Java?"
+          ]
+        ],
+        "expected_answer": "A List in Java allows for an ordered collection with duplicate elements, whereas a Set does not allow duplicates and maintains no specific order."
+      },
+      {
+        "name": "java_26",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the primary mechanisms for handling and managing exceptions in Java?"
+          ]
+        ],
+        "expected_answer": "Use try/catch blocks, possibly a finally block, or rethrow them."
+      },
+      {
+        "name": "java_27",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary benefit of using an 'else if' statement over multiple independent 'if' statements when dealing with a series of mutually exclusive conditions?"
+          ]
+        ],
+        "expected_answer": "To handle mutually exclusive conditions efficiently."
+      },
+      {
+        "name": "java_28",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, how are textual data typically handled and what kind of object represents a string?"
+          ]
+        ],
+        "expected_answer": "Textual data in Java is handled using the 'String' class which represents sequences of characters as objects."
+      },
+      {
+        "name": "java_29",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the two main methods to concatenate strings in Java and which one is more efficient for multiple concatenations?"
+          ]
+        ],
+        "expected_answer": "The '+' operator and StringBuilder. StringBuilder is more efficient for multiple concatenations."
+      },
+      {
+        "name": "java_30",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the default value assigned to an uninitialized integer variable declared as a class field in Java?"
+          ]
+        ],
+        "expected_answer": "Zero"
+      },
+      {
+        "name": "java_31",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of a method that returns 'void' in Java programming?"
+          ]
+        ],
+        "expected_answer": "It performs an action without returning a value."
+      },
+      {
+        "name": "java_32",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the 'switch' statement in Java differ from using multiple 'if-else' statements when evaluating a single variable for different conditions?"
+          ]
+        ],
+        "expected_answer": "A 'switch' statement is an alternative to multiple 'if-else' checks, providing a more concise way to match a variable against several cases."
+      },
+      {
+        "name": "java_33",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens in a Java program when you use a 'try-catch-finally' structure and an exception is thrown within the 'try' block?"
+          ]
+        ],
+        "expected_answer": "The 'finally' block will execute, running code that should run regardless of whether an exception was thrown or not."
+      },
+      {
+        "name": "java_34",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of extending the 'Exception' class when defining a new exception in Java?"
+          ]
+        ],
+        "expected_answer": "To create a custom exception that inherits from the 'Exception' class or one of its subclasses."
+      },
+      {
+        "name": "java_35",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What convention is typically used for naming Java packages in a project hosted on example.com?"
+          ]
+        ],
+        "expected_answer": "The package name would be 'com.example.project'."
+      },
+      {
+        "name": "java_36",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using an abstract class in Java when designing a hierarchy of classes?"
+          ]
+        ],
+        "expected_answer": "An abstract class in Java is used to declare methods and variables that can be shared by multiple subclasses, while also defining some methods as abstract which must be implemented by any non-abstract subclass. Additionally, it cannot be instantiated directly."
+      },
+      {
+        "name": "java_37",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the syntax for instantiating an object in Java, and provide an example using a custom class named 'MyClass'."
+          ]
+        ],
+        "expected_answer": "The syntax is 'new ClassName()', e.g., MyClass obj = new MyClass();"
+      },
+      {
+        "name": "java_38",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In the context of Java programming, what keyword combination is used to declare a constant value and provide an example of its usage?"
+          ]
+        ],
+        "expected_answer": "The keyword combination 'static final' is used to declare a constant. For example: static final int MAX = 100;"
+      },
+      {
+        "name": "java_39",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What does the 'instanceof' operator determine about an object in Java?"
+          ]
+        ],
+        "expected_answer": "It determines whether an object is an instance of a specified type or class."
+      },
+      {
+        "name": "java_40",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, which access modifier allows a method to be accessed within the same package but not outside of it?"
+          ]
+        ],
+        "expected_answer": "Protected"
+      },
+      {
+        "name": "java_41",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the relationship between a nested class and its enclosing class in Java?"
+          ]
+        ],
+        "expected_answer": "A nested class is defined within another class (the enclosing class)."
+      },
+      {
+        "name": "java_42",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method in Java is used to output text to the standard output stream followed by a new line?"
+          ]
+        ],
+        "expected_answer": "System.out.println prints text to the console and adds a newline."
+      },
+      {
+        "name": "java_43",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of enums in Java differ from traditional classes?"
+          ]
+        ],
+        "expected_answer": "An enum in Java is a special class that represents a fixed set of constants, unlike traditional classes which can have instances with varying states."
+      },
+      {
+        "name": "java_44",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does Java ensure that memory used by unreferenced objects is freed up without manual intervention?"
+          ]
+        ],
+        "expected_answer": "Java uses automatic memory management, known as garbage collection, to clear unused objects."
+      },
+      {
+        "name": "java_45",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the correct syntax to initialize a StringBuilder object in Java?"
+          ]
+        ],
+        "expected_answer": "Specify: StringBuilder sb = new StringBuilder();"
+      },
+      {
+        "name": "java_46",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How do Java annotations contribute to the functionality of the compiler and JVM in terms of metadata?"
+          ]
+        ],
+        "expected_answer": "Java annotations provide metadata that offer additional information to the compiler and JVM, enhancing their functionality."
+      },
+      {
+        "name": "java_47",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How would you iterate over a list of integers in Java without using an index variable?"
+          ]
+        ],
+        "expected_answer": "Using the 'for-each' loop syntax, e.g., for (int item : list) { ... }"
+      },
+      {
+        "name": "java_48",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What would be the outcome of calling the 'return' statement in a Java method declared as 'void'? Provide an explanation."
+          ]
+        ],
+        "expected_answer": "Calling 'return' in a 'void' method ends the method execution immediately."
+      },
+      {
+        "name": "java_49",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In the context of Java programming, what is the purpose of an object like 'HashMap', and how does it relate to data structures?"
+          ]
+        ],
+        "expected_answer": "A Map in Java, such as HashMap, is used to store key-value pairs where each unique key maps to a value. It allows efficient retrieval of values based on keys."
+      },
+      {
+        "name": "java_50",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the 'try-with-resources' block in Java ensure proper resource management?"
+          ]
+        ],
+        "expected_answer": "It automatically closes resources after execution, ensuring proper resource management."
+      },
+      {
+        "name": "java_51",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What steps should be taken to ensure safe comparison of objects in Java?"
+          ]
+        ],
+        "expected_answer": "Use 'obj != null' and 'obj instanceof' checks, then call 'equals()'."
+      },
+      {
+        "name": "java_52",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What feature of Java 10 allows developers to declare local variables without specifying their types explicitly?"
+          ]
+        ],
+        "expected_answer": "The 'var' keyword allows local variable type inference at compile time."
+      },
+      {
+        "name": "java_53",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, what distinguishes a checked exception from an unchecked one in terms of handling requirements?"
+          ]
+        ],
+        "expected_answer": "Checked exceptions must be declared or handled by the programmer, whereas unchecked exceptions do not require such declaration or handling."
+      },
+      {
+        "name": "java_54",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the basic syntax for creating an ArrayList in Java and how can you start adding elements to it?"
+          ]
+        ],
+        "expected_answer": "Use 'new ArrayList<>()' and add elements using methods like 'add()'."
+      },
+      {
+        "name": "java_55",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary advantage of using StringBuilder over the concatenation operator (+) when dealing with multiple string manipulations in Java?"
+          ]
+        ],
+        "expected_answer": "Better performance for building/manipulating large strings."
+      },
+      {
+        "name": "java_56",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you check if the contents of two StringBuilder objects are equal?"
+          ]
+        ],
+        "expected_answer": "Convert both StringBuilder objects to Strings and then use the equals() method."
+      },
+      {
+        "name": "java_57",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java programming, what design pattern is exemplified by the concept of a 'Java Bean', and what are its key characteristics?"
+          ]
+        ],
+        "expected_answer": "A Java Bean exemplifies the Properties Pattern in object-oriented programming. Its key characteristics include private fields with public getter and setter methods, and a no-arg constructor."
+      },
+      {
+        "name": "java_58",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What does the 'javac' command do in the context of compiling a Java program?"
+          ]
+        ],
+        "expected_answer": "Compiles Java source code into bytecode."
+      },
+      {
+        "name": "java_59",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the key differences in functionality between Callable and Runnable interfaces in Java, particularly regarding exception handling and return values?"
+          ]
+        ],
+        "expected_answer": "'Callable' can return a value via Future and throw checked exceptions, while 'Runnable' does not return any value and only throws runtime exceptions."
+      },
+      {
+        "name": "java_60",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does lambda expression simplify the implementation of functional interfaces in Java?"
+          ]
+        ],
+        "expected_answer": "A lambda expression provides a concise way to implement functional interfaces by representing an anonymous function, making the code more readable and expressive."
+      },
+      {
+        "name": "java_61",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, which functional interface would you use if you need to define a method that does not take any arguments and returns void?"
+          ]
+        ],
+        "expected_answer": "'Runnable'"
+      },
+      {
+        "name": "java_62",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What design pattern or feature in Java helps prevent NullPointerException by explicitly indicating the possibility of a missing value?"
+          ]
+        ],
+        "expected_answer": "The Optional class is used to avoid null checks and clearly indicate the potential absence of values."
+      },
+      {
+        "name": "java_63",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of a stream in Java differ from traditional collections like lists or arrays?"
+          ]
+        ],
+        "expected_answer": "A stream in Java represents a sequence of elements supporting sequential and parallel operations, whereas traditional collections like lists or arrays store elements and provide specific methods to manipulate them. Streams focus on declarative operations rather than imperative loops."
+      },
+      {
+        "name": "java_64",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How would you modify a stream of integers to include only those that are divisible by two?"
+          ]
+        ],
+        "expected_answer": "Use '.filter(n -> n % 2 == 0)'"
+      },
+      {
+        "name": "java_65",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java Streams, how does '.flatMap()' differ from '.map()' when dealing with collections of objects?"
+          ]
+        ],
+        "expected_answer": "'.flatMap()' is used to flatten a stream of collections into a single stream, whereas '.map()' applies a transformation to each element without changing the structure of the stream."
+      },
+      {
+        "name": "java_66",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of the 'Collectors.toList()' method in Java Streams and what type of collection does it return?"
+          ]
+        ],
+        "expected_answer": "The 'Collectors.toList()' method collects stream elements into a List."
+      },
+      {
+        "name": "java_67",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you use method reference in Java to refer to a static method of a class named 'StringUtils' with the method name 'join'? Provide an example."
+          ]
+        ],
+        "expected_answer": "You can use 'StringUtils::join' as a method reference. Example: Stream.of(\"a\", \"b\").collect(Collectors.toList(), StringUtils::join)."
+      },
+      {
+        "name": "java_68",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How do 'Record' classes in Java contribute to code efficiency and readability?"
+          ]
+        ],
+        "expected_answer": "They offer concise data carriers with minimal boilerplate, enhancing both efficiency and readability."
+      },
+      {
+        "name": "java_69",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the 'synchronized' keyword affect concurrency in Java methods?"
+          ]
+        ],
+        "expected_answer": "It ensures that only one thread can execute the method at any given time, preventing concurrent access and potential data inconsistencies."
+      },
+      {
+        "name": "java_70",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What new feature in Java 8 enables more efficient concurrent processing?"
+          ]
+        ],
+        "expected_answer": "Parallel streams for concurrent processing."
+      },
+      {
+        "name": "java_71",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the key differences between ReentrantLock and synchronized in terms of functionality and control?"
+          ]
+        ],
+        "expected_answer": "ReentrantLock provides more flexibility than synchronized, including features like tryLock methods for conditional locking and options to configure lock fairness."
+      },
+      {
+        "name": "java_72",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does ConcurrentHashMap differ from Hashtable in terms of concurrent performance?"
+          ]
+        ],
+        "expected_answer": "ConcurrentHashMap provides better concurrency than Hashtable."
+      },
+      {
+        "name": "java_73",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the correct way to start executing a thread in Java, and why can't you simply call '.run()' instead?"
+          ]
+        ],
+        "expected_answer": "Call '.start()' on a 'Thread' object. You cannot simply call '.run()' because it does not invoke the thread's scheduler."
+      },
+      {
+        "name": "java_74",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does declaring a variable as 'volatile' in Java affect thread visibility and synchronization?"
+          ]
+        ],
+        "expected_answer": "Changes to the variable are always visible to other threads, ensuring that all threads see the most up-to-date value."
+      },
+      {
+        "name": "java_75",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using the 'assert' keyword in Java and what happens when an assertion fails?"
+          ]
+        ],
+        "expected_answer": "The 'assert' keyword enables testing assumptions in code by throwing an AssertionError if the condition specified is false."
+      },
+      {
+        "name": "java_76",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What role do daemon threads play in a Java application, and how do they differ from regular threads?"
+          ]
+        ],
+        "expected_answer": "Daemon threads are background service threads that do not prevent the JVM from exiting when they are the only threads left running. Regular threads keep the JVM alive until they finish execution."
+      },
+      {
+        "name": "java_77",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does using generics in Java improve code safety and maintainability?"
+          ]
+        ],
+        "expected_answer": "Using generics provides compile-time type checking, which improves code safety by catching type errors early. It also eliminates the need for casting, making the code cleaner and easier to maintain."
+      },
+      {
+        "name": "java_78",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What syntax is used to define a lower-bounded wildcard in Java generics, and what does it signify?"
+          ]
+        ],
+        "expected_answer": "Use '? super SomeType' to specify a lower-bounded wildcard, which means the type can be 'SomeType' or any of its supertypes."
+      },
+      {
+        "name": "java_79",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of Type Erasure affect the use of generics in Java during runtime?"
+          ]
+        ],
+        "expected_answer": "At runtime, generic type information is erased and only base types are retained."
+      },
+      {
+        "name": "java_80",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What problem does the diamond operator solve in Java generics and how is it implemented?"
+          ]
+        ],
+        "expected_answer": "The diamond operator solves the issue of redundant type specification when creating generic instances, such as new ArrayList<>() instead of needing to specify types twice."
+      },
+      {
+        "name": "java_81",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What feature of Java methods enables them to accept a flexible number of input parameters, enhancing their versatility?"
+          ]
+        ],
+        "expected_answer": "The varargs feature allows methods to accept a variable number of arguments."
+      },
+      {
+        "name": "java_82",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary benefit of using StringJoiner for combining multiple strings in Java?"
+          ]
+        ],
+        "expected_answer": "It allows building a single string from multiple parts with a specified delimiter."
+      },
+      {
+        "name": "java_83",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In what scenario would you prefer using 'StringBuffer' over 'StringBuilder', considering their key differences?"
+          ]
+        ],
+        "expected_answer": "'StringBuffer' should be preferred in scenarios where thread safety is required, as it is synchronized, whereas 'StringBuilder' is not."
+      },
+      {
+        "name": "java_84",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method should be used within a loop to read each line from a file using BufferedReader, and how do you know when to stop reading?"
+          ]
+        ],
+        "expected_answer": "Use the 'readLine()' method in a loop until it returns null."
+      },
+      {
+        "name": "java_85",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary purpose of the NIO package in Java programming?"
+          ]
+        ],
+        "expected_answer": "The NIO package stands for New I/O and is designed to enhance Java's I/O operations."
+      },
+      {
+        "name": "java_86",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What potential issues can arise if I/O resources are not properly closed after use in Java programming?"
+          ]
+        ],
+        "expected_answer": "Potential issues include memory or resource leaks, which can lead to system instability."
+      },
+      {
+        "name": "java_87",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In the context of Java inheritance, what role does the 'java.lang.Object' class play?"
+          ]
+        ],
+        "expected_answer": "It serves as the root or base class for all classes in Java."
+      },
+      {
+        "name": "java_88",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are two methods to create a deep copy of an object in Java, and how do they differ?"
+          ]
+        ],
+        "expected_answer": "Two methods are manually copying each field or using serialization-based approaches. Manual copying involves creating a new instance and setting fields individually, while serialization creates a byte stream representation of the object which can then be deserialized into a new object."
+      },
+      {
+        "name": "java_89",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of the @Override annotation in Java when used with a method?"
+          ]
+        ],
+        "expected_answer": "It ensures that the method overrides a method from one of its superclasses."
+      },
+      {
+        "name": "java_90",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What new feature in Java 14 helps developers perform more efficient null checks and improve code readability?"
+          ]
+        ],
+        "expected_answer": "The 'instanceof' pattern matching preview feature."
+      },
+      {
+        "name": "java_91",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method should be used to iterate through all the key-value pairs of a Map object, and how would you implement it in Java?"
+          ]
+        ],
+        "expected_answer": "Use the 'entrySet()' method along with a for-each loop to iterate over the entries in a Map. Example: \n```java\nfor (Map.Entry<String, Integer> entry : myMap.entrySet()) {\n    System.out.println(\"Key: \" + entry.getKey() + \", Value: \" + entry.getValue());\n}```"
+      },
+      {
+        "name": "java_92",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the primary reasons behind making the 'String' class immutable in Java?"
+          ]
+        ],
+        "expected_answer": "To ensure security, enable caching, and facilitate efficient string pooling."
+      },
+      {
+        "name": "java_93",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can the reflection API be used to dynamically inspect and modify objects at runtime in Java?"
+          ]
+        ],
+        "expected_answer": "The reflection API allows for examining and modifying the runtime behavior of classes, enabling dynamic inspection and modification of objects."
+      },
+      {
+        "name": "java_94",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method in the Object class can be overridden to provide a meaningful string representation of an object, especially useful for debugging?"
+          ]
+        ],
+        "expected_answer": "'toString()' is often overridden for providing a meaningful string representation that aids in debugging."
+      },
+      {
+        "name": "java_95",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you perform both type checking and casting in a single statement when using Java 16?"
+          ]
+        ],
+        "expected_answer": "Pattern matching for 'instanceof'"
+      },
+      {
+        "name": "java_96",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the key components required to define a sealed class in Java 17, including how it restricts subclassing?"
+          ]
+        ],
+        "expected_answer": "To define a sealed class in Java 17, use the 'sealed' keyword and explicitly permit subclasses within the class definition."
+      },
+      {
+        "name": "java_97",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What keyword prevents a Java class from being inherited by other classes?"
+          ]
+        ],
+        "expected_answer": "'final'"
+      },
+      {
+        "name": "java_98",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What advantage does using the 'record' keyword provide in terms of immutability and code readability compared to traditional classes?"
+          ]
+        ],
+        "expected_answer": "Using the 'record' keyword provides immutable data objects with a more concise syntax, enhancing code readability."
+      },
+      {
+        "name": "java_99",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you ensure that a List of custom objects is sorted based on a specific attribute in Java?"
+          ]
+        ],
+        "expected_answer": "Use Collections.sort(list, Comparator) or list.sort(...)."
+      },
+      {
+        "name": "java_100",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the Service Loader mechanism facilitate dynamic discovery of service implementations in Java?"
+          ]
+        ],
+        "expected_answer": "The Service Loader mechanism locates and loads service implementations at runtime, enabling dynamic discovery."
+      },
+      {
+        "name": "java_101",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What structure in Java ensures that certain code will always run regardless of whether an exception is thrown or not?"
+          ]
+        ],
+        "expected_answer": "Use a 'try-finally' block without 'catch'."
+      },
+      {
+        "name": "java_102",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Java, how do you ensure that one thread waits until another thread has completed a specific task before proceeding?"
+          ]
+        ],
+        "expected_answer": "They synchronize thread activities by using 'Object.wait()' to make a thread wait for notification and 'Object.notify()' to notify waiting threads."
+      }
+    ],
+    "python": [
+      {
+        "name": "python_0",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does Python's design philosophy prioritize developer experience compared to other programming languages?"
+          ]
+        ],
+        "expected_answer": "Python emphasizes readability and simplicity, prioritizing the developer's experience over performance or low-level control."
+      },
+      {
+        "name": "python_1",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the process of declaring a variable in Python and how does it differ from other programming languages like C++?"
+          ]
+        ],
+        "expected_answer": "In Python, you declare a variable by simply assigning a name to a value without specifying a data type. This differs from languages like C++, where you must explicitly specify the data type when declaring a variable."
+      },
+      {
+        "name": "python_2",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What data structure in Python allows for storing an ordered sequence of elements that can be modified after creation?"
+          ]
+        ],
+        "expected_answer": "A list."
+      },
+      {
+        "name": "python_3",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What syntax is used to define a list in Python and provide an example of creating a list with three elements?"
+          ]
+        ],
+        "expected_answer": "Use square brackets, e.g., [1, 2, 3]."
+      },
+      {
+        "name": "python_4",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does Python handle code block delimitation compared to languages like Java or C++?"
+          ]
+        ],
+        "expected_answer": "Python uses indentation to indicate code blocks, whereas languages like Java and C++ use braces ({}) for the same purpose."
+      },
+      {
+        "name": "python_5",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What symbol is used to start a single-line comment in Python code?"
+          ]
+        ],
+        "expected_answer": "Use `#` for single-line comments."
+      },
+      {
+        "name": "python_6",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the immutability of tuples affect their use in Python programs?"
+          ]
+        ],
+        "expected_answer": "Tuples are used to store collections of items that should not change after creation."
+      },
+      {
+        "name": "python_7",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In which scenario would it be more appropriate to use a tuple instead of a list in Python?"
+          ]
+        ],
+        "expected_answer": "When you need an unchangeable sequence."
+      },
+      {
+        "name": "python_8",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How would you describe the data structure that stores elements with unique keys and their associated values in Python?"
+          ]
+        ],
+        "expected_answer": "A collection of key-value pairs in curly braces, known as a dictionary."
+      },
+      {
+        "name": "python_9",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python code would you use to retrieve the value associated with the key 'exampleKey' from a dictionary named 'dataDict'? Provide an example."
+          ]
+        ],
+        "expected_answer": "Use `dataDict['exampleKey']` syntax. For example, if `dataDict = {'exampleKey': 'value'}`, then `dataDict['exampleKey']` retrieves the value 'value'."
+      },
+      {
+        "name": "python_10",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What does the Python keyword 'None' signify in terms of data representation?"
+          ]
+        ],
+        "expected_answer": "Represents the absence of a value."
+      },
+      {
+        "name": "python_11",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How would you determine the number of elements in a list called 'my_list'?"
+          ]
+        ],
+        "expected_answer": "Use the len() function, e.g., len(my_list), to get the number of elements in the list."
+      },
+      {
+        "name": "python_12",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What syntax is required to create a basic function in Python that takes no arguments?"
+          ]
+        ],
+        "expected_answer": "Use the `def` keyword followed by the function name and parentheses."
+      },
+      {
+        "name": "python_13",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the `return` statement affect the flow of execution in a Python function?"
+          ]
+        ],
+        "expected_answer": "The `return` statement ends the function call and outputs a specified value."
+      },
+      {
+        "name": "python_14",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you use a 'for' loop to iterate through a list and print each element?"
+          ]
+        ],
+        "expected_answer": "A 'for' loop can be used to iterate through a list by accessing each element in the list one at a time and performing an action, such as printing each element."
+      },
+      {
+        "name": "python_15",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the general syntax for creating an indefinite loop in Python that continues until a specific condition is met?"
+          ]
+        ],
+        "expected_answer": "`while condition: block of code`"
+      },
+      {
+        "name": "python_16",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary purpose of the `range()` function in Python and how can it be used to iterate over sequences?"
+          ]
+        ],
+        "expected_answer": "The primary purpose of the `range()` function in Python is to generate a sequence of integers. It is commonly used for iterating over sequences or for creating loops with specific start, stop, and step values."
+      },
+      {
+        "name": "python_17",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What mechanism can be used to catch and handle errors in Python code?"
+          ]
+        ],
+        "expected_answer": "Use a try-except block."
+      },
+      {
+        "name": "python_18",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens in Python when you use a `try-except-finally` structure and an exception occurs inside the `try` block?"
+          ]
+        ],
+        "expected_answer": "The `except` block handles the exception, and then the `finally` block executes regardless of whether an exception was raised."
+      },
+      {
+        "name": "python_19",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the syntax for importing a standard library module in Python?"
+          ]
+        ],
+        "expected_answer": "Use the `import` keyword followed by the module name, e.g., `import math`."
+      },
+      {
+        "name": "python_20",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you generate a new list that contains only the even numbers from an existing list?"
+          ]
+        ],
+        "expected_answer": "Use a list comprehension like [x for x in existing_list if x % 2 == 0]."
+      },
+      {
+        "name": "python_21",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Python, what is the purpose of using the `pass` statement in a function or loop when you haven't implemented the body yet?"
+          ]
+        ],
+        "expected_answer": "The `pass` statement serves as a placeholder and performs no operation."
+      },
+      {
+        "name": "python_22",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the concept of uniqueness in sets differ from lists in Python?"
+          ]
+        ],
+        "expected_answer": "In Python, a set contains only unique elements, whereas a list can contain duplicate elements."
+      },
+      {
+        "name": "python_23",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python syntax would you use to determine if an element exists within a given collection like a list or a set?"
+          ]
+        ],
+        "expected_answer": "Use the `in` keyword, e.g., `if x in myList:`."
+      },
+      {
+        "name": "python_24",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you create a list of even numbers from 0 to 10 using Python slicing?"
+          ]
+        ],
+        "expected_answer": "[0, 2, 4, 6, 8, 10]"
+      },
+      {
+        "name": "python_25",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python function is used to receive user input from the console?"
+          ]
+        ],
+        "expected_answer": "Use the `input()` function."
+      },
+      {
+        "name": "python_26",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens when you try to modify a string variable in Python, and why can't strings be modified once assigned?"
+          ]
+        ],
+        "expected_answer": "Attempting to modify a string variable results in an error because strings are immutable in Python; once a string is created, it cannot be changed."
+      },
+      {
+        "name": "python_27",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What function can be used in Python to convert a string containing a number into an integer?"
+          ]
+        ],
+        "expected_answer": "Use `int(string_value)`. "
+      },
+      {
+        "name": "python_28",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Python, what happens if you call a function with fewer arguments than defined parameters?"
+          ]
+        ],
+        "expected_answer": "If a function is called with fewer arguments than defined parameters, it results in a TypeError."
+      },
+      {
+        "name": "python_29",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does using keyword arguments improve the readability and maintainability of code when calling functions?"
+          ]
+        ],
+        "expected_answer": "Using keyword arguments improves readability and maintainability because it clearly associates each argument with its corresponding parameter name, making the function call self-explanatory."
+      },
+      {
+        "name": "python_30",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using `*args` as an argument in Python functions, and how does it handle additional parameters?"
+          ]
+        ],
+        "expected_answer": "Collects extra positional arguments into a tuple."
+      },
+      {
+        "name": "python_31",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using `**kwargs` when defining a Python function and how is it utilized inside the function?"
+          ]
+        ],
+        "expected_answer": "It collects extra keyword arguments into a dictionary, allowing the function to access these arguments by key."
+      },
+      {
+        "name": "python_32",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the syntax for formatting a string with an f-string in Python, and how would you use it to include a variable named 'username'?"
+          ]
+        ],
+        "expected_answer": "Use `f'{username}'` syntax."
+      },
+      {
+        "name": "python_33",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens when a Python file containing a __main__ block is executed directly?"
+          ]
+        ],
+        "expected_answer": "The code inside the __main__ block is executed, indicating it is the entry point of the script."
+      },
+      {
+        "name": "python_34",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of multi-line strings in Python when defining functions and modules?"
+          ]
+        ],
+        "expected_answer": "Multi-line strings (docstrings) are used to describe the functionality and purpose of modules, classes, or functions."
+      },
+      {
+        "name": "python_35",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary mechanism for defining a new class in Python, and what can be included within it?"
+          ]
+        ],
+        "expected_answer": "The primary mechanism for defining a new class in Python is using the `class` keyword, which allows you to define methods and other attributes."
+      },
+      {
+        "name": "python_36",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What role does the `__init__` method play when creating an instance of a Python class?"
+          ]
+        ],
+        "expected_answer": "The `__init__` method is the constructor that is automatically called to initialize objects of the class."
+      },
+      {
+        "name": "python_37",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does Python support code reusability between classes?"
+          ]
+        ],
+        "expected_answer": "Python supports code reusability through inheritance, where a class can inherit and reuse the methods of a parent class."
+      },
+      {
+        "name": "python_38",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does method overriding in Python allow for polymorphism?"
+          ]
+        ],
+        "expected_answer": "Method overriding allows subclasses to redefine methods from the superclass, enabling different behaviors while maintaining the same interface (polymorphism)."
+      },
+      {
+        "name": "python_39",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method can be used to determine the data type of a Python variable?"
+          ]
+        ],
+        "expected_answer": "Use the built-in `type()` function."
+      },
+      {
+        "name": "python_40",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What can the `dir()` function be used to determine about a Python object?"
+          ]
+        ],
+        "expected_answer": "It shows the available attributes and methods of an object."
+      },
+      {
+        "name": "python_41",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does one typically manage dependencies in a Python project, such as installing and updating libraries?"
+          ]
+        ],
+        "expected_answer": "Using pip to install and manage Python packages."
+      },
+      {
+        "name": "python_42",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the Python programming language handle multiple conditions in a conditional statement after an initial if condition has been evaluated?"
+          ]
+        ],
+        "expected_answer": "It uses the `elif` keyword to continue the if-else chain by introducing another condition."
+      },
+      {
+        "name": "python_43",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method can be used to add an element to the end of a Python list?"
+          ]
+        ],
+        "expected_answer": "Use the `.append()` method."
+      },
+      {
+        "name": "python_44",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What methods can be used to delete elements from a Python list, and how do they differ in usage?"
+          ]
+        ],
+        "expected_answer": "Use .remove(value) to remove an element by its value, or use .pop(index) to remove an element at a specific index."
+      },
+      {
+        "name": "python_45",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the `with` statement in Python help ensure that resources are properly managed and cleaned up, even if an error occurs?"
+          ]
+        ],
+        "expected_answer": "The `with` statement simplifies exception handling by automatically managing resources such as file streams or database connections. It ensures that resources are properly closed or released after their use, even if an error occurs."
+      },
+      {
+        "name": "python_46",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary purpose of the `open()` function when working with files in Python?"
+          ]
+        ],
+        "expected_answer": "The primary purpose of the `open()` function is to open a file and return a file object."
+      },
+      {
+        "name": "python_47",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python function allows iterating over a list while accessing both the index and value simultaneously?"
+          ]
+        ],
+        "expected_answer": "Use the built-in `enumerate()` function."
+      },
+      {
+        "name": "python_48",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python function can be used to iterate over elements from two lists simultaneously?"
+          ]
+        ],
+        "expected_answer": "Use the built-in `zip()` function."
+      },
+      {
+        "name": "python_49",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you calculate the square root of a number in Python without using any external libraries?"
+          ]
+        ],
+        "expected_answer": "You can use the `sqrt()` function from the built-in `math` module to calculate the square root of a number."
+      },
+      {
+        "name": "python_50",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the difference between a named function and an anonymous function in Python, and how do you define an anonymous function?"
+          ]
+        ],
+        "expected_answer": "A named function is defined using the 'def' keyword, while an anonymous function (also known as a lambda function) is defined using the 'lambda' keyword. An example of defining an anonymous function would be `lambda x: x + 1`."
+      },
+      {
+        "name": "python_51",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you use Python's `filter()` function to select even numbers from a list of integers?"
+          ]
+        ],
+        "expected_answer": "You can use `filter()` with a lambda function that checks if a number is even, like this: `filter(lambda x: x % 2 == 0, [1, 2, 3, 4])`."
+      },
+      {
+        "name": "python_52",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you use Python's `map()` function to apply a given function to elements of a list?"
+          ]
+        ],
+        "expected_answer": "You can use Python's `map()` function to apply a given function to each element of an iterable, such as a list. For example, if you have a list and want to apply a function to each item in the list, you pass the function and the list to `map()`, which returns an iterator yielding the results."
+      },
+      {
+        "name": "python_53",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary purpose of the `sys` module in Python, and how can it be used to interact with the environment?"
+          ]
+        ],
+        "expected_answer": "The `sys` module provides access to system-specific parameters and functions. It can be used to interact with the Python runtime environment."
+      },
+      {
+        "name": "python_54",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the primary advantage of using a generator expression over a list comprehension in Python?"
+          ]
+        ],
+        "expected_answer": "To create iterators on the fly, without storing the entire sequence."
+      },
+      {
+        "name": "python_55",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What command would you use to set up a Python virtual environment named 'projectEnv'?"
+          ]
+        ],
+        "expected_answer": "Use `python -m venv projectEnv`."
+      },
+      {
+        "name": "python_56",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does the syntax for the print statement differ between Python 2 and Python 3?"
+          ]
+        ],
+        "expected_answer": "In Python 3, the print statement requires parentheses, e.g., `print(\"Hello\"). In Python 2, you can use `print Hello` without parentheses."
+      },
+      {
+        "name": "python_57",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the effect of using the `global` keyword inside a function when declaring a variable?"
+          ]
+        ],
+        "expected_answer": "Using the `global` keyword inside a function declares that the variable is in the global scope, making it accessible and modifiable throughout the entire program."
+      },
+      {
+        "name": "python_58",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are two methods to read all lines from a file in Python?"
+          ]
+        ],
+        "expected_answer": "Use `file.readlines()` or iterate over the file object."
+      },
+      {
+        "name": "python_59",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you use decorators to add logging functionality to a function in Python?"
+          ]
+        ],
+        "expected_answer": "Decorators can be used to wrap a function and add logging before or after the function execution."
+      },
+      {
+        "name": "python_60",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What function can be used to retrieve the current working directory in Python and which module does it belong to?"
+          ]
+        ],
+        "expected_answer": "Use `os.getcwd()` from the `os` module."
+      },
+      {
+        "name": "python_61",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What function in the os module can be used to change the name of an existing file?"
+          ]
+        ],
+        "expected_answer": "Use `os.rename(oldName, newName)`."
+      },
+      {
+        "name": "python_62",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using 'as' in an import statement and provide an example?"
+          ]
+        ],
+        "expected_answer": "It renames a module for convenience during import. For example: `import numpy as np`."
+      },
+      {
+        "name": "python_63",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "Which of the following variables are equal (==) and which are identical (is)? .\n```python\na = [1, 2, 3]\nb = a\nc = list(a)\nd = b.copy()\ne = c[:]\n```"
+          ]
+        ],
+        "expected_answer": "All lists are equal, but only a and b are identical."
+      },
+      {
+        "name": "python_64",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method can be used to remove duplicate elements from a list in Python?"
+          ]
+        ],
+        "expected_answer": "Use `set(listName)`."
+      },
+      {
+        "name": "python_65",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does Python handle boolean expressions when one part of the expression guarantees the final outcome?"
+          ]
+        ],
+        "expected_answer": "Python uses short-circuit evaluation, which means it stops evaluating a boolean expression as soon as the outcome is determined."
+      },
+      {
+        "name": "python_66",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the conventional way to define constants in Python and provide an example?"
+          ]
+        ],
+        "expected_answer": "By convention, constants are defined using uppercase names, for example: MAX_WIDTH = 800."
+      },
+      {
+        "name": "python_67",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "In Python, what happens when you use the `break` statement inside a loop?"
+          ]
+        ],
+        "expected_answer": "It exits the current loop immediately."
+      },
+      {
+        "name": "python_68",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens when a `continue` statement is encountered within a Python loop?"
+          ]
+        ],
+        "expected_answer": "The `continue` statement skips the remaining code in the loop body for the current iteration and moves to the next iteration."
+      },
+      {
+        "name": "python_69",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the two primary methods to terminate a Python script immediately?"
+          ]
+        ],
+        "expected_answer": "Use `sys.exit()` or raise `SystemExit`."
+      },
+      {
+        "name": "python_70",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of including a docstring in a Python class method?"
+          ]
+        ],
+        "expected_answer": "A docstring describes the method's behavior and usage."
+      },
+      {
+        "name": "python_71",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python syntax allows you to extract a subset of elements from a list while specifying the starting and ending indices?"
+          ]
+        ],
+        "expected_answer": "Use `[start:end]`, where `start` is inclusive and `end` is exclusive."
+      },
+      {
+        "name": "python_72",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What does the __name__ attribute represent when used within a Python script or module?"
+          ]
+        ],
+        "expected_answer": "The __name__ attribute represents the name of the module or script, holding the string '__main__' if the script is executed as the main program."
+      },
+      {
+        "name": "python_73",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the correct syntax for handling two different types of exceptions (e.g., ValueError and IndexError) within a single except clause?"
+          ]
+        ],
+        "expected_answer": "Use `except (ValueError, IndexError):` syntax."
+      },
+      {
+        "name": "python_74",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the key differences between using `sorted()` and `.sort()` methods on Python lists?"
+          ]
+        ],
+        "expected_answer": "`sorted()` returns a new sorted list without modifying the original, whereas `.sort()` sorts the list in place."
+      },
+      {
+        "name": "python_75",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What Python function can be used to determine the data type of a variable?"
+          ]
+        ],
+        "expected_answer": "The function `type()` returns the object's type or class information."
+      },
+      {
+        "name": "python_76",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What method would you use to remove an element from a Python dictionary if you know the key?"
+          ]
+        ],
+        "expected_answer": "Use `del dictName[key]`."
+      },
+      {
+        "name": "python_77",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How do you add elements to a Python list using the `extend()` and `insert()` methods?"
+          ]
+        ],
+        "expected_answer": "The `extend()` method adds all items of another iterable (like a list or tuple) to the end of the list, while the `insert()` method inserts an item at a specified position in the list."
+      },
+      {
+        "name": "python_78",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the basic step to make a reusable piece of Python code that can be imported into other scripts?"
+          ]
+        ],
+        "expected_answer": "By saving Python code in a .py file."
+      },
+      {
+        "name": "python_79",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What variable in Python contains the absolute path of the script that is currently running?"
+          ]
+        ],
+        "expected_answer": "The variable __file__ represents the path of the current file being executed."
+      },
+      {
+        "name": "python_80",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What is the purpose of using Python's built-in functions `min()` and `max()` when working with lists or tuples?"
+          ]
+        ],
+        "expected_answer": "They are used to find the smallest or largest item in an iterable such as a list or tuple."
+      },
+      {
+        "name": "python_81",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What are the two methods to terminate an infinite loop in Python?"
+          ]
+        ],
+        "expected_answer": "Use a `break` statement or press Ctrl + C at runtime."
+      },
+      {
+        "name": "python_82",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "What happens when you use the * operator before an iterable while calling a Python function?"
+          ]
+        ],
+        "expected_answer": "The * operator unpacks the iterable into individual elements as function arguments."
+      },
+      {
+        "name": "python_83",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you extract a portion of a string in Python starting from index 3 up to but not including index 8?"
+          ]
+        ],
+        "expected_answer": "Use slicing with `someString[3:8]`."
+      },
+      {
+        "name": "python_84",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How does user input handling differ between Python 2 and 3?"
+          ]
+        ],
+        "expected_answer": "Python 2 uses `raw_input()` for getting user input, while Python 3 uses `input()`."
+      },
+      {
+        "name": "python_85",
+        "description": "",
+        "environment": "java",
+        "queries": [
+          [
+            "How can you determine if a given string in Python begins with a specific substring?"
+          ]
+        ],
+        "expected_answer": "Use the `.startswith(substring)` method."
+      }
+    ],
+    "programming": [
+      {
+        "name": "programming_1",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "How do Python and Java handle functions that may take an arbitrary number of arguments?"
+          ]
+        ],
+        "expected_answer": "In Python, you can use *args to accept a variable number of positional arguments in a function. In Java, you can use varargs."
+      },
+      {
+        "name": "programming_2",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "How is the entry point specified in java and python?"
+          ]
+        ],
+        "expected_answer": "In Java, the entry point of an application must be public static void main(String[] args). In Python, there's no enforced main function or entry point. You can check __main__ to find out if the script is run directly."
+      },
+      {
+        "name": "programming_3",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "How do you test for equivalence of objects in java and python?"
+          ]
+        ],
+        "expected_answer": "In Java, to check if two objects are equivalent you can use the equals() method defined by the class. In Python, you can use the == operator to test for object equivalence."
+      },
+      {
+        "name": "programming_4",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "How do you test if two objects are the same object in java and python?"
+          ]
+        ],
+        "expected_answer": "In Java, to check if two references refer to exactly the same object, use the == operator. In Python, use the is keyword to determine if two variables point to the exact same object."
+      },
+      {
+        "name": "programming_5",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "How do you comment a single line in java and python?"
+          ]
+        ],
+        "expected_answer": "In Java, use // for a single-line comment. In Python, you can also use # at the beginning of a line to add a comment."
+      },
+      {
+        "name": "programming_6",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "Do lambda functions exist in java and python?"
+          ]
+        ],
+        "expected_answer": "Both Java (since version 8) and Python support the concept of lambda functions."
+      },
+      {
+        "name": "programming_7",
+        "description": "",
+        "environment": "programming",
+        "queries": [
+          [
+            "What are key-value-parings called in java and python?"
+          ]
+        ],
+        "expected_answer": "In Java, key-value pairs are called Maps, in Python they are called dicts."
+      }
+    ],
+    "misc": [
+      {
+        "name": "misc_0",
+        "description": "Get the number of cards in a deck",
+        "environment": "java_10",
+        "queries": [
+          [
+            "How many cards are available in the java_10 deck?"
+          ],
+          [
+            "What is the total number of cards in the java_10 deck?"
+          ],
+          [
+            "Can you give me the amount of cards in the java_10 deck?"
+          ]
+        ],
+        "expected_answer": "There are 10 cards in the java_10 deck."
+      },
+      {
+        "name": "misc_1",
+        "description": "Get a list of available decks",
+        "environment": "all",
+        "queries": [
+          [
+            "What decks are available?"
+          ],
+          [
+            "What different content can I learn?"
+          ],
+          [
+            "What are the names of the decks?"
+          ],
+          [
+            "Can you list the available decks?"
+          ],
+          [
+            "What decks do you have?"
+          ]
+        ],
+        "expected_answer": "The available decks are: java, python and latin."
+      },
+      {
+        "name": "misc_2",
+        "description": "Get the amount of required revisions in one deck",
+        "environment": "java_10",
+        "queries": [
+          [
+            "How many revisions do I need to do in the java_10 deck?"
+          ],
+          [
+            "How much do I need to revise in the java_10 deck?"
+          ],
+          [
+            "What is the amount of revisions in the java_10 deck today?"
+          ]
+        ],
+        "expected_answer": "You need to do 10 revisions in the java_10 deck today."
+      },
+      {
+        "name": "misc_3",
+        "description": "Get the amount of required revisions in all available decks (20 max per decks, assuming initial state)",
+        "environment": "all",
+        "queries": [
+          [
+            "How many cards do I need to do learn in all decks?"
+          ],
+          [
+            "How much do I need to revise today?"
+          ],
+          [
+            "What is the amount of cards to learn in all decks today?"
+          ],
+          [
+            "How many cards today?"
+          ]
+        ],
+        "expected_answer": "You need to learn 60 cards today."
+      }
+    ]
+  }
+}
