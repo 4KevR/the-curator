@@ -1431,7 +1431,8 @@
     "programming": {
       "decks": [
         "java",
-        "python"
+        "python",
+        "java_10"
       ]
     },
     "all": {
@@ -1521,7 +1522,7 @@
       "expected_result": {
         "decks": [
           {
-            "name": "empty_deck",
+            "name": "Empty Deck",
             "cards": [
               {
                 "question": "<question>",
@@ -2531,7 +2532,7 @@
       "expected_result": {
         "decks": [
           {
-            "name": "empty_deck",
+            "name": "Empty Deck",
             "cards": [
               {
                 "question": "How many continents are there on Earth?",
