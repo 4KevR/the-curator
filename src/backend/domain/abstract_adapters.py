@@ -90,7 +90,7 @@ class AbstractAnki(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_note_id_by_card_id(self, card_id: int) -> int:
+    def get_note_id_by_card_id(self, card_id: int) -> int | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -98,11 +98,11 @@ class AbstractAnki(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_cards_from_note(self, note_id: int) -> list[int]:
+    def list_card_ids_from_note(self, note_id: int) -> list[int]:
         raise NotImplementedError
 
     @abstractmethod
-    def list_cards_in_deck(self, deck_name: str) -> DeckCardsInfo:
+    def list_cards_in_deck(self, deck_name: str) -> DeckCardsInfo | None:
         raise NotImplementedError
 
     @abstractmethod

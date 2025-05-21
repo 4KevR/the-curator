@@ -2,6 +2,7 @@ import logging
 import os
 
 from anki.collection import Collection
+from anki.errors import NotFoundError
 from anki.exporting import AnkiPackageExporter
 from anki.importing.apkg import AnkiPackageImporter
 from anki.lang import set_lang
@@ -41,7 +42,7 @@ The following methods are implemented:
         get_note_id_by_card_id
 
 - Card: delete,
-        list_cards_from_note,
+        list_card_ids_from_note,
         list_cards_in_deck,
         get_card_info,
         set_xxx,
@@ -228,9 +229,14 @@ class Anki(AbstractAnki):
                 )
         return result
 
-    def get_note_id_by_card_id(self, card_id: int) -> int:
+    def get_note_id_by_card_id(self, card_id: int) -> int | None:
         """Given a card ID, return the Note ID it belongs to."""
-        return self.col.get_card(card_id).nid
+        try:
+            card = self.col.get_card(card_id)
+            return card.nid
+        except NotFoundError:
+            logger.debug(f"Card ID {card_id} is invalid.")
+            return None
 
     # Card
     def delete_cards_by_ids(self, card_ids: list[int]) -> None:
@@ -245,8 +251,9 @@ class Anki(AbstractAnki):
         if card_ids:
             for card_id in card_ids:
                 try:
-                    self.col._backend.remove_cards([card_id])
-                    deleted_cards.append(card_id)
+                    result = self.col._backend.remove_cards([card_id])
+                    if result.count != 0:
+                        deleted_cards.append(card_id)
                 except Exception as e:
                     logger.debug(f"Card ID {card_id} is invalid: {e}")
 
@@ -257,14 +264,14 @@ class Anki(AbstractAnki):
             + f"Automatically deleted notes: {deleted_notes}"
         )
 
-    def list_cards_from_note(self, note_id: int) -> list[int]:
+    def list_card_ids_from_note(self, note_id: int) -> list[int]:
         """List all card IDs from the specified note."""
         if note_id:
             note = self.col.get_note(note_id)
             card_ids = [card.id for card in note.cards()]
             return card_ids
 
-    def list_cards_in_deck(self, deck_name: str) -> DeckCardsInfo:
+    def list_cards_in_deck(self, deck_name: str) -> DeckCardsInfo | None:
         """
         List all card IDs in the specified deck.
 
@@ -273,7 +280,7 @@ class Anki(AbstractAnki):
         """
         deck_id = self.get_deck_id(deck_name)
         if not deck_id:
-            return []
+            return None
 
         card_ids = self.col.find_cards(f"deck:{deck_name}")
 
@@ -289,75 +296,82 @@ class Anki(AbstractAnki):
         - factor (ease), review/study times (reps, lapses, left)
         - flags (flags), tags (tags) and note field content (fields)
         """
-        card = self.col.get_card(card_id)
-        note = self.col.get_note(card.nid)
+        try:
+            card = self.col.get_card(card_id)
+            note = self.col.get_note(card.nid)
 
-        type_map = {
-            0: "New",  # New card
-            1: "Learn",  # Learning
-            2: "Review",  # Review
-            3: "Relearn",  # Relearn, once mastered but forgotten
-        }
+            type_map = {
+                0: "New",  # New card
+                1: "Learn",  # Learning
+                2: "Review",  # Review
+                3: "Relearn",  # Relearn, once mastered but forgotten
+            }
 
-        queue_map = {
-            -1: "Suspended",  # Not participating in review
-            0: "Preview",  # Preview
-            1: "New",  # New cards waiting for first learning
-            2: "Learning",  # In the learning queue
-            3: "Review",  # In the review queue
-            4: "Filtered",
-        }
+            queue_map = {
+                -1: "Suspended",  # Not participating in review
+                0: "Preview",  # Preview
+                1: "New",  # New cards waiting for first learning
+                2: "Learning",  # In the learning queue
+                3: "Review",  # In the review queue
+                4: "Filtered",
+            }
 
-        return CardInfo(
-            card_id=card.id,
-            note_id=card.nid,
-            deck_id=card.did,
-            template_index=card.ord,
-            type={"code": card.type, "name": type_map.get(card.type, "Unknown")},
-            queue={"code": card.queue, "name": queue_map.get(card.queue, "Unknown")},
-            due=card.due,  # due number/days
-            ivl=card.ivl,  # current interval (days)
-            ease=card.factor,  # factor
-            reps=card.reps,  # total number of reviews
-            lapses=card.lapses,  # number of abandonments
-            left=card.left,  # number of remaining study times for the day
-            flags=card.flags,  # user tags
-            tags=note.tags,  # list of tags for this note
-            fields=note.fields,  # all fields of this note
-        )
+            return CardInfo(
+                card_id=card.id,
+                note_id=card.nid,
+                deck_id=card.did,
+                template_index=card.ord,
+                type={"code": card.type, "name": type_map.get(card.type, "Unknown")},
+                queue={
+                    "code": card.queue,
+                    "name": queue_map.get(card.queue, "Unknown"),
+                },
+                due=card.due,  # due number/days
+                ivl=card.ivl,  # current interval (days)
+                ease=card.factor,  # factor
+                reps=card.reps,  # total number of reviews
+                lapses=card.lapses,  # number of abandonments
+                left=card.left,  # number of remaining study times for the day
+                flags=card.flags,  # user tags
+                tags=note.tags,  # list of tags for this note
+                fields=note.fields,  # all fields of this note
+            )
+        except NotFoundError:
+            return None
 
     def set_type(self, card_id: int, type_code: int) -> None:
         assert type_code in [0, 1, 2, 3]
         card = self.col.get_card(card_id)
         card.type = type_code
-        card.flush()
+        self.col.update_card(card)
 
     def set_queue(self, card_id: int, queue_code: int) -> None:
         assert queue_code in [-1, 0, 1, 2, 3, 4]
         card = self.col.get_card(card_id)
         card.queue = queue_code
-        card.flush()
+        self.col.update_card(card)
 
     def set_deck(self, card_id: int, new_deck_name: str) -> None:
         card = self.col.get_card(card_id)
-        card.did = self.get_deck_id(new_deck_name)
-        card.flush()
+        new_id = self.get_deck_id(new_deck_name)
+        card.did = new_id if new_id else 1
+        self.col.update_card(card)
 
     def set_due(self, card_id: int, due: int) -> None:
         card = self.col.get_card(card_id)
         card.due = due
-        card.flush()
+        self.col.update_card(card)
 
     def set_interval(self, card_id: int, ivl: int) -> None:
         card = self.col.get_card(card_id)
         card.ivl = ivl
-        card.flush()
+        self.col.update_card(card)
 
     def set_ease_factor(self, card_id: int, factor: int) -> None:
         """Modify ease (factor, integer, e.g. 2500 means 2.5 times)"""
         card = self.col.get_card(card_id)
         card.factor = factor
-        card.flush()
+        self.col.update_card(card)
 
     def set_review_stats(
         self, card_id: int, reps: int = None, lapses: int = None, left: int = None
@@ -374,7 +388,7 @@ class Anki(AbstractAnki):
             card.lapses = lapses
         if left is not None:
             card.left = left
-        card.flush()
+        self.col.update_card(card)
 
     def activate_preview_cards(self, deck_name: str) -> None:
         """
