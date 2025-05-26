@@ -15,3 +15,5 @@ jobs:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
       push: true
+    permissions:
+      packages: write
