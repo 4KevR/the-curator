@@ -8,6 +8,7 @@ from anki.importing.apkg import AnkiPackageImporter
 from anki.lang import set_lang
 from anki.notes import Note
 
+from src.backend.domain import register_action
 from src.backend.domain.abstract_adapters import AbstractAnki
 from src.backend.domain.srs import (
     CardInfo,
@@ -68,6 +69,7 @@ class Anki(AbstractAnki):
         self.col = Collection(collection_path)
 
     # Deck
+    @register_action("add_deck")
     def add_deck(self, deck_name: str) -> int:
         """
         If the deck corresponding to deck_name already exists, return its ID;
@@ -85,6 +87,7 @@ class Anki(AbstractAnki):
 
         return deck_id
 
+    @register_action("delete_deck")
     def delete_deck(self, deck_name: str) -> None:
         """Delete the specified Deck and all cards in it"""
         deck_id = self.get_deck_id(deck_name)
@@ -105,6 +108,7 @@ class Anki(AbstractAnki):
             return deck["id"]
         return None
 
+    @register_action("list_all_decks")
     def list_all_decks(self) -> list[DeckInfo]:
         """Returns all deck names and corresponding IDs."""
         decks = self.col.decks.all_names_and_ids()
@@ -147,6 +151,7 @@ class Anki(AbstractAnki):
         logger.debug(f"Deck is imported from {path}.")
 
     # Note
+    @register_action("add_note")
     def add_note(
         self, deck_name: str, front: str, back: str, model_name: str = "Basic"
     ) -> NoteCreationResult:

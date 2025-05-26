@@ -11,12 +11,13 @@ class KitLLM(AbstractLLM):
 
     def generate(self, messages: list) -> str:
         prompt = self._format_messages_for_llama(messages)
-        return self.client.text_generation(
+        text_generation = self.client.text_generation(
             prompt=prompt,
-            temperature=0.7,
-            max_new_tokens=2048,
+            temperature=0.1,
+            max_new_tokens=512,
             stop=["User:", "System:", "Assistant:"],
         )
+        return text_generation
 
     def _format_messages_for_llama(self, messages: list) -> str:
         formatted_messages = []
@@ -24,4 +25,5 @@ class KitLLM(AbstractLLM):
             role = message["role"].capitalize()
             content = message["content"]
             formatted_messages.append(f"{role}: {content}")
-        return "\n".join(formatted_messages)
+        prompt = "\n".join(formatted_messages) + "\nAssistant:"
+        return prompt
