@@ -1,0 +1,12 @@
+name: Test Docker image build
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-build:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      push: false
