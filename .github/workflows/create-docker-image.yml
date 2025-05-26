@@ -16,4 +16,5 @@ jobs:
     with:
       push: true
     permissions:
+      contents: read
       packages: write
