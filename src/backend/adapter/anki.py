@@ -237,20 +237,19 @@ class Anki(AbstractAnki):
         except NotFoundError:
             logger.debug(f"Card ID {card_id} is invalid.")
             return None
-    
-    def edit_note(self, note_id: int, 
-        question: str = "", answer: str = "") -> None:
+
+    def edit_note(self, note_id: int, question: str = "", answer: str = "") -> None:
         """Edit the question & answer pair.
         When you change a note, all cards will change accordingly."""
         note = self.col.get_note(note_id)
 
         if question.strip():
-            note.fields[0] = question # The first field → front (question)
+            note.fields[0] = question  # The first field → front (question)
         if answer.strip():
-            note.fields[1] = answer # The second field → back (answer)
+            note.fields[1] = answer  # The second field → back (answer)
 
         self.col.update_note(note)
-    
+
     # Card
     def delete_cards_by_ids(self, card_ids: list[int]) -> None:
         """Delete the specified cards.
@@ -353,11 +352,11 @@ class Anki(AbstractAnki):
             return None
 
     def set_type(self, card_id: int, type_code: int) -> None:
-        """       
-            0: "New", # New card
-            1: "Learn", # Learning
-            2: "Review", # Review
-            3: "Relearn" # Relearn, once mastered but forgotten
+        """
+        0: "New", # New card
+        1: "Learn", # Learning
+        2: "Review", # Review
+        3: "Relearn" # Relearn, once mastered but forgotten
         """
         assert type_code in [0, 1, 2, 3]
         card = self.col.get_card(card_id)
@@ -366,12 +365,12 @@ class Anki(AbstractAnki):
 
     def set_queue(self, card_id: int, queue_code: int) -> None:
         """
-            -1: "Suspended", # Not participating in review
-            0: "Preview", # Preview
-            1: "New", # New cards waiting for first learning
-            2: "Learning", # In the learning queue
-            3: "Review", # In the review queue
-            4: "Filtered"
+        -1: "Suspended", # Not participating in review
+        0: "Preview", # Preview
+        1: "New", # New cards waiting for first learning
+        2: "Learning", # In the learning queue
+        3: "Review", # In the review queue
+        4: "Filtered"
         """
         assert queue_code in [-1, 0, 1, 2, 3, 4]
         card = self.col.get_card(card_id)
@@ -410,7 +409,7 @@ class Anki(AbstractAnki):
         }
         if ease not in grade_map:
             raise ValueError("The memory level must be: again / hard / good / easy.")
-        
+
         card = self.col.get_card(card_id)
         card.answer = grade_map[ease]
         self.col.update_card(card)
@@ -446,11 +445,11 @@ class Anki(AbstractAnki):
         }
         if flag not in flag_map:
             raise ValueError(f"Invalid flag: {flag}")
-        
+
         card = self.col.get_card(card_id)
         card.flags = flag_map[flag]
         self.col.update_card(card)
-    
+
     def activate_preview_cards(self, deck_name: str) -> None:
         """
         Activate all new cards in queue=0 (Preview)
@@ -503,9 +502,9 @@ class Anki(AbstractAnki):
         for card_id in card_ids:
             card = self.col.get_card(card_id)
             cards.append(card)
-        
+
         return cards
-    
+
     def get_card_content(self, card_id: int) -> list:
         """Return question & answer pair."""
         return self.get_card_info(card_id)["fields"]
