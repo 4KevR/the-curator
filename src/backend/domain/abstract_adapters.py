@@ -145,25 +145,20 @@ class AbstractAnki(ABC):
 
     @abstractmethod
     def edit_note(self, note_id: int, question: str = "", answer: str = "") -> None:
-        """Edit the question & answer pair."""
         raise NotImplementedError
 
     @abstractmethod
     def set_memory_grade(self, card_id: int, ease: str) -> None:
-        """Simulate user memory feedback."""
         raise NotImplementedError
 
     @abstractmethod
     def set_flag(self, card_id: int, flag: int) -> None:
-        """Set flag."""
         raise NotImplementedError
 
     @abstractmethod
     def get_cards_by_ids(self, card_ids: list[int]) -> list:
-        """Given a list of card_ids, return a list of card_objs."""
         raise NotImplementedError
 
     @abstractmethod
     def get_card_content(self, card_id: int) -> list:
-        """Return question & answer pair."""
         raise NotImplementedError
