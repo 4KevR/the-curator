@@ -130,10 +130,6 @@ class AbstractAnki(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_ease_factor(self, card_id: int, factor: int) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
     def set_review_stats(
         self, card_id: int, reps: int = None, lapses: int = None, left: int = None
     ) -> None:
@@ -145,4 +141,24 @@ class AbstractAnki(ABC):
 
     @abstractmethod
     def count_cards_due_today(self, deck_name: str) -> CardsDueToday:
+        raise NotImplementedError
+
+    @abstractmethod
+    def edit_note(self, note_id: int, question: str = "", answer: str = "") -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_memory_grade(self, card_id: int, ease: str) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_flag(self, card_id: int, flag: int) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_cards_by_ids(self, card_ids: list[int]) -> list:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_card_content(self, card_id: int) -> list:
         raise NotImplementedError
