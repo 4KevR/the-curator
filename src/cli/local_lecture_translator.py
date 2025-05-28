@@ -1,8 +1,10 @@
+import base64
 import json
 import logging
 import os
 import sys
 import time
+import wave
 from queue import Queue
 from threading import Thread
 from urllib.parse import urljoin
@@ -10,10 +12,10 @@ from urllib.parse import urljoin
 import requests
 from sseclient import SSEClient
 
-from src.backend.domain.abstract_adapters import AbstractASR
+logger = logging.getLogger(__name__)
 
 
-class LectureTranslatorASR(AbstractASR):
+class LocalLectureTranslatorASR:
     def __init__(self):
         self.__token = os.getenv("LECTURE_TRANSLATOR_TOKEN")
         self.url = os.getenv("LECTURE_TRANSLATOR_URL")
@@ -149,7 +151,14 @@ class LectureTranslatorASR(AbstractASR):
                 if "markup" in data:
                     continue
                 if "seq" in data:
-                    self.text_queue.put(data["seq"].replace("<br><br>", ""))
+                    logging.debug(f"Received data: {data}")
+                    transcription = data["seq"].replace("<br><br>", "")
+                    data = {
+                        "transcription": transcription,
+                        "user": "test_user",
+                    }
+                    logger.info(f"Sending {transcription} to server")
+                    requests.post(url="http://127.0.0.1:5000/action", json=data)
 
             except json.decoder.JSONDecodeError:
                 logging.debug(
@@ -158,10 +167,16 @@ class LectureTranslatorASR(AbstractASR):
                 )
                 continue
 
-    def transcribe(self, audio_chunk: str, duration: int) -> str:
-        self._send_audio(audio_chunk, duration)
-        time.sleep(5)
-        transcribed_text = []
-        while not self.text_queue.empty():
-            transcribed_text.append(self.text_queue.get())
-        return " ".join(transcribed_text)
+    def process_audio_file(self, file_path: str):
+        """Process a local audio file and send its content to the lecture translator."""
+        with wave.open(file_path, "rb") as audio_file:
+            if audio_file.getframerate() != 16000 or audio_file.getnchannels() != 1:
+                raise ValueError(
+                    "Audio file must be mono and have a sample rate of 16kHz."
+                )
+
+            frames = audio_file.readframes(audio_file.getnframes())
+            encoded_audio = base64.b64encode(frames).decode("ascii")
+            duration = audio_file.getnframes() / audio_file.getframerate()
+
+            self._send_audio(encoded_audio, duration)

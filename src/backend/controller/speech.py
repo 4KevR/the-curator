@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 
-from src.backend.adapter.lecture_translator import LectureTranslatorASR
+from src.backend.adapter.cloud_lecture_translator import CloudLectureTranslatorASR
 
 speech_blueprint = Blueprint("speech", __name__)
-translator = LectureTranslatorASR()
+translator = CloudLectureTranslatorASR()
 
 
 @speech_blueprint.route("/transcribe", methods=["POST"])

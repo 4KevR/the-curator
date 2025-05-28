@@ -52,6 +52,9 @@ class ActionService:
             if not registry_entry:
                 self.logger.warning(f"Unknown intent: {intent}")
                 return {"error": "Unknown intent."}
+            print(
+                f"Executing action for intent: {intent} with parameters: {parameters}"
+            )
 
             # Call the registered function with the parameters
             return registry_entry.function(self.anki, **parameters)

@@ -4,6 +4,7 @@ import base64
 import requests
 from dotenv import load_dotenv
 
+from src.cli.local_lecture_translator import LocalLectureTranslatorASR
 from src.cli.recording.recording_client import RecordingClient
 from src.cli.tts import tts_and_play
 
@@ -35,13 +36,53 @@ def transcribe_audio(enable_tts: bool = False):
         print("\nStopping transcription.")
 
 
-def send_action(transcription: str):
+def send_action(transcription: str, user: str):
     """Send an action to the server."""
     data = {
         "transcription": transcription,
-        "user": "test_user",
+        "user": user,
     }
     requests.post(url="http://127.0.0.1:5000/action", json=data)
+
+
+def enter_action_loop():
+    """Enter an action loop to continuously send transcriptions."""
+    print("Entering action loop...")
+    lecture_translator = LocalLectureTranslatorASR()
+    client = RecordingClient()
+    try:
+        while True:
+            batch = client.get_next_batch()
+            data = {
+                "b64_pcm": base64.b64encode(batch).decode("ascii"),
+                "duration": len(batch) / 32000,
+            }
+            lecture_translator._send_audio(
+                encoded_audio=data["b64_pcm"], duration=data["duration"]
+            )
+    except KeyboardInterrupt:
+        print("\nStopping action loop.")
+        lecture_translator._send_end()
+
+
+def process_audio_file(file_path: str):
+    """Enter an action loop to continuously send transcriptions."""
+    print("Entering action loop...")
+    lecture_translator = LocalLectureTranslatorASR()
+    client = RecordingClient(file_path)
+    while True:
+        batch = client.get_next_batch()
+        data = {
+            "b64_pcm": base64.b64encode(batch).decode("ascii"),
+            "duration": len(batch) / 32000,
+        }
+        if not data["b64_pcm"]:
+            print("No more audio data to process.")
+            break
+        lecture_translator._send_audio(
+            encoded_audio=data["b64_pcm"], duration=data["duration"]
+        )
+    lecture_translator._send_end()
 
 
 def main():
@@ -69,6 +110,28 @@ def main():
         type=str,
         help="Transcription to send to the server.",
     )
-    action_parser.set_defaults(func=lambda args: send_action(args.transcription))
+    action_parser.add_argument(
+        "user",
+        type=str,
+        help="User identifier to associate with the action.",
+    )
+    action_parser.set_defaults(
+        func=lambda args: send_action(args.transcription, args.user)
+    )
+
+    action_loop_parser = subparsers.add_parser(
+        "action-loop", help="Enter the action loop to continuously send transcriptions."
+    )
+    action_loop_parser.set_defaults(func=lambda args: enter_action_loop())
+
+    file_parser = subparsers.add_parser(
+        "process-file",
+        help="Process a local audio file and send transcription to the action endpoint.",
+    )
+    file_parser.add_argument(
+        "file_path", type=str, help="Path to the local audio file to process."
+    )
+    file_parser.set_defaults(func=lambda args: process_audio_file(args.file_path))
+
     args = parser.parse_args()
     args.func(args)
