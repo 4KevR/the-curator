@@ -159,9 +159,8 @@ class CloudLectureTranslatorASR(AbstractASR):
                 continue
 
     def transcribe(self, audio_chunk: str, duration: int) -> str:
-        chunk_size = 960
+        chunk_size = 10000
         transcribed_text = []
-        # Split audio_chunk into smaller chunks of 960 bytes
         for i in range(0, len(audio_chunk), chunk_size):
             chunk = audio_chunk[i : i + chunk_size]
             self._send_audio(chunk, duration)

@@ -126,7 +126,7 @@ def main():
 
     file_parser = subparsers.add_parser(
         "process-file",
-        help="Process a local audio file and send transcription to the action endpoint.",
+        help="Process an audio file and send transcription to the action endpoint.",
     )
     file_parser.add_argument(
         "file_path", type=str, help="Path to the local audio file to process."

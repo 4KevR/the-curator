@@ -90,7 +90,8 @@ class FfmpegStream(BaseAdapter):
             else:
                 if sleep < -5:
                     print(
-                        "WARNING: Network is to slow. Having at least 5 seconds of delay!"
+                        "WARNING: Network is to slow. "
+                        "Having at least 5 seconds of delay!"
                     )
                 self.chunk_size += 2 * 960
         chunk = cast(bytes, stream.read(self.chunk_size))

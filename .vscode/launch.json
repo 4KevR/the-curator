@@ -28,7 +28,15 @@
             "args": ["transcribe", "--enable-tts"]
         },
         {
-            "name": "CLI application: Action loop",
+            "name": "CLI application: Execute text action",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run-cli.py",
+            "console": "integratedTerminal",
+            "args": ["action", "${input:transcription}", "${input:user}"]
+        },
+        {
+            "name": "CLI application: Action voice loop",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/run-cli.py",
@@ -60,6 +68,17 @@
             "type": "promptString",
             "description": "Enter the path to the file to process",
             "default": "data"
+        },
+        {
+            "id": "transcription",
+            "type": "promptString",
+            "description": "Enter the action to execute",
+        },
+        {
+            "id": "user",
+            "type": "promptString",
+            "description": "Enter the user name",
+            "default": "test_user"
         }
     ]
 }
