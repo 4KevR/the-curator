@@ -1,6 +1,6 @@
 __all__ = ["Anki", "KitLLM", "LectureTranslatorASR", "LMStudioLLM", "PyPDF2Reader"]
 
-from .anki import Anki
+from .anki_module import Anki
 from .kit_llm import KitLLM
 from .lecture_translator import LectureTranslatorASR
 from .lm_studio_llm import LMStudioLLM
