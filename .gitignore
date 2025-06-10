@@ -185,3 +185,7 @@ data
 
 # Recordings
 asr/*/recording session*/
+
+notebooks/reports/
+
+notebooks/test/
