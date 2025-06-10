@@ -1,6 +1,8 @@
 import logging
 import os
 from dataclasses import dataclass
+
+from anki.consts import CardType, CardQueue
 from overrides import override
 
 from anki.collection import Collection
@@ -8,13 +10,13 @@ from anki.errors import NotFoundError
 from anki.exporting import AnkiPackageExporter
 from anki.importing.apkg import AnkiPackageImporter
 from anki.lang import set_lang
-from anki.notes import Note
+from anki.notes import Note, NoteId
+from anki.cards import CardId
 import anki.cards
 from typeguard import typechecked
 
 from src.backend.modules.srs.abstract_srs import DeckID, CardID, TDeck, AbstractDeck, AbstractCard, TCard
 from src.backend.modules.srs.abstract_srs import AbstractSRS
-from src.backend.modules.ai_assistant.llm_cmd_registration import llm_command
 
 logger = logging.getLogger(__name__)
 
@@ -232,9 +234,8 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         # 1. When adding a note, Anki will automatically generate one or more cards
         # based on the NoteType template to which the note belongs.
         # 2. The note_id may equal the first card's card_id.
-        self.col.add_note(note, deck.id.numeric_id)
+        self.col.add_note(note, deck.id.anki_id)
         logger.debug(f"Note {note.id} is added.")
-        logger.warning("FABIAN TODO: Please check that this actually works!!!!")  # TODO
         cards = note.cards()
         logger.debug(f"Automatically added Cards: {cards}")
 
@@ -249,7 +250,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         if note_ids:
             for note_id in note_ids:
                 try:
-                    note = self.col.get_note(note_id)
+                    note = self.col.get_note(NoteId(note_id))
                     card_ids = [card.id for card in note.cards()]
                     logger.debug(
                         f"Note {note_id} is deleted. Also deleted Cards: {card_ids}."
@@ -258,12 +259,12 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
                     # Note might already be deleted or invalid
                     logger.debug(f"Note ID {note_id} is invalid: {e}")
 
-            self.col.remove_notes(note_ids)
+            self.col.remove_notes([NoteId(it) for it in note_ids])
 
     def list_all_notes(self) -> list[int]:
         """List all notes in collection."""
         note_ids = self.col.find_notes("")  # The empty string matches all notes
-        return note_ids
+        return [it.real for it in note_ids]
 
     def list_notes_for_cards_in_deck(self, deck_name: str) -> list[Note]:
         """List all Notes for cards in the specified Deck,
@@ -285,16 +286,16 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
     def get_note_id_by_card_id(self, card_id: int) -> int | None:
         """Given a card ID, return the Note ID it belongs to."""
         try:
-            card = self.col.get_card(card_id)
+            card = self.col.get_card(anki.cards.CardId(card_id))
             return card.nid
         except NotFoundError:
             logger.debug(f"Card ID {card_id} is invalid.")
             return None
 
     def edit_note(self, note_id: int, question: str = "", answer: str = "") -> None:
-        """Edit the question & answer pair.
+        """Edit the question and answer pair.
         When you change a note, all cards will change accordingly."""
-        note = self.col.get_note(note_id)
+        note = self.col.get_note(NoteId(note_id))
 
         if question.strip():
             note.fields[0] = question  # The first field → front (question)
@@ -313,7 +314,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
     @override
     def get_card(self, card_id: CardID) -> AnkiCard | None:
         try:
-            card = self.col.get_card(card_id.numeric_id)
+            card = self.col.get_card(card_id.anki_id)
             raw_deck = self.col.decks.get(card.did)
             deck = AnkiDeck(DeckID(raw_deck["id"]), raw_deck["name"])
             note = self.col.get_note(card.nid)
@@ -362,6 +363,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         old_note_ids = set(self.list_all_notes())
         for card_id in card_ids:
             try:
+                # noinspection PyProtectedMember
                 result = self.col._backend.remove_cards([card_id])
                 if result.count != 0:
                     deleted_cards.append(card_id)
@@ -379,7 +381,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
 
     def list_card_ids_from_note(self, note_id: int) -> list[int]:
         """List all card IDs from the specified note."""
-        note = self.col.get_note(note_id)
+        note = self.col.get_note(NoteId(note_id))
         card_ids = [card.id for card in note.cards()]
         return card_ids
 
@@ -391,8 +393,8 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         3: "Relearn" # Relearn, once mastered but forgotten
         """
         assert type_code in [0, 1, 2, 3]
-        card = self.col.get_card(card_id)
-        card.type = type_code
+        card = self.col.get_card(CardId(card_id))
+        card.type = CardType(type_code)
         self.col.update_card(card)
 
     def set_queue(self, card_id: int, queue_code: int) -> None:
@@ -405,23 +407,24 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         4: "Filtered"
         """
         assert queue_code in [-1, 0, 1, 2, 3, 4]
-        card = self.col.get_card(card_id)
-        card.queue = queue_code
+        card = self.col.get_card(CardId(card_id))
+        card.queue = CardQueue(queue_code)
         self.col.update_card(card)
 
     def set_deck(self, card_id: int, new_deck_name: str) -> None:
-        card = self.col.get_card(card_id)
-        new_id = self.get_deck_id(new_deck_name)
+        card = self.col.get_card(CardId(card_id))
+        new_deck = self.add_deck(new_deck_name)
+        new_id = new_deck.id.numeric_id
         card.did = new_id if new_id else 1
         self.col.update_card(card)
 
     def set_due(self, card_id: int, due: int) -> None:
-        card = self.col.get_card(card_id)
+        card = self.col.get_card(CardId(card_id))
         card.due = due
         self.col.update_card(card)
 
     def set_interval(self, card_id: int, ivl: int) -> None:
-        card = self.col.get_card(card_id)
+        card = self.col.get_card(CardId(card_id))
         card.ivl = ivl
         self.col.update_card(card)
 
@@ -442,7 +445,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         if ease not in grade_map:
             raise ValueError("The memory level must be: again / hard / good / easy.")
 
-        card = self.col.get_card(card_id)
+        card = self.col.get_card(CardId(card_id))
         card.answer = grade_map[ease]
         self.col.update_card(card)
 
@@ -454,7 +457,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         :lapses: number of abandonments (forgetting)
         :left: number of remaining study times for the day
         """
-        card = self.col.get_card(card_id)
+        card = self.col.get_card(CardId(card_id))
         if reps is not None:
             card.reps = reps
         if lapses is not None:
@@ -463,8 +466,10 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
             card.left = left
         self.col.update_card(card)
 
-    def set_flag(self, card_id: int, flag: int) -> None:
+    def set_flag(self, card_id: int, flag: str | int) -> None:
         """Set flag:"""
+        card = self.get_card(CardID(card_id))
+
         flag_map = {
             "none": 0,
             "red": 1,
@@ -475,13 +480,15 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
             "cyan": 6,
             "purple": 7,
         }
-        if flag not in flag_map:
-            raise ValueError(f"Invalid flag: {flag}")
+        if isinstance(flag, str):
+            if flag not in flag_map:
+                raise ValueError(f"Invalid flag: {flag}")
+            card.flags = flag_map[flag]
+        else:
+            card.flags = flag
+        self.col.update_card(card.raw_card)
 
-        card = self.col.get_card(card_id)
-        card.flags = flag_map[flag]
-        self.col.update_card(card)
-
+    # noinspection SqlNoDataSourceInspection
     def activate_preview_cards(self, deck_name: str) -> None:
         """
         Activate all new cards in queue=0 (Preview)
@@ -493,6 +500,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
             self.get_deck(deck_name).id.numeric_id,
         )
 
+    # noinspection SqlNoDataSourceInspection
     def count_cards_due_today(self, deck_name: str) -> CardsDueToday:
         """How many cards need to be learned today."""
         today = self.col.sched.today
