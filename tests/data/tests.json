@@ -1431,7 +1431,8 @@
     "programming": {
       "decks": [
         "java",
-        "python"
+        "python",
+        "java_10"
       ]
     },
     "all": {
@@ -1521,7 +1522,7 @@
       "expected_result": {
         "decks": [
           {
-            "name": "empty_deck",
+            "name": "Empty Deck",
             "cards": [
               {
                 "question": "<question>",
@@ -1601,7 +1602,7 @@
         [
           "Delete the deck Java Programmieren 10'. Also, delete the deck 'python'.",
           "Please delete all decks but Java Programmieren.",
-          "Please delete the python deck ans the smaller java deck."
+          "Please delete the python deck and the smaller java deck."
         ]
       ],
       "expected_result": {
@@ -1969,6 +1970,9 @@
       ],
       "expected_result": {
         "decks": [
+          "java",
+          "python",
+          "java_10",
           {
             "name": "constructors",
             "cards": [
@@ -2018,36 +2022,39 @@
       ],
       "expected_result": {
         "decks": [
+          "java",
+          "python",
+          "latin",
           {
-            "name": "constructors",
+            "name": "change",
             "cards": [
               {
-                "question": "What is a constructor?",
-                "answer": "A special method used to create and initialize objects.",
+                "question": "What does Apollo and Daphne\\'s myth reveal about boundaries between pursuit and violation\\?",
+                "answer": "Explores unrequited desire and forced change.",
                 "flag": "None",
                 "cardState": "New"
               },
               {
-                "question": "What does 'super' refer to in a subclass?",
-                "answer": "It refers to the parent class, allowing calls to parent constructors/methods.",
+                "question": "Why is the final transformation in Book XV of Metamorphoses significant to the poem\\'s theme of change\\?",
+                "answer": "Cements the perpetual cycle of creation and renewal.",
                 "flag": "None",
                 "cardState": "New"
               },
               {
-                "question": "What does the term 'Java Bean' refer to?",
-                "answer": "A class with private fields, getters, setters, and a no-arg constructor.",
+                "question": "What is string immutability in Python?",
+                "answer": "Strings cannot be changed after they're created.",
                 "flag": "None",
                 "cardState": "New"
               },
               {
-                "question": "What is a constructor?",
-                "answer": "A special method used to create and initialize objects.",
+                "question": "What does 'volatile' mean for a variable?",
+                "answer": "Changes to the variable are always visible to other threads.",
                 "flag": "None",
                 "cardState": "New"
               },
               {
-                "question": "What is `__init__` in a Python class?",
-                "answer": "The constructor method automatically called upon object creation.",
+                "question": "When would you use a tuple over a list?",
+                "answer": "When you need an unchangeable sequence.",
                 "flag": "None",
                 "cardState": "New"
               }
@@ -2067,6 +2074,9 @@
       ],
       "expected_result": {
         "decks": [
+          "java",
+          "python",
+          "latin",
           {
             "name": "tmp",
             "cards": [
@@ -2433,7 +2443,7 @@
           "The answer is 'NLP is a field of AI that focuses on the interaction between computers and humans through natural language.'"
         ],
         [
-           "The flag should be 'Red'."
+          "The flag should be 'Red'."
         ]
       ],
       "expected_result": {
@@ -2531,7 +2541,7 @@
       "expected_result": {
         "decks": [
           {
-            "name": "empty_deck",
+            "name": "Empty Deck",
             "cards": [
               {
                 "question": "How many continents are there on Earth?",
