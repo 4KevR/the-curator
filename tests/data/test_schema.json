@@ -1,0 +1,214 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "test_decks": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "cards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string"
+                  },
+                  "answer": {
+                    "type": "string"
+                  },
+                  "flag": {
+                    "type": "string"
+                  },
+                  "cardState": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "answer",
+                  "cardState",
+                  "flag",
+                  "question"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "cards",
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "dummy_environments": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "type": "object",
+          "properties": {
+            "decks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "decks"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
+          },
+          "queries": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "params": {
+            "type": "object",
+            "join": {
+              "type": "string"
+            }
+          },
+          "expected_result": {
+            "type": "object",
+            "properties": {
+              "decks": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "cards": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "question": {
+                                "type": "string"
+                              },
+                              "answer": {
+                                "type": "string"
+                              },
+                              "flag": {
+                                "type": "string"
+                              },
+                              "cardState": {
+                                "type": "string"
+                              },
+                              "__fuzzymatch": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "answer",
+                              "cardState",
+                              "flag",
+                              "question"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "cards",
+                        "name"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "decks"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "environment",
+          "queries",
+          "expected_result"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "question_answering": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string"
+            },
+            "queries": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "expected_answer": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "description",
+            "environment",
+            "queries",
+            "expected_answer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}
