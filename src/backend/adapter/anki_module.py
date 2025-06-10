@@ -10,14 +10,10 @@ from anki.notes import Note
 
 from src.backend.domain import register_action
 from src.backend.domain.abstract_adapters import AbstractAnki
-from src.backend.domain.srs import (
-    CardInfo,
-    CardsDueToday,
-    DeckCardsInfo,
-    DeckInfo,
-    NoteCreationResult,
-    NoteInfo,
-)
+from src.backend.domain.srs import (CardInfo, CardsDueToday, DeckCardsInfo,
+                                    DeckInfo, NoteCreationResult, NoteInfo)
+
+from .llm_cmd_registration import llm_command
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +65,7 @@ class Anki(AbstractAnki):
         self.col = Collection(collection_path)
 
     # Deck
-    @register_action("add_deck")
+    @llm_command
     def add_deck(self, deck_name: str) -> int:
         """
         If the deck corresponding to deck_name already exists, return its ID;
@@ -87,7 +83,7 @@ class Anki(AbstractAnki):
 
         return deck_id
 
-    @register_action("delete_deck")
+    @llm_command
     def delete_deck(self, deck_name: str) -> None:
         """Delete the specified Deck and all cards in it"""
         deck_id = self.get_deck_id(deck_name)
@@ -98,6 +94,7 @@ class Anki(AbstractAnki):
             self.col.decks.remove((deck_id,))
             logger.debug(f"Deck '{deck_name}' is deleted.")
 
+    @llm_command
     def get_deck_id(self, deck_name: str) -> int | None:
         """
         Get the deck_id corresponding to the specified deck name.
@@ -108,12 +105,13 @@ class Anki(AbstractAnki):
             return deck["id"]
         return None
 
-    @register_action("list_all_decks")
+    @llm_command
     def list_all_decks(self) -> list[DeckInfo]:
         """Returns all deck names and corresponding IDs."""
         decks = self.col.decks.all_names_and_ids()
         return [DeckInfo(name=deck.name, id=deck.id) for deck in decks]
 
+    @llm_command
     def rename_deck(self, old_name: str, new_name: str) -> None:
         # Rename
         deck_id = self.get_deck_id(old_name)
@@ -122,6 +120,7 @@ class Anki(AbstractAnki):
         self.col.decks.rename(deck_id, new_name)
         logger.debug(f"Deck '{old_name}' has been renamed to '{new_name}'.")
 
+    @llm_command
     def export_deck_to_apkg(self, deck_name: str, path: str = None) -> None:
         """Export the specified deck to a .apkg file.
         Path should include the file name, for example "/tmp/mydeck.apkg".
@@ -138,6 +137,7 @@ class Anki(AbstractAnki):
         exp.exportInto(path)
         logger.debug(f"Deck {deck_name} is exported to {path}.")
 
+    @llm_command
     def import_deck_from_apkg(self, path: str) -> None:
         """Import a deck from .apkg file.
         If you can't find the deck after importing, please check if it is an empty deck.
@@ -151,7 +151,7 @@ class Anki(AbstractAnki):
         logger.debug(f"Deck is imported from {path}.")
 
     # Note
-    @register_action("add_note")
+    @llm_command
     def add_note(
         self, deck_name: str, front: str, back: str, model_name: str = "Basic"
     ) -> NoteCreationResult:
@@ -190,6 +190,7 @@ class Anki(AbstractAnki):
 
         return NoteCreationResult(note_id=note.id, card_ids=card_ids)
 
+    @llm_command
     def delete_notes_by_ids(self, note_ids: list[int]) -> None:
         """
         Delete the specified notes (and all their cards).
@@ -210,11 +211,13 @@ class Anki(AbstractAnki):
 
             self.col.remove_notes(note_ids)
 
+    @llm_command
     def list_all_notes(self) -> list[int]:
         """List all notes in collection."""
         note_ids = self.col.find_notes("")  # The empty string matches all notes
         return note_ids
 
+    @llm_command
     def list_notes_for_cards_in_deck(self, deck_name: str) -> list[NoteInfo]:
         """List all Notes for cards in the specified Deck,
         returning a list of (note_id, front, back)."""
@@ -234,6 +237,7 @@ class Anki(AbstractAnki):
                 )
         return result
 
+    @llm_command
     def get_note_id_by_card_id(self, card_id: int) -> int | None:
         """Given a card ID, return the Note ID it belongs to."""
         try:
@@ -243,6 +247,7 @@ class Anki(AbstractAnki):
             logger.debug(f"Card ID {card_id} is invalid.")
             return None
 
+    @llm_command
     def edit_note(self, note_id: int, question: str = "", answer: str = "") -> None:
         """Edit the question & answer pair.
         When you change a note, all cards will change accordingly."""
@@ -256,6 +261,7 @@ class Anki(AbstractAnki):
         self.col.update_note(note)
 
     # Card
+    @llm_command
     def delete_cards_by_ids(self, card_ids: list[int]) -> None:
         """Delete the specified cards.
         If the card is the last card from a note,
@@ -281,6 +287,7 @@ class Anki(AbstractAnki):
             + f"Automatically deleted notes: {deleted_notes}"
         )
 
+    @llm_command
     def list_card_ids_from_note(self, note_id: int) -> list[int]:
         """List all card IDs from the specified note."""
         if note_id:
@@ -288,6 +295,7 @@ class Anki(AbstractAnki):
             card_ids = [card.id for card in note.cards()]
             return card_ids
 
+    @llm_command
     def list_cards_in_deck(self, deck_name: str) -> DeckCardsInfo | None:
         """
         List all card IDs in the specified deck.
@@ -303,6 +311,7 @@ class Anki(AbstractAnki):
 
         return DeckCardsInfo(total_cards=len(card_ids), card_ids=card_ids)
 
+    @llm_command
     def get_card_info(self, card_id: int) -> CardInfo:
         """
         Get detailed information of the card and return a dictionary containing:
@@ -356,6 +365,7 @@ class Anki(AbstractAnki):
         except NotFoundError:
             return None
 
+    @llm_command
     def set_type(self, card_id: int, type_code: int) -> None:
         """
         0: "New", # New card
@@ -368,6 +378,7 @@ class Anki(AbstractAnki):
         card.type = type_code
         self.col.update_card(card)
 
+    @llm_command
     def set_queue(self, card_id: int, queue_code: int) -> None:
         """
         -1: "Suspended", # Not participating in review
@@ -382,22 +393,26 @@ class Anki(AbstractAnki):
         card.queue = queue_code
         self.col.update_card(card)
 
+    @llm_command
     def set_deck(self, card_id: int, new_deck_name: str) -> None:
         card = self.col.get_card(card_id)
         new_id = self.get_deck_id(new_deck_name)
         card.did = new_id if new_id else 1
         self.col.update_card(card)
 
+    @llm_command
     def set_due(self, card_id: int, due: int) -> None:
         card = self.col.get_card(card_id)
         card.due = due
         self.col.update_card(card)
 
+    @llm_command
     def set_interval(self, card_id: int, ivl: int) -> None:
         card = self.col.get_card(card_id)
         card.ivl = ivl
         self.col.update_card(card)
 
+    @llm_command
     def set_memory_grade(self, card_id: int, ease: str) -> None:
         """
         Simulate user memory feedback:
@@ -419,6 +434,7 @@ class Anki(AbstractAnki):
         card.answer = grade_map[ease]
         self.col.update_card(card)
 
+    @llm_command
     def set_review_stats(
         self, card_id: int, reps: int = None, lapses: int = None, left: int = None
     ) -> None:
@@ -436,6 +452,7 @@ class Anki(AbstractAnki):
             card.left = left
         self.col.update_card(card)
 
+    @llm_command
     def set_flag(self, card_id: int, flag: int) -> None:
         """Set flag:"""
         flag_map = {
@@ -455,6 +472,7 @@ class Anki(AbstractAnki):
         card.flags = flag_map[flag]
         self.col.update_card(card)
 
+    @llm_command
     def activate_preview_cards(self, deck_name: str) -> None:
         """
         Activate all new cards in queue=0 (Preview)
@@ -466,6 +484,7 @@ class Anki(AbstractAnki):
             self.get_deck_id(deck_name),
         )
 
+    @llm_command
     def count_cards_due_today(self, deck_name: str) -> CardsDueToday:
         """How many cards need to be learned today."""
         today = self.col.sched.today
@@ -501,6 +520,7 @@ class Anki(AbstractAnki):
             total=count["total"],
         )
 
+    @llm_command
     def get_cards_by_ids(self, card_ids: list[int]) -> list:
         """Given a list of card_ids, return a list of card_objs."""
         cards = []
@@ -510,6 +530,7 @@ class Anki(AbstractAnki):
 
         return cards
 
+    @llm_command
     def get_card_content(self, card_id: int) -> list:
         """Return question & answer pair."""
         return self.get_card_info(card_id)["fields"]
