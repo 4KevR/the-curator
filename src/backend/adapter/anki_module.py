@@ -8,10 +8,15 @@ from anki.importing.apkg import AnkiPackageImporter
 from anki.lang import set_lang
 from anki.notes import Note
 
-from src.backend.domain import register_action
 from src.backend.domain.abstract_adapters import AbstractAnki
-from src.backend.domain.srs import (CardInfo, CardsDueToday, DeckCardsInfo,
-                                    DeckInfo, NoteCreationResult, NoteInfo)
+from src.backend.domain.srs import (
+    CardInfo,
+    CardsDueToday,
+    DeckCardsInfo,
+    DeckInfo,
+    NoteCreationResult,
+    NoteInfo,
+)
 
 from .llm_cmd_registration import llm_command
 

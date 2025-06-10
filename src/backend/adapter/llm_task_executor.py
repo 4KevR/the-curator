@@ -5,15 +5,16 @@
 # =============================================================
 # =============================================================
 
-import re
-import traceback
 import ast
 import inspect
+import re
+import traceback
 from dataclasses import dataclass
 from typing import Optional
 
 from .llm_cmd_registration import llm_commands
-from .llm_controller_for_anki import LLMInteractor, LLMCommunicator, ChunkedCardStream
+from .llm_controller_for_anki import ChunkedCardStream, LLMCommunicator, LLMInteractor
+
 
 class TaskExecutor:
     __first_message: str = None
@@ -108,7 +109,9 @@ Then, you have achieved your task, and return:
         TaskExecutor.__first_message = template
         return TaskExecutor.__first_message
 
-    def execute_prompt(self, flashcard_manager: FlashcardManager, user_prompt: str, verbose: bool):
+    def execute_prompt(
+        self, flashcard_manager: FlashcardManager, user_prompt: str, verbose: bool
+    ):
         llm_interactor = LLMInteractor(flashcard_manager)
         llm_communicator = LLMCommunicator("qwen3-8b", 0.8)
         # llm_communicator = LLMCommunicator("qwen2.5-14b-instruct", 0.8)
@@ -145,17 +148,27 @@ Then, you have achieved your task, and return:
                     if any(isinstance(it, ChunkedCardStream) for it in results):
                         if len(results) == 1:
                             message_to_send = f"The stream containing {len(results[0].items)} cards has been fully processed. You have left the card stream, and can **not** call abort_card_stream(message) any more. **YOU ACHIEVED ALL YOUR TASKS THAT YOU WANTED TO DO WITH THE STREAM**. In 99 % of all cases, you are done now and can just send an empty <execute></execute> block to finish this session.\n\n"
-                            message_to_send += self.handle_card_stream(results[0], llm_communicator, llm_interactor, verbose)
+                            message_to_send += self.handle_card_stream(
+                                results[0], llm_communicator, llm_interactor, verbose
+                            )
                         else:
                             raise Exception(
-                                "If you want to call a method that returns a stream, you may not call any other function in the same message.")
+                                "If you want to call a method that returns a stream, you may not call any other function in the same message."
+                            )
                     else:
                         message_to_send = self.deep_to_string(results)
-                pass # debug opportunity
+                pass  # debug opportunity
             except Exception as e:
                 if verbose:
-                    print(f"\nException raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n")
-                self.log += [("exception", f"\nException raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n")]
+                    print(
+                        f"\nException raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n"
+                    )
+                self.log += [
+                    (
+                        "exception",
+                        f"\nException raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n",
+                    )
+                ]
                 error_count += 1
                 message_to_send = f"""An error occured: {e} Please try again!"""
             if error_count >= 5:
@@ -164,9 +177,13 @@ Then, you have achieved your task, and return:
                 raise RuntimeError("Too many messages. Abort execution.")
 
     # my god is this ugly, make llm_communicator and llm_interactor class properties you idiot
-    def handle_card_stream(self, chunked_cards: ChunkedCardStream, llm_communicator: LLMCommunicator,
-                           llm_interactor: LLMInteractor, verbose: bool) -> str:
-
+    def handle_card_stream(
+        self,
+        chunked_cards: ChunkedCardStream,
+        llm_communicator: LLMCommunicator,
+        llm_interactor: LLMInteractor,
+        verbose: bool,
+    ) -> str:
         stream_info = """You are currently in a card stream. You will be provided with groups of cards. You can use these cards to achieve your task.
 If you want to continue to the next chunk, please return an empty <execute>...</execute> block.
 You will **not** be able to see the previous chunk and the messages you sent in the previous chunks.
@@ -176,7 +193,9 @@ To end the stream early (before all cards are processed), please call the functi
         llm_communicator.start_visibility_block()
 
         next_chunk = chunked_cards.next_chunk()
-        message_to_send = "The next messages are:\n" + "\n\n".join(str(it) for it in next_chunk)
+        message_to_send = "The next messages are:\n" + "\n\n".join(
+            str(it) for it in next_chunk
+        )
 
         all_commands = {}
 
@@ -192,19 +211,28 @@ To end the stream early (before all cards are processed), please call the functi
                     print("\n=========== RESPONSE (STREAM) ===========:")
                     print(answer)
 
-
                 commands = TaskExecutor.parse_llm_response(answer)
                 if any(c.func_name == "abort_card_stream" for c in commands):
                     if len(commands) == 1:
                         llm_communicator.end_visibility_block()
                         args_str = ", ".join(commands[0].args)
-                        kw_args = str(commands[0].kwargs) if len(commands[0].kwargs) > 0 else ""
+                        kw_args = (
+                            str(commands[0].kwargs)
+                            if len(commands[0].kwargs) > 0
+                            else ""
+                        )
                         return f"You decided to exit the stream early for the following reason: {args_str}{kw_args}"
-                    raise Exception("If you want to exit the card stream, you may not call any other function in the same message. **None** of your commands from the last message have been executed.")
+                    raise Exception(
+                        "If you want to exit the card stream, you may not call any other function in the same message. **None** of your commands from the last message have been executed."
+                    )
 
-                if any(self.llm_function_return_type(c.func_name) == ChunkedCardStream for c in commands):
-                    raise Exception("You are already in a card stream. Exit this stream before entering a new one.")
-
+                if any(
+                    self.llm_function_return_type(c.func_name) == ChunkedCardStream
+                    for c in commands
+                ):
+                    raise Exception(
+                        "You are already in a card stream. Exit this stream before entering a new one."
+                    )
 
                 # command stats
                 for command in commands:
@@ -214,23 +242,33 @@ To end the stream early (before all cards are processed), please call the functi
                         all_commands[command.func_name] += 1
 
                 if len(commands) > 0:
-                    results = TaskExecutor.execute_llm_response(llm_interactor, commands)
+                    results = TaskExecutor.execute_llm_response(
+                        llm_interactor, commands
+                    )
                     message_to_send = self.deep_to_string(results)
                 else:
                     llm_communicator.end_visibility_block()
 
                     if not chunked_cards.has_next():
                         llm_communicator.end_visibility_block()
-                        func_call_times = sorted(all_commands.items(), key=lambda x: x[1], reverse=True)
+                        func_call_times = sorted(
+                            all_commands.items(), key=lambda x: x[1], reverse=True
+                        )
                         return f"The card stream was fully processed. Because you have a limited context window, I cannot show you everything you did. You called the following functions (with frequency): {func_call_times}"
 
                     next_chunk = chunked_cards.next_chunk()
                     llm_communicator.start_visibility_block()
-                    message_to_send = "The next messages are:\n" + "\n\n".join(str(it) for it in next_chunk)
+                    message_to_send = "The next messages are:\n" + "\n\n".join(
+                        str(it) for it in next_chunk
+                    )
             except Exception as e:
-                self.log += [("exception", f"\nException raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n")]
-                message_to_send = (
-                    f"Exception raised: {e}. **The card stream is still active.** Remember to call the function 'abort_card_stream()' to abort the card stream prematurely if really necessary.")
+                self.log += [
+                    (
+                        "exception",
+                        f"\nException raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n",
+                    )
+                ]
+                message_to_send = f"Exception raised: {e}. **The card stream is still active.** Remember to call the function 'abort_card_stream()' to abort the card stream prematurely if really necessary."
 
     @staticmethod
     def llm_function_return_type(function_name: str):
@@ -282,9 +320,11 @@ To end the stream early (before all cards are processed), please call the functi
     def parse_function_call(call_str):
         # Parse the string into an AST node
         try:
-            tree = ast.parse(call_str, mode='eval')
-        except SyntaxError as e:
-            raise ValueError(f"The string\n\n{call_str}\n\nis not a ast-parsable Python expression.")
+            tree = ast.parse(call_str, mode="eval")
+        except SyntaxError:
+            raise ValueError(
+                f"The string\n\n{call_str}\n\nis not a ast-parsable Python expression."
+            )
 
         # Ensure it's a function call
         if not isinstance(tree.body, ast.Call):
@@ -316,28 +356,34 @@ To end the stream early (before all cards are processed), please call the functi
     @staticmethod
     def parse_llm_response(response: str) -> list["TaskExecutor.ParsedLLMCommand"]:
         # Extract the execution plan block
-        match = re.search(r"^ *<execute>(.*?)<\/execute>", response, re.DOTALL + re.MULTILINE)
+        match = re.search(
+            r"^ *<execute>(.*?)<\/execute>", response, re.DOTALL + re.MULTILINE
+        )
         if not match:
             raise ValueError(
-                "No execute block found in response. Remember to use <execute>...</execute> to mark your execution plan, and send an empty block to indicate that you do not wish to take any further action.")
+                "No execute block found in response. Remember to use <execute>...</execute> to mark your execution plan, and send an empty block to indicate that you do not wish to take any further action."
+            )
         plan = match.group(1)
 
         commands: list[TaskExecutor.ParsedLLMCommand] = []
         for line in plan.splitlines():
             line = line.strip()
-            if not line: continue
+            if not line:
+                continue
             func_name, args, kwargs = TaskExecutor.parse_function_call(line[1:].strip())
             commands += [TaskExecutor.ParsedLLMCommand(func_name, args, kwargs)]
         return commands
 
     @staticmethod
-    def execute_llm_response(llm_interactor: LLMInteractor, commands: list["TaskExecutor.ParsedLLMCommand"]) -> list[
-        str]:
+    def execute_llm_response(
+        llm_interactor: LLMInteractor, commands: list["TaskExecutor.ParsedLLMCommand"]
+    ) -> list[str]:
         results = []
         for command in commands:
             if command.func_name not in TaskExecutor.function_map:
                 raise ValueError(f"Unknown function name {command.func_name}.")
-            result = TaskExecutor.function_map[command.func_name](llm_interactor, *command.args,
-                                                                  **command.kwargs)  # self as first argument
+            result = TaskExecutor.function_map[command.func_name](
+                llm_interactor, *command.args, **command.kwargs
+            )  # self as first argument
             results.append(result)
         return results

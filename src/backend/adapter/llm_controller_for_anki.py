@@ -2,54 +2,44 @@
 # I modified the four classes: Flag, Card, Deck, CardState->CardType,
 # I didn't make any change to the class VirtualDeck.
 # =============================================================
-# The following 2 classes not only implement Anki-related operations, 
-# but also actually simulate the functions of the Anki software, 
+# The following 2 classes not only implement Anki-related operations,
+# but also actually simulate the functions of the Anki software,
 # which should be what you use for testing.
 
 # Now we should be able to use the Anki class in adapter\anki_module.py instead
 # But there is no feature for virtual decks in Anki class!!!
 # Please add those features.
-class FlashcardManager():
+class FlashcardManager:
     pass
+
+
 class LLMInteractor:
     pass
+
+
 # =============================================================
 # =============================================================
 
-import copy
-import os
-import re
 import math
-import rapidfuzz
-import openai
-import traceback
-import ast
-
-from enum import Enum
 from dataclasses import dataclass
-from typing import List, Union, Any, Dict, Optional, ClassVar, Iterator
-from torch import NoneType
+from enum import Enum
+from typing import List, Optional
 
+import openai
+import rapidfuzz
 
-from src.backend.domain.srs import (
-    CardInfo,
-    CardsDueToday,
-    DeckCardsInfo,
-    DeckInfo,
-    NoteCreationResult,
-    NoteInfo,
-)
+from src.backend.domain.srs import CardInfo, DeckCardsInfo
 
 
 class Flag(Enum):
-    0 = "none"
-    1 = "red"
-    2 = "orange"
-    3 = "green"
-    4 = "blue"
-    5 = "pink"
-    6 = "cyan"
-    7 = "purple"
+    NONE = "none"
+    RED = "red"
+    ORANGE = "orange"
+    GREEN = "green"
+    BLUE = "blue"
+    PINK = "pink"
+    CYAN = "cyan"
+    PURPLE = "purple"
 
     @staticmethod
     def from_str(s: str):
@@ -59,11 +49,12 @@ class Flag(Enum):
                 return flag
         raise ValueError(f"{s} is not a valid flag.")
 
+
 class CardType(Enum):
-    0 = "New"
-    1 = "Learn"
-    2 = "Review"
-    3 = "Relearn"
+    NEW = "New"
+    LEARN = "Learn"
+    REVIEW = "Review"
+    RELEARN = "Relearn"
 
     @staticmethod
     def from_str(s: str):
@@ -76,8 +67,8 @@ class CardType(Enum):
 
 @dataclass(frozen=False)
 class Card:
-    """
-    A Card is a representation of a flashcard, containing a question and an answer. The card is uniquely identified by the id.
+    """A Card is a representation of a flashcard, containing a question and an
+    answer. The card is uniquely identified by the id.
 
     Properties:
       id (int): The id uniquely identifies the card.
@@ -91,6 +82,7 @@ class Card:
         - factor (ease), review/study times (reps, lapses, left)
         - flags (flags), tags (tags) and note field content (fields)
     """
+
     id: int
     deck_id: int
     cardInfo: CardInfo
@@ -104,20 +96,20 @@ Answer:
 {self.cardInfo.fields[1]}
 
 Flag: {self.cardInfo.flags}
-Card Type: {self.cardInfo.type['name']}"""
+Card Type: {self.cardInfo.type["name"]}"""
         return s
 
 
 @dataclass(frozen=False)
 class Deck:
-    """
-    A Deck represents a collection of flashcards.
+    """A Deck represents a collection of flashcards.
 
     Properties:
        id (int): The id uniquely identifies the deck. The id is the only way to identify a deck.
        name (str): The name of the deck. This is **not** the id, and is **not** sufficient to address decks.
        cards (int, List[int]): The cards contained in the deck. The order has no meaning.
     """
+
     id: int
     name: str
     cards: DeckCardsInfo
@@ -131,11 +123,12 @@ class Deck:
 
 @dataclass(frozen=False)
 class VirtualDeck:
-    """
-    A Virtual Deck represents a collection of flashcards. However, the flashcards themselves are part of another deck; a virtual deck is a
-    temporary collection of flashcards. Any changes to the cards in the virtual deck will also change the cards in their 'normal' deck.
-    Virtual Decks are e.g. used to represent the result of search queries.
-    Virtual Decks do not have names.
+    """A Virtual Deck represents a collection of flashcards. However, the
+    flashcards themselves are part of another deck; a virtual deck is a
+    temporary collection of flashcards. Any changes to the cards in the virtual
+    deck will also change the cards in their 'normal' deck. Virtual Decks are
+    e.g. used to represent the result of search queries. Virtual Decks do not
+    have names.
 
     Properties:
        id (str): The id uniquely identifies the virtual deck. It is represented as "virt_deck_xxxx_xxxx", with x being hexadecimal digits.
@@ -143,6 +136,7 @@ class VirtualDeck:
        description (str): A description that may explain how this deck was created. Optional, may be left blank.
        cards (List[Card]): The cards contained in the virtual deck. The order has no meaning.
     """
+
     id: int
     description: str
     cards: List[Card]
@@ -157,6 +151,7 @@ class VirtualDeck:
 
 
 CARD_STREAM_CHUNK_SIZE = 5
+
 
 class ChunkedCardStream:
     def __init__(self, items: List[Card], chunk_size: int = CARD_STREAM_CHUNK_SIZE):
@@ -174,17 +169,23 @@ class ChunkedCardStream:
     def next_chunk(self):
         if not self.has_next():
             return []
-        res = self.items[self.current_index: self.current_index + self.chunk_size]
+        res = self.items[self.current_index : self.current_index + self.chunk_size]
         self.current_index += self.chunk_size
         return res
 
 
 class SearchBySubstring:
-
-    def __init__(self, search_substring: str, search_in_question: bool, search_in_answer: bool, 
-                 case_sensitive: bool,
-                 fuzzy: Optional[float]):
-        self.search_substring = search_substring if not case_sensitive else search_substring.lower()
+    def __init__(
+        self,
+        search_substring: str,
+        search_in_question: bool,
+        search_in_answer: bool,
+        case_sensitive: bool,
+        fuzzy: Optional[float],
+    ):
+        self.search_substring = (
+            search_substring if not case_sensitive else search_substring.lower()
+        )
         self.search_in_question = search_in_question
         self.search_in_answer = search_in_answer
         self.case_sensitive = case_sensitive
@@ -212,7 +213,10 @@ class SearchBySubstring:
         return False
 
     def __fuzzy_search(self, text: str) -> bool:
-        return rapidfuzz.fuzz.partial_ratio(self.search_substring, text) >= self.fuzzy * 100.0
+        return (
+            rapidfuzz.fuzz.partial_ratio(self.search_substring, text)
+            >= self.fuzzy * 100.0
+        )
 
     def __include_card_fuzzy(self, question, answer) -> bool:
         if self.search_in_question:
@@ -228,9 +232,7 @@ class SearchBySubstring:
         return False
 
     def search_by_substring(self, cards: List[Card]) -> List[Card]:
-        """
-        Can use "*" for all decks.
-        """
+        """Can use "*" for all decks."""
         if self.fuzzy is None:
             return [c for c in cards if self.__include_card_hard(c.question, c.answer)]
         else:
@@ -238,13 +240,12 @@ class SearchBySubstring:
 
 
 class SearchByContent:
-    client = openai.OpenAI(
-        api_key="lm-studio",
-        base_url="http://localhost:1234/v1"
-    )
+    client = openai.OpenAI(api_key="lm-studio", base_url="http://localhost:1234/v1")
 
     @staticmethod
-    def fuzzy_match(search_prompt: str, question: Optional[str], answer: Optional[str]) -> bool:
+    def fuzzy_match(
+        search_prompt: str, question: Optional[str], answer: Optional[str]
+    ) -> bool:
         if question is not None and answer is not None:
             prompt = f"""Please evaluate if the following flash card fits the search prompt.
 Question: {question}
@@ -298,14 +299,14 @@ class LLMCommunicator:
     max_tokens: Optional[int]
     visibility_block_beginning: Optional[int]
 
-
-    def __init__(self, model: str, temperature: float, max_tokens: Optional[int] = None):
+    def __init__(
+        self, model: str, temperature: float, max_tokens: Optional[int] = None
+    ):
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.client = openai.OpenAI(
-            api_key="lm-studio",
-            base_url="http://localhost:1234/v1"
+            api_key="lm-studio", base_url="http://localhost:1234/v1"
         )
         self.messages = []
         self.all_messages = []
@@ -315,7 +316,6 @@ class LLMCommunicator:
         request_message = {"role": "system", "content": message}
         self.messages.append(request_message)
         self.all_messages.append(request_message)
-
 
     def send_message(self, message: str) -> str:
         self.add_message(message)
@@ -344,6 +344,7 @@ class LLMCommunicator:
     def end_visibility_block(self):
         if self.visibility_block_beginning is None:
             return
-        self.messages = self.messages[:self.visibility_block_beginning] # cut all messages in the visibility block
+        self.messages = self.messages[
+            : self.visibility_block_beginning
+        ]  # cut all messages in the visibility block
         self.visibility_block_beginning = None
-

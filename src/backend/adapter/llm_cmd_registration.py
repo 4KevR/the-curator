@@ -9,11 +9,12 @@ def llm_command(func):
 
 
 def annotation_to_string(annotation) -> str:
-    if annotation is None: return "None"
+    if annotation is None:
+        return "None"
 
     # generic?
     if not hasattr(annotation, "__origin__"):
-        return getattr(annotation, '__name__', annotation)
+        return getattr(annotation, "__name__", annotation)
 
     origin = annotation.__origin__
     args = annotation.__args__
@@ -31,12 +32,11 @@ def get_llm_commands():
                 continue
             params += [f"{name}: {param.annotation.__name__}"]
 
-        if sig.return_annotation is None:
-            returnType = "None"
-        else:
-            returnType = sig.return_annotation
+        returnType = "None" if sig.return_annotation is None else sig.return_annotation
 
-        signature = f"{cmnd_name}({', '.join(params)}) -> {annotation_to_string(returnType)}"
+        signature = (
+            f"{cmnd_name}({', '.join(params)}) -> {annotation_to_string(returnType)}"
+        )
         signature = signature.replace("_empty", "<unspecified>")
         docs = llm_command.__doc__.strip("\n")
         res += [f"{signature}\n{docs}"]
