@@ -2,7 +2,7 @@ import os
 
 from huggingface_hub import InferenceClient
 
-from src.backend.domain.abstract_adapters import AbstractLLM
+from src.backend.modules.llm.AbstractLLM import AbstractLLM
 
 
 class KitLLM(AbstractLLM):

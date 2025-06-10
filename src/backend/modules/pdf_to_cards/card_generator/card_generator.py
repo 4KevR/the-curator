@@ -1,8 +1,6 @@
-from src.backend.domain import (
-    AbstractLLM,
-    AbstractPDFReader,
-    create_card_generation_prompt,
-)
+from src.backend.modules.ai_assistant.prompts import create_card_generation_prompt
+from src.backend.modules.llm.AbstractLLM import AbstractLLM
+from src.backend.modules.pdf_to_cards.AbstractPDFReader import AbstractPDFReader
 
 
 class CardGeneratorService:

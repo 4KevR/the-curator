@@ -28,7 +28,7 @@ from typing import List, Optional
 import openai
 import rapidfuzz
 
-from src.backend.domain.srs import CardInfo, DeckCardsInfo
+from src.backend.modules.srs.anki.dataclasses import CardInfo, DeckCardsInfo
 
 
 class Flag(Enum):
@@ -169,19 +169,19 @@ class ChunkedCardStream:
     def next_chunk(self):
         if not self.has_next():
             return []
-        res = self.items[self.current_index : self.current_index + self.chunk_size]
+        res = self.items[self.current_index: self.current_index + self.chunk_size]
         self.current_index += self.chunk_size
         return res
 
 
 class SearchBySubstring:
     def __init__(
-        self,
-        search_substring: str,
-        search_in_question: bool,
-        search_in_answer: bool,
-        case_sensitive: bool,
-        fuzzy: Optional[float],
+            self,
+            search_substring: str,
+            search_in_question: bool,
+            search_in_answer: bool,
+            case_sensitive: bool,
+            fuzzy: Optional[float],
     ):
         self.search_substring = (
             search_substring if not case_sensitive else search_substring.lower()
@@ -214,8 +214,8 @@ class SearchBySubstring:
 
     def __fuzzy_search(self, text: str) -> bool:
         return (
-            rapidfuzz.fuzz.partial_ratio(self.search_substring, text)
-            >= self.fuzzy * 100.0
+                rapidfuzz.fuzz.partial_ratio(self.search_substring, text)
+                >= self.fuzzy * 100.0
         )
 
     def __include_card_fuzzy(self, question, answer) -> bool:
@@ -244,7 +244,7 @@ class SearchByContent:
 
     @staticmethod
     def fuzzy_match(
-        search_prompt: str, question: Optional[str], answer: Optional[str]
+            search_prompt: str, question: Optional[str], answer: Optional[str]
     ) -> bool:
         if question is not None and answer is not None:
             prompt = f"""Please evaluate if the following flash card fits the search prompt.
@@ -300,7 +300,7 @@ class LLMCommunicator:
     visibility_block_beginning: Optional[int]
 
     def __init__(
-        self, model: str, temperature: float, max_tokens: Optional[int] = None
+            self, model: str, temperature: float, max_tokens: Optional[int] = None
     ):
         self.model = model
         self.temperature = temperature
@@ -345,6 +345,6 @@ class LLMCommunicator:
         if self.visibility_block_beginning is None:
             return
         self.messages = self.messages[
-            : self.visibility_block_beginning
-        ]  # cut all messages in the visibility block
+                        : self.visibility_block_beginning
+                        ]  # cut all messages in the visibility block
         self.visibility_block_beginning = None

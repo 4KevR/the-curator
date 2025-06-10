@@ -1,9 +1,9 @@
 import nltk
 from flask import Blueprint, jsonify, request
 
-from src.backend.adapter.anki import Anki
-from src.backend.adapter.kit_llm import KitLLM
-from src.backend.service.action_service import ActionService
+from src.backend.modules.srs import Anki
+from src.backend.modules.llm.kit_llm import KitLLM
+from src.backend.modules.ai_assistant.action_service import ActionService
 
 nltk.download("punkt_tab")
 
@@ -53,8 +53,8 @@ def perform_action():
         # Process transcription
         result = action_service.process_transcription(complete_sentences[0])
         temporary_user_data[user_name] = temporary_user_data[user_name][
-            len(complete_sentences[0]) :
-        ].strip()
+                                         len(complete_sentences[0]):
+                                         ].strip()
         return jsonify(result), 200
 
     except Exception as e:

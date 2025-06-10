@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 import requests
 from sseclient import SSEClient
 
-from src.backend.domain.abstract_adapters import AbstractASR
+from src.backend.modules.asr.AbstractASR import AbstractASR
 
 
 class CloudLectureTranslatorASR(AbstractASR):

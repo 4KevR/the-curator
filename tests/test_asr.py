@@ -4,9 +4,10 @@ import sys
 
 from dotenv import load_dotenv
 
+from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.backend.adapter.cloud_lecture_translator import CloudLectureTranslatorASR
 from src.cli.recording.recording_client import RecordingClient
 
 if __name__ == "__main__":

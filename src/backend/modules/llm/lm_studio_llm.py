@@ -5,7 +5,7 @@
 
 from openai import OpenAI
 
-from src.backend.domain.abstract_adapters import AbstractLLM
+from src.backend.modules.llm.AbstractLLM import AbstractLLM
 
 
 class LMStudioLLM(AbstractLLM):
