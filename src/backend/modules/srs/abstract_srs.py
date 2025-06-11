@@ -3,8 +3,6 @@ import re
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
 from typing import ClassVar
-
-import anki
 from typeguard import typechecked
 
 TCard = TypeVar('TCard', bound='AbstractCard')  # Must be a subtype of AbstractCard
@@ -39,11 +37,6 @@ class DeckID:
         hex_nr = hex_str[5:].replace("_", "")
         return DeckID(int(hex_nr, 16))
 
-    @property
-    def anki_id(self) -> anki.decks.DeckId:
-        """Returns the id in Anki format."""
-        return anki.decks.DeckId(self.numeric_id)
-
 
 @typechecked
 @dataclass
@@ -72,11 +65,6 @@ class CardID:
             raise ValueError(f"Invalid card ID format: {hex_str}")
         hex_nr = hex_str[5:].replace("_", "")
         return CardID(int(hex_nr, 16))
-
-    @property
-    def anki_id(self) -> anki.cards.CardId:
-        """Returns the id in Anki format."""
-        return anki.cards.CardId(self.numeric_id)
 
 
 class AbstractDeck(ABC):

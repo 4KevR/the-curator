@@ -3,6 +3,7 @@ import os
 from dataclasses import dataclass
 
 from anki.consts import CardType, CardQueue
+from anki.decks import DeckId
 from overrides import override
 
 from anki.collection import Collection
@@ -234,7 +235,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         # 1. When adding a note, Anki will automatically generate one or more cards
         # based on the NoteType template to which the note belongs.
         # 2. The note_id may equal the first card's card_id.
-        self.col.add_note(note, deck.id.anki_id)
+        self.col.add_note(note, DeckId(deck.id.numeric_id))
         logger.debug(f"Note {note.id} is added.")
         cards = note.cards()
         logger.debug(f"Automatically added Cards: {cards}")
@@ -314,7 +315,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
     @override
     def get_card(self, card_id: CardID) -> AnkiCard | None:
         try:
-            card = self.col.get_card(card_id.anki_id)
+            card = self.col.get_card(CardId(card_id.numeric_id))
             raw_deck = self.col.decks.get(card.did)
             deck = AnkiDeck(DeckID(raw_deck["id"]), raw_deck["name"])
             note = self.col.get_note(card.nid)
