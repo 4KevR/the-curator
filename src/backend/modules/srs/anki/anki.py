@@ -1,5 +1,6 @@
 import logging
 import os
+import typing
 from dataclasses import dataclass
 
 from anki.consts import CardType, CardQueue
@@ -16,7 +17,8 @@ from anki.cards import CardId
 import anki.cards
 from typeguard import typechecked
 
-from src.backend.modules.srs.abstract_srs import DeckID, CardID, TDeck, AbstractDeck, AbstractCard, TCard
+from src.backend.modules.srs.abstract_srs import DeckID, CardID, AbstractDeck, AbstractCard, \
+    AbstractTemporaryCollection, TmpCollectionID
 from src.backend.modules.srs.abstract_srs import AbstractSRS
 
 logger = logging.getLogger(__name__)
@@ -28,8 +30,7 @@ _base_dir = os.getenv("ANKI_COLLECTION_PATH", "data/anki_collection")
 
 @typechecked
 class AnkiDeck(AbstractDeck):
-    def __init__(self, deck_id: DeckID, name: str):
-        super().__init__(deck_id, name)
+    pass
 
 
 @typechecked
@@ -76,6 +77,37 @@ class AnkiCard(AbstractCard):
         return f"AnkiCard(id={self.id}, question={self.question}, answer={self.answer}, deck={self.deck.name}, note={self.note}, raw_card={self.raw_card}, type={self.type}, queue={self.queue})"
 
 
+@typechecked
+class AnkiTemporaryCollection(AbstractTemporaryCollection):
+    _anki: "AnkiSRS"
+    _cards: set[CardID]
+
+    def __init__(self, anki_srs: "AnkiSRS", tmp_collection_id: TmpCollectionID, description: str):
+        super().__init__(tmp_collection_id, description)
+        _cards = set()
+        self._anki = anki_srs
+
+    def add_card(self, card: AnkiCard) -> None:
+        self._cards.add(card.id)
+
+    def add_card_by_id(self, card_id: CardID) -> None:
+        self._cards.add(card_id)
+
+    def get_cards(self) -> list[AnkiCard]:
+        return [self._anki.get_card(card_id) for card_id in self._cards]
+
+    def __contains__(self, item: CardID | AnkiCard) -> bool:
+        if isinstance(item, AnkiCard):
+            return item.id in self._cards
+        return item in self._cards
+
+    def remove_card(self, card: AnkiCard) -> None:
+        self._cards.remove(card.id)
+
+    def remove_card_by_id(self, card_id: CardID) -> None:
+        self._cards.remove(card_id)
+
+
 @dataclass
 @typechecked
 class NoteCreationResult:
@@ -93,7 +125,7 @@ class CardsDueToday:
     total: int
 
 
-class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
+class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     """
     Implements an AbstractSRS for Anki.
 
@@ -101,32 +133,31 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
     TODO
     """
 
-    def __init__(self, user_name: str):
-        """
-        Initializes a new Anki object for the specified user.
+    dir: str
+    col: Collection
+    __temporary_collections: dict[TmpCollectionID, AnkiTemporaryCollection]
 
-        Parameters:
-        user_name : str
-            The name of the user. It may not be an empty string.
-            If the user does not exist, it will be created.
-
-        Raises:
-        ValueError
-            If the user_name is an empty string.
+    def __init__(self, anki_directory: str):
         """
-        if user_name == "":
+        Initializes a new Anki object with a backing collection at the given path.
+        If it doesn't exist, it will be created.
+        """
+        if anki_directory == "":
             raise ValueError("user_name cannot be empty string.")
 
-        user_dir = os.path.join(_base_dir, user_name)
-        if os.path.exists(user_dir):
-            logger.debug(f"User {user_name} already exists.")
+        if not os.path.isabs(anki_directory):
+            anki_directory = os.path.join(_base_dir, anki_directory)
+
+        if os.path.exists(anki_directory):
+            logger.debug(f"Anki directory {anki_directory} already exists.")
         else:
-            logger.debug(f"Creating new user {user_name}.")
-            os.makedirs(user_dir)
-        self.user_dir = user_dir
-        collection_path = os.path.join(user_dir, "collection.anki2")
+            logger.debug(f"Creating new anki directory {anki_directory}.")
+            os.makedirs(anki_directory)
+        self.dir = anki_directory
+        collection_path = os.path.join(self.dir, "collection.anki2")
         logger.debug(f"Collection path: {os.path.abspath(collection_path)}")
         self.col = Collection(collection_path)
+        self.__temporary_collections = {}
 
     # Decks
     @override
@@ -143,7 +174,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         return AnkiDeck(DeckID(deck_id), deck_name)
 
     @override
-    def deck_exists(self, deck: TDeck) -> bool:
+    def deck_exists(self, deck: AnkiDeck) -> bool:
         deck = self.col.decks.by_name(deck.name)
         return deck is not None
 
@@ -152,13 +183,13 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
             raise ValueError(f"Deck '{deck.name}' does not exist.")
 
     @override
-    def get_deck_by_name(self, deck_name: str) -> TDeck | None:
+    def get_deck_by_name(self, deck_name: str) -> AnkiDeck | None:
         deck_dict = self.col.decks.by_name(deck_name)
         if deck_dict is None: return None
         return AnkiDeck(DeckID(deck_dict["id"]), deck_dict["name"])
 
     @override
-    def get_deck(self, deck_id: DeckID) -> TDeck | None:
+    def get_deck(self, deck_id: DeckID) -> AnkiDeck | None:
         deck_dict = self.col.decks.get(DeckId(deck_id.numeric_id))
         if deck_dict is None: return None
         return AnkiDeck(DeckID(deck_dict["id"]), deck_dict["name"])
@@ -180,7 +211,156 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         self._verify_deck_exists(deck)
         self.col.decks.remove([deck.id.numeric_id])
 
-    # new deck methods
+    # Card
+    @override
+    def add_card(self, deck: AnkiDeck, question: str, answer: str) -> AnkiCard:
+        new = self.add_note(deck, question, answer, model_name="Basic")
+
+        return AnkiCard(new.note, deck, new.cards[0])
+
+    @override
+    def get_card(self, card_id: CardID) -> AnkiCard | None:
+        try:
+            card = self.col.get_card(CardId(card_id.numeric_id))
+            raw_deck = self.col.decks.get(card.did)
+            deck = AnkiDeck(DeckID(raw_deck["id"]), raw_deck["name"])
+            note = self.col.get_note(card.nid)
+
+            return AnkiCard(note, deck, card)
+        except NotFoundError:
+            return None
+
+    @override
+    def card_exists(self, card: AnkiCard) -> bool:
+        card2 = self.get_card(card.id.numeric_id)
+        return card2 is not None
+
+    def _verify_card_exists(self, card: AnkiCard) -> None:
+        if not self.card_exists(card):
+            raise ValueError(f"Card '{card.id}' does not exist.")
+
+    @override
+    def get_deck_of_card(self, card: AnkiCard) -> AnkiDeck | None:
+        self._verify_card_exists(card)
+        try:
+            return self.col.decks.get(card.raw_card.did)
+        except NotFoundError:
+            return None
+
+    @override
+    def change_deck_of_card(self, card: AnkiCard, new_deck: AnkiDeck) -> AnkiCard:
+        self._verify_card_exists(card)
+        self._verify_deck_exists(new_deck)
+
+        new_id = new_deck.id.numeric_id
+        raw_card = card.raw_card
+        raw_card.did = new_id if new_id else 1
+        self.col.update_card(raw_card)
+        return AnkiCard(card.note, new_deck, card.raw_card)
+
+    @override
+    def get_cards_in_deck(self, deck: AnkiDeck) -> list[AnkiCard]:
+        self._verify_deck_exists(deck)
+        card_ids = self.col.find_cards(f"deck:{deck.name}")
+        return [self.get_card(CardID(card_id)) for card_id in card_ids]
+
+    @override
+    def delete_card(self, card: AnkiCard) -> bool:
+        self._verify_card_exists(card)
+        return self.delete_cards_by_ids([card.id.numeric_id]) >= 1
+
+    def delete_cards_by_ids(self, card_ids: list[int]) -> int:
+        """Delete the specified cards.
+        If the card is the last card from a note,
+        this note will also be automatically deleted.
+
+        :param card_ids: List of card IDs to delete
+        :return: Number of cards deleted
+        """
+        deleted_cards = []
+        old_note_ids = set(self.list_all_notes())
+        for card_id in card_ids:
+            try:
+                # noinspection PyProtectedMember
+                result = self.col._backend.remove_cards([card_id])
+                if result.count != 0:
+                    deleted_cards.append(card_id)
+            except Exception as e:
+                logger.debug(f"Card ID {card_id} is invalid: {e}")
+
+        deleted_notes = sorted(set(old_note_ids) - set(self.list_all_notes()))
+        logger.debug(
+            f"Delete Cards: {deleted_cards}. "
+            + f"Automatically deleted notes: {deleted_notes}"
+        )
+        return len(deleted_cards)
+
+    @staticmethod
+    def __create_id(existing_ids: set[int]):
+        attempt = 0
+        while True:
+            attempt += 1
+            random_bytes = os.urandom(4)
+            random_int = int.from_bytes(random_bytes, byteorder="big")
+            if random_int not in existing_ids:
+                return random_int
+            if attempt >= 100:
+                raise RuntimeError(f"{attempt} attempts of generating a new, unique id failed.")
+
+    @override
+    def create_temporary_collection(self, description: str, cards: list[AnkiCard]) -> AnkiTemporaryCollection:
+        for card in cards:
+            self._verify_card_exists(card)  # fail before creating anything
+
+        id_nr = self.__create_id({it.numeric_id for it in self.__temporary_collections})
+        tmp_collection = AnkiTemporaryCollection(self, TmpCollectionID(id_nr), description)
+
+        for card in cards:
+            tmp_collection.add_card(card)
+
+        return tmp_collection
+
+    @override
+    def get_temporary_collections(self) -> list[AnkiTemporaryCollection]:
+        return list(self.__temporary_collections.values())
+
+    def _verify_tmp_collection_exists(self, tmp_collection: AnkiTemporaryCollection) -> None:
+        if tmp_collection.id not in self.__temporary_collections:
+            raise ValueError(f"Temporary collection '{tmp_collection.id}' does not exist.")
+
+    @override
+    def get_temporary_collection(self, tmp_collection_id: TmpCollectionID) -> AnkiTemporaryCollection:
+        return self.__temporary_collections[tmp_collection_id]
+
+    @override
+    def delete_temporary_collection(self, tmp_collection: AnkiTemporaryCollection):
+        self.__temporary_collections.pop(tmp_collection.id)
+
+    @override
+    def add_cards_to_temporary_collection(self, tmp_collection: AnkiTemporaryCollection,
+                                          cards: typing.Collection[AnkiCard]):
+        self._verify_tmp_collection_exists(tmp_collection)
+        for card in cards:  # fail before changing anything
+            self._verify_card_exists(card)
+
+        for card in cards:
+            tmp_collection.add_card(card)
+
+    @override
+    def remove_cards_from_temporary_collection(self,
+                                               tmp_collection: AnkiTemporaryCollection,
+                                               cards: typing.Collection[AnkiCard]):
+        self._verify_tmp_collection_exists(tmp_collection)
+        for card in cards:  # fail before changing anything
+            self._verify_card_exists(card)
+
+        for card in cards:
+            tmp_collection.remove_card(card)
+
+    ####################################################################################################################
+    ################# ANKI-Specific Functions ##########################################################################
+    ####################################################################################################################
+
     def export_deck_to_apkg(self, deck: AnkiDeck, path: str = None) -> None:
         """Export the specified deck to a .apkg file.
         Path should include the file name, for example "/tmp/mydeck.apkg".
@@ -188,7 +368,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         self._verify_deck_exists(deck)
 
         if path is None:
-            path = os.path.join(self.user_dir, f"{deck.name}.apkg")
+            path = os.path.join(self.dir, f"{deck.name}.apkg")
 
         exp = AnkiPackageExporter(self.col)
         exp.did = deck.id.numeric_id
@@ -310,90 +490,6 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
             note.fields[1] = answer  # The second field → back (answer)
 
         self.col.update_note(note)
-
-    # Card
-    @override
-    def add_card(self, deck: AnkiDeck, question: str, answer: str) -> AnkiCard:
-        new = self.add_note(deck, question, answer, model_name="Basic")
-
-        return AnkiCard(new.note, deck, new.cards[0])
-
-    @override
-    def get_card(self, card_id: CardID) -> AnkiCard | None:
-        try:
-            card = self.col.get_card(CardId(card_id.numeric_id))
-            raw_deck = self.col.decks.get(card.did)
-            deck = AnkiDeck(DeckID(raw_deck["id"]), raw_deck["name"])
-            note = self.col.get_note(card.nid)
-
-            return AnkiCard(note, deck, card)
-        except NotFoundError:
-            return None
-
-    @override
-    def card_exists(self, card: AnkiCard) -> bool:
-        card2 = self.get_card(card.id.numeric_id)
-        return card2 is not None
-
-    def _verify_card_exists(self, card: AnkiCard) -> None:
-        if not self.card_exists(card):
-            raise ValueError(f"Card '{card.id}' does not exist.")
-
-    @override
-    def get_deck_of_card(self, card: AnkiCard) -> TDeck | None:
-        self._verify_card_exists(card)
-        try:
-            return self.col.decks.get(card.raw_card.did)
-        except NotFoundError:
-            return None
-
-    @override
-    def change_deck_of_card(self, card: AnkiCard, new_deck: TDeck) -> AnkiCard:
-        self._verify_card_exists(card)
-        self._verify_deck_exists(new_deck)
-
-        new_id = new_deck.id.numeric_id
-        raw_card = card.raw_card
-        raw_card.did = new_id if new_id else 1
-        self.col.update_card(raw_card)
-        return AnkiCard(card.note, new_deck, card.raw_card)
-
-    @override
-    def get_cards_in_deck(self, deck: TDeck) -> list[TCard]:
-        self._verify_deck_exists(deck)
-        card_ids = self.col.find_cards(f"deck:{deck.name}")
-        return [self.get_card(CardID(card_id)) for card_id in card_ids]
-
-    @override
-    def delete_card(self, card: TCard) -> bool:
-        self._verify_card_exists(card)
-        return self.delete_cards_by_ids([card.id.numeric_id]) >= 1
-
-    def delete_cards_by_ids(self, card_ids: list[int]) -> int:
-        """Delete the specified cards.
-        If the card is the last card from a note,
-        this note will also be automatically deleted.
-
-        :param card_ids: List of card IDs to delete
-        :return: Number of cards deleted
-        """
-        deleted_cards = []
-        old_note_ids = set(self.list_all_notes())
-        for card_id in card_ids:
-            try:
-                # noinspection PyProtectedMember
-                result = self.col._backend.remove_cards([card_id])
-                if result.count != 0:
-                    deleted_cards.append(card_id)
-            except Exception as e:
-                logger.debug(f"Card ID {card_id} is invalid: {e}")
-
-        deleted_notes = sorted(set(old_note_ids) - set(self.list_all_notes()))
-        logger.debug(
-            f"Delete Cards: {deleted_cards}. "
-            + f"Automatically deleted notes: {deleted_notes}"
-        )
-        return len(deleted_cards)
 
     # TODO: Do we need any of these functions?
     def list_card_ids_from_note(self, note_id: int) -> list[int]:

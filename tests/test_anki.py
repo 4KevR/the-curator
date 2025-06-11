@@ -6,7 +6,7 @@ import datetime
 from dotenv import load_dotenv
 
 from src.backend.modules.srs.abstract_srs import CardID
-from src.backend.modules.srs.anki.anki import Anki
+from src.backend.modules.srs.anki.anki import AnkiSRS
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     )
 
     username = "test_user"
-    myAnki = Anki(user_name=username)
+    myAnki = AnkiSRS(anki_directory=username)
     current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     print(f"Current time: {current_time}")
 

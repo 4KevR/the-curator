@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Collection
 import re
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
@@ -7,10 +7,11 @@ from typeguard import typechecked
 
 TCard = TypeVar('TCard', bound='AbstractCard')  # Must be a subtype of AbstractCard
 TDeck = TypeVar('TDeck', bound='AbstractDeck')  # Must be a subtype of AbstractDeck
+TTmpCol = TypeVar('TTmpCol', bound='AbstractTemporaryCollection')  # Must be a subtype of AbstractDeck
 
 
 @typechecked
-@dataclass
+@dataclass(frozen=True)
 class DeckID:
     """Represents a deck identifier that can be stored as both integer and hexadecimal format.
 
@@ -25,7 +26,7 @@ class DeckID:
     numeric_id: int
     __DECK_ID_REGEX: ClassVar[re.Pattern] = re.compile(r"^deck_[0-9a-fA-F]{4}_?[0-9a-fA-F]{4}$")
 
-    def hexstr(self):
+    def hex_id(self):
         """Returns a hex string of the deck id (32 bits, 8 hex digits)."""
         return f"deck_{self.numeric_id:08x}"
 
@@ -39,7 +40,7 @@ class DeckID:
 
 
 @typechecked
-@dataclass
+@dataclass(frozen=True)
 class CardID:
     """Represents a card identifier that can be stored as both integer and hexadecimal format.
 
@@ -54,7 +55,7 @@ class CardID:
     numeric_id: int
     __CARD_ID_REGEX: ClassVar[re.Pattern] = re.compile(r"^card_[0-9a-fA-F]{4}_?[0-9a-fA-F]{4}$")
 
-    def hexstr(self):
+    def hex_id(self):
         """Returns a hex string of the card id (32 bits, 8 hex digits)."""
         return f"card_{self.numeric_id:08x}"
 
@@ -65,6 +66,35 @@ class CardID:
             raise ValueError(f"Invalid card ID format: {hex_str}")
         hex_nr = hex_str[5:].replace("_", "")
         return CardID(int(hex_nr, 16))
+
+
+@typechecked
+@dataclass(frozen=True)
+class TmpCollectionID:
+    """Represents a temporary collection identifier that can be stored as both integer and hexadecimal format.
+
+    The tmp collection ID is stored internally as a 32-bit integer but can be represented as an 8-digit
+    hexadecimal string prefixed with 'tmp_collection_'. For example:
+    - Integer format: 65535
+    - Hex format: tmp_collection_0000ffff
+
+    The hex string format supports an optional underscore separator after the first 4 digits,
+    e.g., 'tmp_collection_0000_ffff'.
+    """
+    numeric_id: int
+    __TMP_COLLECTION_ID_REGEX: ClassVar[re.Pattern] = re.compile(r"^tmp_collection_[0-9a-fA-F]{4}_?[0-9a-fA-F]{4}$")
+
+    def hex_id(self):
+        """Returns a hex string of the deck id (32 bits, 8 hex digits)."""
+        return f"tmp_collection_{self.numeric_id:08x}"
+
+    @staticmethod
+    def from_hex_string(hex_str: str):
+        """Returns a DeckID from a hex string."""
+        if not TmpCollectionID.__TMP_COLLECTION_ID_REGEX.match(hex_str):
+            raise ValueError(f"Invalid temporary collection ID format: {hex_str}")
+        hex_nr = hex_str[len("tmp_collection_"):].replace("_", "")
+        return TmpCollectionID(int(hex_nr, 16))
 
 
 class AbstractDeck(ABC):
@@ -89,7 +119,17 @@ class AbstractCard(ABC):
         self.answer = answer
 
 
-class AbstractSRS(Generic[TCard, TDeck], ABC):
+class AbstractTemporaryCollection(ABC):
+    """A temporary collection of cards in a spaced repetition system, e.g. for a search result."""
+    id: TmpCollectionID
+    description: str
+
+    def __init__(self, tmp_collection_id: TmpCollectionID, description: str):
+        self.id = tmp_collection_id
+        self.description = description
+
+
+class AbstractSRS(Generic[TTmpCol, TCard, TDeck], ABC):
     """Abstract class for a spaced repetition system (SRS), such as Anki."""
 
     # Decks
@@ -176,4 +216,33 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
         Delete a card.
         Returns True if the card was deleted, False otherwise.
         """
+        raise NotImplementedError
+
+    # Temporary Collections
+    @abstractmethod
+    def create_temporary_collection(self, description: str, cards: list[TCard]) -> TTmpCol:
+        """Create a new temporary collection with the given description and cards. Cards may be empty."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_temporary_collections(self) -> list[TTmpCol]:
+        """Retrieve all temporary collections."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_temporary_collection(self, tmp_collection_id: TmpCollectionID) -> TTmpCol:
+        """Retrieve a temporary collection by its ID."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_temporary_collection(self, tmp_collection: TTmpCol):
+        """Delete a temporary collection."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def add_cards_to_temporary_collection(self, tmp_collection: TTmpCol, cards: Collection[TCard]):
+        raise NotImplementedError
+
+    @abstractmethod
+    def remove_cards_from_temporary_collection(self, tmp_collection: TTmpCol, cards: Collection[TCard]):
         raise NotImplementedError
