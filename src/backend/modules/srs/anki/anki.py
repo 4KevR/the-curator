@@ -134,7 +134,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         if deck_name == "":
             raise ValueError("deck_name cannot be empty string.")
 
-        if self.get_deck(deck_name) is not None:
+        if self.get_deck_by_name(deck_name) is not None:
             raise ValueError(f"Deck '{deck_name}' already exists.")
 
         deck_id = self.col.decks.id(deck_name)
@@ -152,8 +152,14 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
             raise ValueError(f"Deck '{deck.name}' does not exist.")
 
     @override
-    def get_deck(self, deck_name: str) -> AnkiDeck | None:
+    def get_deck_by_name(self, deck_name: str) -> TDeck | None:
         deck_dict = self.col.decks.by_name(deck_name)
+        if deck_dict is None: return None
+        return AnkiDeck(DeckID(deck_dict["id"]), deck_dict["name"])
+
+    @override
+    def get_deck(self, deck_id: DeckID) -> TDeck | None:
+        deck_dict = self.col.decks.get(DeckId(deck_id.numeric_id))
         if deck_dict is None: return None
         return AnkiDeck(DeckID(deck_dict["id"]), deck_dict["name"])
 
@@ -270,7 +276,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
     def list_notes_for_cards_in_deck(self, deck_name: str) -> list[Note]:
         """List all Notes for cards in the specified Deck,
         returning a list of (note_id, front, back)."""
-        deck = self.get_deck(deck_name)
+        deck = self.get_deck_by_name(deck_name)
         if not deck:
             return []
 
@@ -342,6 +348,17 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
             return None
 
     @override
+    def change_deck_of_card(self, card: AnkiCard, new_deck: TDeck) -> AnkiCard:
+        self._verify_card_exists(card)
+        self._verify_deck_exists(new_deck)
+
+        new_id = new_deck.id.numeric_id
+        raw_card = card.raw_card
+        raw_card.did = new_id if new_id else 1
+        self.col.update_card(raw_card)
+        return AnkiCard(card.note, new_deck, card.raw_card)
+
+    @override
     def get_cards_in_deck(self, deck: TDeck) -> list[TCard]:
         self._verify_deck_exists(deck)
         card_ids = self.col.find_cards(f"deck:{deck.name}")
@@ -379,7 +396,6 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         return len(deleted_cards)
 
     # TODO: Do we need any of these functions?
-
     def list_card_ids_from_note(self, note_id: int) -> list[int]:
         """List all card IDs from the specified note."""
         note = self.col.get_note(NoteId(note_id))
@@ -410,13 +426,6 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         assert queue_code in [-1, 0, 1, 2, 3, 4]
         card = self.col.get_card(CardId(card_id))
         card.queue = CardQueue(queue_code)
-        self.col.update_card(card)
-
-    def set_deck(self, card_id: int, new_deck_name: str) -> None:
-        card = self.col.get_card(CardId(card_id))
-        new_deck = self.add_deck(new_deck_name)
-        new_id = new_deck.id.numeric_id
-        card.did = new_id if new_id else 1
         self.col.update_card(card)
 
     def set_due(self, card_id: int, due: int) -> None:
@@ -498,7 +507,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         """
         self.col.db.execute(
             "UPDATE cards SET queue = 1 WHERE did = ? AND type = 0 AND queue = 0",
-            self.get_deck(deck_name).id.numeric_id,
+            self.get_deck_by_name(deck_name).id.numeric_id,
         )
 
     # noinspection SqlNoDataSourceInspection
@@ -509,7 +518,7 @@ class Anki(AbstractSRS[AnkiCard, AnkiDeck]):
         # Query all active cards
         cards = self.col.db.list(
             "SELECT id FROM cards WHERE did = ? AND queue IN (1, 2, 3)",
-            self.get_deck(deck_name).id.numeric_id,
+            self.get_deck_by_name(deck_name).id.numeric_id,
         )
 
         count = {key: 0 for key in ("new", "learning", "review", "relearn")}

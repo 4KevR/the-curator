@@ -109,9 +109,17 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
         """Check if the given deck exists."""
 
     @abstractmethod
-    def get_deck(self, deck_name: str) -> TDeck | None:
+    def get_deck_by_name(self, deck_name: str) -> TDeck | None:
         """
         Retrieve a deck by name.
+        If the deck does not exist, return None.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_deck(self, deck_id: DeckID) -> TDeck | None:
+        """
+        Retrieve a deck by id.
         If the deck does not exist, return None.
         """
         raise NotImplementedError
@@ -150,6 +158,11 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
     @abstractmethod
     def get_deck_of_card(self, card: TCard) -> TDeck | None:
         """Retrieve the deck of a card. Returns None if the card is not in a deck."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def change_deck_of_card(self, card: TCard, new_deck: TDeck) -> TCard:
+        """Change the deck of a card, and return the updated card object."""
         raise NotImplementedError
 
     @abstractmethod
