@@ -24,8 +24,14 @@ class LLMCommunicator:
         self.__all_messages = []
         self.__visibility_block_beginning = None
 
-    def _add_message(self, message: str, role="user"):
-        """Add a new message to the conversation, without sending it to the LLM yet."""
+    def add_message(self, message: str, role="user"):
+        """
+        Add a new message to the conversation without sending it to the LLM yet.
+        A system prompt can only be added as the first message.
+        """
+        if role == LLMRole.SYSTEM.value and len(self.__all_messages) > 0:
+            raise ValueError("System prompt can only be set as the first message.")
+
         new_message = {"role": role, "content": message}
         self.messages.append(new_message)
         self.__all_messages.append(new_message)
@@ -34,7 +40,7 @@ class LLMCommunicator:
         """Set the system prompt. May only be called if there is no other message (the first message)."""
         if len(self.__all_messages) > 0:
             raise ValueError("System prompt can only be set as the first message.")
-        self._add_message(message, role="system")
+        self.add_message(message, role="system")
 
     @property
     def messages(self) -> list[dict[str, str]]:
@@ -43,9 +49,9 @@ class LLMCommunicator:
 
     def send_message(self, message: str) -> str:
         """Send a (user) message to the LLM and return the response."""
-        self._add_message(message)
+        self.add_message(message)
         response = self.__llm.generate(self.messages)
-        self._add_message(response, role=LLMRole.ASSISTANT.value)
+        self.add_message(response, role=LLMRole.ASSISTANT.value)
         return response
 
     def start_visibility_block(self):

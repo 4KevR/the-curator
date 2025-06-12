@@ -2,6 +2,7 @@ import logging
 import os
 import typing
 from dataclasses import dataclass
+from enum import Enum
 from typing import Any
 
 from anki.consts import CardType, CardQueue
@@ -397,8 +398,18 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     # ", ".join([it[1]["name"] for it in self.col.models.models.items()])
     # gives
     # 'Basic, Basic (and reversed card), Basic (optional reversed card), Basic (type in the answer), Cloze, Image Occlusion'
+
+    class NoteType(Enum):
+        BASIC = "Basic",
+        BASIC_REVERSED = "Basic (and reversed card)",
+        BASIC_OPTIONAL_REVERSED = "Basic (optional reversed card)",
+        BASIC_TYPE_IN_ANSWER = "Basic (type in the answer)",
+        CLOZE = "Cloze",
+        IMAGE_OCCLUSION = "Image Occlusion"
+
+    @typechecked
     def add_note(
-            self, deck: AnkiDeck, front: str, back: str, model_name: str = "Basic"
+            self, deck: AnkiDeck, front: str, back: str, model_name: NoteType = NoteType.BASIC
     ) -> NoteCreationResult:
         """
         Create a Note with the specified NoteType (model).
@@ -413,9 +424,9 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         self._verify_deck_exists(deck)
 
         # Set NoteType
-        model = self.col.models.by_name(model_name)
+        model = self.col.models.by_name(model_name.value)
         if model is None:
-            raise ValueError(f"Cannot find NoteType: {model_name}.")
+            raise ValueError(f"Cannot find NoteType: {model_name.value}.")
 
         # Add note
         note: Note = self.col.new_note(model)
