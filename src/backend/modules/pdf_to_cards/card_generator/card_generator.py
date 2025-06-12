@@ -1,6 +1,19 @@
-from src.backend.modules.ai_assistant.prompts import create_card_generation_prompt
-from src.backend.modules.llm.AbstractLLM import AbstractLLM
+from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.pdf_to_cards.AbstractPDFReader import AbstractPDFReader
+
+
+def create_card_generation_prompt(max_cards: int, content: str) -> str:
+    return f"""
+        Please generate Anki flashcards.
+        Requirements:
+        1. Use a concise question-and-answer format; each card should include a clear 
+        question and an accurate answer;
+        2. Questions should be as specific as possible, avoiding vague or broad topics;
+        3. Generate no more than {max_cards} cards;
+        4. The output format should be as follows:
+        Q: ...\nA: ...\n\nQ: ...\nA: ...
+        Content:\n{content}
+    """.strip()
 
 
 class CardGeneratorService:
@@ -13,9 +26,9 @@ class CardGeneratorService:
         return self.create_anki_cards(pdf_text_content)
 
     def create_anki_cards(
-        self,
-        page_content: dict,
-        max_cards: int = 3,
+            self,
+            page_content: dict,
+            max_cards: int = 3,
     ) -> dict:
         """Create Anki flashcards from a PDF file.
         :param page_content: Dictionary with page numbers and text content.
@@ -37,7 +50,7 @@ class CardGeneratorService:
                 {
                     "role": "system",
                     "content": "You are an AI assistant that is good at "
-                    "knowledge extraction.",
+                               "knowledge extraction.",
                 },
                 {"role": "user", "content": user_prompt},
             ]
@@ -67,9 +80,9 @@ class CardGeneratorService:
         for block in blocks:
             lines = block.strip().split("\n")
             if (
-                len(lines) >= 2
-                and lines[0].startswith("Q:")
-                and lines[1].startswith("A:")
+                    len(lines) >= 2
+                    and lines[0].startswith("Q:")
+                    and lines[1].startswith("A:")
             ):
                 # Skip the prefixes Q: and A:, and remove whitespace.
                 question = lines[0][2:].strip()

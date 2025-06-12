@@ -4,24 +4,39 @@
 # Then start the server using "lms server start"
 
 from openai import OpenAI
+from overrides import overrides
 
-from src.backend.modules.llm.AbstractLLM import AbstractLLM
+from src.backend.modules.llm.abstract_llm import AbstractLLM
 
 
 class LMStudioLLM(AbstractLLM):
     """Adapter for LLM Studio."""
 
-    def __init__(self):
+    def __init__(self, default_temperature: float, default_max_tokens: int):
         """Initialize the LLM Studio client."""
-        self.client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+        self.client = OpenAI(
+            base_url="http://localhost:1234/v1",
+            api_key="lm-studio"
+        )
+        self.default_temperature = default_temperature
+        self.default_max_tokens = default_max_tokens
 
-    def generate(self, messages: list) -> str:
+    @overrides
+    def generate(self, messages: list[dict[str, str]], temperature: float | None = None,
+                 max_tokens: int | None = None) -> str:
+        if temperature is None:
+            temperature = self.default_temperature
+        if max_tokens is None:
+            max_tokens = self.default_max_tokens
+
+        # This works, be quiet
+        # noinspection PyTypeChecker
         return (
             self.client.chat.completions.create(
                 model="meta-llama-3.1-8b-instruct",
                 messages=messages,
-                temperature=0.7,
-                max_tokens=2048,
+                temperature=temperature,
+                max_tokens=max_tokens,
             )
             .choices[0]
             .message.content

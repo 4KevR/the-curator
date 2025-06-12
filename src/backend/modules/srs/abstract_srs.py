@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, Collection
+from typing import TypeVar, Generic, Collection, Any
 import re
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
@@ -117,6 +117,10 @@ class AbstractCard(ABC):
         self.id = card_id
         self.question = question
         self.answer = answer
+
+    def to_hashable(self) -> Any:
+        """Returns a hashable representation of the card's content. May **not** contain the card's id."""
+        raise NotImplementedError
 
 
 class AbstractTemporaryCollection(ABC):

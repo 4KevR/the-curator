@@ -2,6 +2,7 @@ import logging
 import os
 import typing
 from dataclasses import dataclass
+from typing import Any
 
 from anki.consts import CardType, CardQueue
 from anki.decks import DeckId
@@ -72,6 +73,10 @@ class AnkiCard(AbstractCard):
     @property
     def queue(self) -> str:
         return self.__queue_map.get(self.raw_card.queue, "Unknown")
+
+    @override
+    def to_hashable(self) -> Any:
+        return self.question, self.answer, self.raw_card.type, self.raw_card.flags, self.raw_card.queue
 
     def __str__(self) -> str:
         return f"AnkiCard(id={self.id}, question={self.question}, answer={self.answer}, deck={self.deck.name}, note={self.note}, raw_card={self.raw_card}, type={self.type}, queue={self.queue})"

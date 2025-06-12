@@ -1,4 +1,4 @@
-from src.backend.modules.llm.AbstractLLM import AbstractLLM, LLMConversation, LLM_conversation_role
+from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher
 from src.backend.modules.srs.abstract_srs import AbstractCard
 
@@ -40,7 +40,7 @@ Please return true if it fits, and else false."""
         else:
             raise ValueError("At least one of question or answer must be specified.")
 
-        messages = LLMConversation([(LLM_conversation_role.USER, prompt)])
+        messages = [{"role": "user", "content": prompt}, ]
         response = self.llm.generate(messages).lower()
 
         false_index = response.rfind("false")

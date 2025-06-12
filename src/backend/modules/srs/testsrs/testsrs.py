@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Collection
 
@@ -83,6 +83,10 @@ Answer:
 Flag: {self.flag.value}
 Card State: {self.cardState.value}"""
         return s
+
+    @override
+    def to_hashable(self) -> Any:
+        return self.question, self.answer, self.flag, self.cardState
 
 
 @dataclass(frozen=False)
