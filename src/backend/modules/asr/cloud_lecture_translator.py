@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 import requests
 from sseclient import SSEClient
 
-from src.backend.modules.asr.AbstractASR import AbstractASR
+from src.backend.modules.asr.abstract_asr import AbstractASR
 
 
 class CloudLectureTranslatorASR(AbstractASR):
@@ -162,7 +162,7 @@ class CloudLectureTranslatorASR(AbstractASR):
         chunk_size = 10000
         transcribed_text = []
         for i in range(0, len(audio_chunk), chunk_size):
-            chunk = audio_chunk[i : i + chunk_size]
+            chunk = audio_chunk[i: i + chunk_size]
             self._send_audio(chunk, duration)
         # Collect transcribed text from the queue
         time.sleep(5)

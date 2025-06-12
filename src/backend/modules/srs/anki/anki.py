@@ -203,7 +203,6 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     def get_all_decks(self) -> list[AnkiDeck]:
         """Returns all deck names and corresponding IDs."""
         decks = self.col.decks.all_names_and_ids()
-        # return [Deck(name=deck.name, id=deck.id) for deck in decks] # TODO
         return [AnkiDeck(deck.id, deck.name) for deck in decks]
 
     @override
