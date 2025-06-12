@@ -6,12 +6,8 @@ from collections import Counter
 from dataclasses import dataclass
 
 from src.backend.modules.ai_assistant.chunked_card_stream import ChunkedCardStream
-from src.backend.modules.ai_assistant.llm_command_list import LLMCommandList
 from src.backend.modules.ai_assistant.llm_interactor.llm_interactor import LLMInteractor
 from src.backend.modules.llm.llm_communicator import LLMCommunicator
-from src.backend.modules.srs.abstract_srs import AbstractDeck as Deck
-from src.backend.modules.srs.abstract_srs import AbstractCard as Card
-from src.backend.modules.srs.abstract_srs import AbstractTemporaryCollection as TemporaryCollection
 
 
 @dataclass
@@ -25,10 +21,9 @@ class TaskExecutor:
     """
     See execute_prompts for usage.
     """
-    __agent_instructions: str = None
 
-    def __init__(self, llm_commands: LLMCommandList, llm_interactor: LLMInteractor,
-                 llm_communicator: LLMCommunicator, default_max_errors: int, default_max_messages: int,
+    def __init__(self, llm_interactor: LLMInteractor,
+                 llm_communicator: LLMCommunicator, default_max_errors: int = 5, default_max_messages: int = 10,
                  max_stream_messages_per_chunk: int = 3, max_stream_errors_per_chunk: int = 3,
                  verbose: bool = False):
         """
@@ -41,15 +36,15 @@ class TaskExecutor:
               The count is reset after each chunk of cards.
         """
         self.log = []
-        self.llm_commands = llm_commands
         self.llm_interactor = llm_interactor
+        self.llm_commands = self.llm_interactor.command_list
         self.llm_communicator = llm_communicator
         self.default_max_errors = default_max_errors
         self.default_max_messages = default_max_messages
         self.max_stream_messages_per_chunk = max_stream_messages_per_chunk
         self.max_stream_errors_per_chunk = max_stream_errors_per_chunk
         self.verbose = verbose
-        self.__agent_instructions = ""
+        self.__agent_instructions = None
 
     def execute_prompts(self, user_prompts: list[str], max_errors: int | None = None, max_messages: int | None = None):
         """
@@ -95,10 +90,10 @@ class TaskExecutor:
                     error_count += 1
                     self._add_log_entry("error", f"Exception raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n")
                     message_to_send = f"""An error occurred: {e} Please try again!"""
-                if error_count >= max_errors:
+                if error_count > max_errors:
                     self._add_log_entry("error", f"Too many errors. Abort execution.")
                     raise RuntimeError("Too many errors. Abort execution.")
-                if message_count >= max_messages:
+                if message_count > max_messages:
                     self._add_log_entry("error", f"Too many messages. Abort execution.")
                     raise RuntimeError("Too many messages. Abort execution.")
 
@@ -114,23 +109,24 @@ class TaskExecutor:
         if self.__agent_instructions is not None:
             return self.__agent_instructions
 
+        cl = self.llm_interactor.command_list
         template = f"""You are an assistant for a flashcard learning system.
 
 ## The flashcard system.
 The flashcard system contains decks, and each deck is a collection of cards.
 
 About Cards:
-{Card.__doc__.strip("\n")}
+{cl.card_type.__doc__.strip("\n")}
 
 About Decks:
-{Deck.__doc__.strip("\n")}
+{cl.deck_type.__doc__.strip("\n")}
 
-About Virtual Decks:
-{TemporaryCollection.__doc__.strip("\n")}
+About Temporary Collections:
+{cl.temp_collection_type.__doc__.strip("\n")}
 
 ## Available Functions for Interaction with the Flashcard System
 You can interact with the system by calling specific Python functions, each of which performs an action. The available actions are:
-{self.llm_commands.describe_llm_commands()}
+{cl.describe_llm_commands()}
 
 ## Execution Details
 
@@ -160,7 +156,12 @@ There are a few special cases:
  Create a card with question "What is the most common pet in Germany?" and answer "Dogs".
  You should **not** include these quotation marks in the card.
 * If the user asks you to find cards about a topic, use the right function. If you have a given or obvious keyword, use functions like search_for_substring. If the user asks about an concept, please use methods like search_for_content instead, that actually evaluate the content of the query and the cards.
-
+* If you performed a substring search and found no cards, please always try a fuzzy search! So single-letter mistakes or punctuation do not prevent you from finding the correct card.
+* If your job is to edit/delete all cards that are related to a specific topic / have a certain keyword, your steps are:
+  * 1. Create a temporary collection of the relevant cards using search_by_substring or search_by_content. Fuzzy-search is your friend; use it!
+  * 2. List the cards in the temporary collection to get a card stream.
+  * 3. You will be provided with chunks of cards; now it is your job to work with these chunks: Delete, edit, etc. the card according to your task.
+  
 If you are not sure what to do, and you are sure that the user forgot to specify some specifics, please call the above-mentioned function to request further information from the user.
 
 ## An Example
@@ -196,8 +197,8 @@ Then, you have achieved your task, and return:
     def _handle_card_stream(self, chunked_cards: ChunkedCardStream) -> str:
         """Handle a card stream, passing the chunked cards to the LLM."""
 
-        stream_info = """You are currently in a card stream. You will be provided with groups of cards. You can use these cards to achieve your task.
-If you want to continue to the next chunk, please return an empty <execute>...</execute> block.
+        stream_info = """You are currently in a card stream. You will be provided with groups of cards. **Now** you can work with these cards; you can use the card ids to call edit, delete, add operations.
+Once you are done with the current chunk, and you want to continue to the next chunk, please return an empty <execute>...</execute> block.
 You will **not** be able to see the previous chunk and the messages you sent in the previous chunks.
 To end the stream early (before all cards are processed), please call the function "abort_card_stream(reason: str)". Only call this if there is an error, as you usually have to see all cards in the stream!!
         """
@@ -267,10 +268,10 @@ To end the stream early (before all cards are processed), please call the functi
                     f"Exception raised: {e}. **The card stream is still active.** Remember to call the function"
                     f" 'abort_card_stream()' to abort the card stream prematurely if really necessary."
                 )
-            if error_count >= self.max_stream_errors_per_chunk:
+            if error_count > self.max_stream_errors_per_chunk:
                 self._add_log_entry("error", f"Too many errors. Abort execution.")
                 raise RuntimeError("Too many errors. Abort execution.")
-            if message_count >= self.max_stream_messages_per_chunk:
+            if message_count > self.max_stream_messages_per_chunk:
                 self._add_log_entry("error", f"Too many messages. Abort execution.")
                 raise RuntimeError("Too many messages. Abort execution.")
 

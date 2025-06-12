@@ -17,8 +17,10 @@ from src.backend.modules.srs.abstract_srs import AbstractDeck
 from src.backend.modules.srs.abstract_srs import AbstractCard
 from src.backend.modules.srs.abstract_srs import AbstractTemporaryCollection
 
-_commands = LLMCommandList({"AbstractDeck": "Deck", "AbstractCard": "Card",
-                            "AbstractTemporaryCollection": "TemporaryCollection"})
+_commands = LLMCommandList(
+    {"AbstractDeck": "Deck", "AbstractCard": "Card", "AbstractTemporaryCollection": "TemporaryCollection"},
+    card_type=AbstractCard, deck_type=AbstractDeck, temp_collection_type=AbstractTemporaryCollection
+)
 
 
 @typechecked
@@ -33,6 +35,10 @@ class LLMInteractor:
     def __init__(self, flashcard_manager: AbstractSRS[AbstractDeck, AbstractCard, AbstractTemporaryCollection],
                  content_search_llm: AbstractLLM):
         self.content_search_llm = content_search_llm
+        self.flashcard_manager = flashcard_manager
+
+    def change_flashcard_manager(self, flashcard_manager: AbstractSRS[
+        AbstractDeck, AbstractCard, AbstractTemporaryCollection]):
         self.flashcard_manager = flashcard_manager
 
     @llm_command(_commands)

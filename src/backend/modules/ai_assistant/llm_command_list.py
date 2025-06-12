@@ -12,7 +12,7 @@ class LLMCommandList:
     """
     llm_commands: dict[str, Callable]
 
-    def __init__(self, substitutions: dict[str, str]):
+    def __init__(self, substitutions: dict[str, str], card_type: type, deck_type: type, temp_collection_type: type):
         """
         Params:
          - substitutions: A dictionary of substitutions to apply to the command descriptions. Can be used to replace
@@ -20,6 +20,9 @@ class LLMCommandList:
         """
         self.llm_commands = {}
         self.substitutions = substitutions
+        self.card_type = card_type
+        self.deck_type = deck_type
+        self.temp_collection_type = temp_collection_type
 
     def add_command(self, func: Callable):
         """Adds a function to the list. If a command with the same name already exists, a ValueError is raised."""

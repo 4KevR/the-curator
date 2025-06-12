@@ -7,7 +7,7 @@ from overrides import override
 from typeguard import typechecked
 
 from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS, DeckID, TmpCollectionID, \
-    CardID
+    CardID, AbstractTemporaryCollection
 
 
 @typechecked
@@ -111,25 +111,25 @@ class TestDeck(AbstractDeck):
 
 
 @dataclass(frozen=False)
-class TestTemporaryCollection:
+class TestTemporaryCollection(AbstractTemporaryCollection):
     """
-    A Virtual Deck represents a collection of flashcards. However, the flashcards themselves are part of another deck; a virtual deck is a
-    temporary collection of flashcards. Any changes to the cards in the virtual deck will also change the cards in their 'normal' deck.
-    Virtual Decks are e.g. used to represent the result of search queries.
-    Virtual Decks do not have names.
+    A Temporary Collection represents a collection of flashcards. However, the flashcards themselves are part of another deck; a temporary collection is a
+    temporary collection of flashcards. Any changes to the cards in the temporary collection will also change the cards in their 'normal' deck.
+    Temporary Collections are e.g. used to represent the result of search queries.
+    Temporary Collections do not have names.
 
     Properties:
-       id (str): The id uniquely identifies the virtual deck. It is represented as "virt_deck_xxxx_xxxx", with x being hexadecimal digits.
-          The id is the only way to identify a virtual deck. It is assigned randomly, there is no way to guess it!
+       id (str): The id uniquely identifies the temporary collection. It is represented as "tmp_collection_xxxx_xxxx", with x being hexadecimal digits.
+          The id is the only way to identify a temporary collection. It is assigned randomly, there is no way to guess it!
        description (str): A description that may explain how this deck was created. Optional, may be left blank.
-       cards (List[Card]): The cards contained in the virtual deck. The order has no meaning.
+       cards (List[Card]): The cards contained in the temporary collection. The order has no meaning.
     """
     id: TmpCollectionID
     description: str
     cards: list[TestCard]
 
     def __str__(self):
-        s = f"""Virtual Deck (id: {self.id.hex_id()}) containing {len(self.cards)} cards."""
+        s = f"""Temporary Collection (id: {self.id.hex_id()}) containing {len(self.cards)} cards."""
         if self.description.strip():
             s += "\nDescription: " + self.description
         return s
@@ -140,7 +140,7 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
     __cards_by_id: dict[CardID, TestCard]
     __decks_by_id: dict[DeckID, TestDeck]
     __decks_by_name: dict[str, TestDeck]
-    __virtual_decks_by_id: dict[TmpCollectionID, TestTemporaryCollection]
+    __temp_collections_by_id: dict[TmpCollectionID, TestTemporaryCollection]
     _frozen: bool
 
     def __init__(self):
@@ -148,7 +148,7 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
         self.__cards_by_id = {}
         self.__decks_by_id = {}
         self.__decks_by_name = {}
-        self.__virtual_decks_by_id = {}
+        self.__temp_collections_by_id = {}
         self._frozen = False
 
     ################# ID Handling ######################
@@ -173,8 +173,8 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
         nr_id = self.__create_id({it.numeric_id for it in self.__decks_by_id})
         return DeckID(nr_id)
 
-    def __create_virtual_deck_id(self) -> TmpCollectionID:
-        nr_id = self.__create_id({it.numeric_id for it in self.__virtual_decks_by_id})
+    def __create_temp_collection_id(self) -> TmpCollectionID:
+        nr_id = self.__create_id({it.numeric_id for it in self.__temp_collections_by_id})
         return TmpCollectionID(nr_id)
 
     ################# Freeze / Unfreeze ######################
@@ -343,29 +343,29 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
 
     @override
     def create_temporary_collection(self, description: str, cards: list[TestCard]) -> TestTemporaryCollection:
-        tmp_collection_id = self.__create_virtual_deck_id()
+        tmp_collection_id = self.__create_temp_collection_id()
         tmp_collection = TestTemporaryCollection(id=tmp_collection_id, description=description, cards=cards)
-        self.__virtual_decks_by_id[tmp_collection_id] = tmp_collection
+        self.__temp_collections_by_id[tmp_collection_id] = tmp_collection
         return tmp_collection
 
     @override
     def get_temporary_collections(self) -> list[TestTemporaryCollection]:
-        return list(self.__virtual_decks_by_id.values())
+        return list(self.__temp_collections_by_id.values())
 
     @override
     def get_temporary_collection_or_none(self, tmp_collection_id: TmpCollectionID) -> TestTemporaryCollection | None:
-        return self.__virtual_decks_by_id.get(tmp_collection_id, None)
+        return self.__temp_collections_by_id.get(tmp_collection_id, None)
 
     def temporary_collection_exists(self, tmp_collection: TestTemporaryCollection) -> bool:
-        return tmp_collection.id in self.__virtual_decks_by_id
+        return tmp_collection.id in self.__temp_collections_by_id
 
     def _verify_temporary_collection_exists(self, tmp_collection: TestTemporaryCollection):
-        if tmp_collection.id not in self.__virtual_decks_by_id:
+        if tmp_collection.id not in self.__temp_collections_by_id:
             raise ValueError(f"Temporary Collection {tmp_collection.id} not found.")
 
     @override
     def delete_temporary_collection(self, tmp_collection: TestTemporaryCollection):
-        self.__virtual_decks_by_id.pop(tmp_collection.id)
+        self.__temp_collections_by_id.pop(tmp_collection.id)
 
     @override
     def add_cards_to_temporary_collection(self, tmp_collection: TestTemporaryCollection, cards: Collection[TestCard]):

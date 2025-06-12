@@ -1,11 +1,16 @@
 # %%
 import os
+import re
 from dataclasses import asdict, dataclass
 import json
+from typing import Callable
 
+from src.backend.modules.ai_assistant.llm_interactor.llm_interactor import LLMInteractor
+from src.backend.modules.ai_assistant.task_executor import TaskExecutor
 from src.backend.modules.evaluation.load_test_data.load_test_data import InteractionTest
 from src.backend.modules.helpers.matching import match_by_key, match_by_equals
 from src.backend.modules.llm.abstract_llm import AbstractLLM
+from src.backend.modules.llm.llm_communicator import LLMCommunicator
 from src.backend.modules.srs.testsrs.testsrs import TestFlashcardManager, TestCard
 
 
@@ -19,6 +24,38 @@ class TestInfo:
     queries: list[str]
     error_messages: list[str]
     log_messages: list[str]
+
+    def pretty_print(self, skip_thinking=False):
+        header = f"Test {self.name} " + ("PASSED" if self.passed else ("CRASHED" if self.crashed else "FAILED")) + "."
+        queries = "\n".join(" * " + it for it in self.queries)
+
+        log = []
+        for (role, message) in self.log_messages:
+            if skip_thinking:
+                message = re.sub(r"<think>.*?</think>", "", message, flags=re.DOTALL)
+                message = re.sub("\n\n+", "\n", message)
+                message = message.strip()
+
+            log.append(
+                f"===================================== {role + ' ':>18}=====================================\n{message}\n\n")
+
+        log_msgs = "\n".join(log)
+        if len(self.error_messages) == 0:
+            errors = "No errors!"
+        else:
+            errors = "\n".join("\t" + it for it in self.error_messages)
+
+        s = (
+            f"##############################################################################################\n"
+            f"{header}\n\n"
+            f"####################################### Queries ##############################################\n"
+            f"{queries}\n\n"
+            f"####################################### Logs #################################################\n"
+            f"{log_msgs}\n\n"
+            f"####################################### Errors ###############################################\n"
+            f"{errors}\n\n"
+            f"##############################################################################################\n")
+        print(s)
 
 
 class InteractionTestEvaluator:
@@ -37,7 +74,7 @@ class InteractionTestEvaluator:
         ]
         if not all(required): return False
 
-        prompt = f"""Please evaluate the following two flashcards, and tell me, if they have the same content. It is fine if the spelling, the grammar, the length and the wording differs, as long as the cards contain roughly the same information. If these cards are quite similar, please end your response with "true", else with "false" (without quotation marks). Only the last word of your respone will be evaluated.
+        prompt = f"""Please evaluate the following two flashcards, and tell me if they have the same content. It is fine if the spelling, the grammar, the length and the wording differs, as long as the cards contain roughly the same information. Punctuation or enclosing quotation marks are irrelevant. If these cards are quite similar, please end your response with "true", else with "false" (without quotation marks). Only the last word of your response will be evaluated.
 
 Card 1:
 Question: {expected_card.question}
@@ -46,6 +83,8 @@ Answer: {expected_card.answer}
 Card 2:
 Question: {actual_card.question}
 Answer: {actual_card.answer}
+
+Remember to only respond with 'true' or 'false'.
 """
         messages = [{"role": "user", "content": prompt}]
         response = self.llm_for_fuzzy_matching.generate(messages)
@@ -108,7 +147,13 @@ Answer: {actual_card.answer}
     def execute_interaction_tests(
             self,
             tests: list[InteractionTest],
-            task_executor: AbstractTaskExecutor,
+            llm_interactor: LLMInteractor,
+            task_llm: AbstractLLM,
+            default_max_messages: int,
+            default_max_errors: int,
+            max_stream_messages_per_chunk: int,
+            max_stream_errors_per_chunk: int,
+            verbose_task_execution: bool,
             print_progress: bool = False,
             log_file_path: str = None
     ):
@@ -124,24 +169,31 @@ Answer: {actual_card.answer}
                 if print_progress:
                     print(f"Test {test_nr} out of {len(tests)} ({100.0 * test_nr / len(tests):.2f}%): {test.name}")
 
+                fcm = test.environment.copy()
+                llm_communicator = LLMCommunicator(task_llm)
+                llm_interactor.change_flashcard_manager(fcm)
+                task_executor = TaskExecutor(
+                    llm_interactor, llm_communicator, default_max_messages, default_max_errors,
+                    max_stream_messages_per_chunk, max_stream_errors_per_chunk, verbose_task_execution)
+
                 try:
-                    fcm = test.environment.copy()
-                    task_executor.execute_prompt(fcm, test.queries)
-                    evaluation = self._compare_srs(fcm, test.expected_result)
+                    task_executor.execute_prompts(test.queries)
+                    evaluation = self._compare_srs(test.expected_result, fcm)
                     res.append(TestInfo(
                         passed=len(evaluation) == 0,
                         crashed=False,
                         error_messages=evaluation,
                         queries=test.queries,
                         name=test.name,
-                        log_messages=task_executor.get_log_messages()
+                        log_messages=task_executor.log
                     ))
                 except Exception as e:
                     res += [TestInfo(crashed=True, passed=False, queries=test.queries, name=test.name,
-                                     error_messages=[str(e)], log_messages=task_executor.get_log_messages())]
+                                     error_messages=[str(e)], log_messages=task_executor.log)]
         except KeyboardInterrupt:
             return res
 
-        with open(log_file_path, 'w', encoding='utf-8') as f:
-            json.dump([asdict(item) for item in res], f, ensure_ascii=False, indent=4)
+        if log_file_path is not None:
+            with open(log_file_path, 'w', encoding='utf-8') as f:
+                json.dump([asdict(item) for item in res], f, ensure_ascii=False, indent=4)
         return res

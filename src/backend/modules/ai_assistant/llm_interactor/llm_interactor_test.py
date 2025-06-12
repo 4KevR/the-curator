@@ -10,11 +10,12 @@ from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher
 from src.backend.modules.srs.abstract_srs import DeckID, CardID
 from src.backend.modules.srs.testsrs.testsrs import TestTemporaryCollection, \
-    TestDeck, TestFlashcardManager, Flag, CardState
+    TestDeck, TestFlashcardManager, Flag, CardState, TestCard
 
-_commands = LLMCommandList({"TestTemporaryCollection": "TemporaryCollection",
-                            "TestDeck": "Deck",
-                            "TestFlashcardManager": "FlashcardManager"})
+_commands = LLMCommandList(
+    {"TestTemporaryCollection": "TemporaryCollection", "TestDeck": "Deck", "TestFlashcardManager": "FlashcardManager"},
+    card_type=TestCard, deck_type=TestDeck, temp_collection_type=TestTemporaryCollection
+)
 
 
 # TODO: Apparantly I am using python generics wrong. I really do not understand why the type checker doesn't work here
@@ -67,8 +68,8 @@ class LLMInteractorTest(LLMInteractor, metaclass=InheritDocstrings):
             raise ValueError("Question, answer, state, and flag must all be non-empty strings.")
         deck_id = DeckID.from_hex_string(deck_id_str)
         deck = self.flashcard_manager.get_deck(deck_id)
-        flag = Flag.from_string(flag)
-        state = CardState.from_string(state)
+        flag = Flag.from_str(flag)
+        state = CardState.from_str(state)
         self.flashcard_manager.add_full_card(deck, question, answer, flag, state)
 
     @llm_command(_commands)
@@ -90,7 +91,7 @@ class LLMInteractorTest(LLMInteractor, metaclass=InheritDocstrings):
             raise ValueError("New flag must be a non-empty string.")
         card_id = CardID.from_hex_string(card_id_str)
         card = self.flashcard_manager.get_card(card_id)
-        new_flag = Flag.from_string(new_flag)
+        new_flag = Flag.from_str(new_flag)
         self.flashcard_manager.edit_card_flag(card, new_flag)
 
     @llm_command(_commands)
@@ -105,7 +106,7 @@ class LLMInteractorTest(LLMInteractor, metaclass=InheritDocstrings):
             raise ValueError("New state must be a non-empty string.")
         card_id = CardID.from_hex_string(card_id_str)
         card = self.flashcard_manager.get_card(card_id)
-        new_state = CardState.from_string(new_state)
+        new_state = CardState.from_str(new_state)
         self.flashcard_manager.edit_card_state(card, new_state)
 
     @llm_command(_commands)
