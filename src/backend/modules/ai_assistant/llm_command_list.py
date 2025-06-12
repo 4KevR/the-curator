@@ -1,6 +1,8 @@
 import inspect
 from typing import Callable
 
+from src.backend.modules.helpers.string_util import replace_many
+
 
 class LLMCommandList:
     """
@@ -10,8 +12,14 @@ class LLMCommandList:
     """
     llm_commands: dict[str, Callable]
 
-    def __init__(self):
+    def __init__(self, substitutions: dict[str, str]):
+        """
+        Params:
+         - substitutions: A dictionary of substitutions to apply to the command descriptions. Can be used to replace
+                          class names, e.g. TestDeck -> Deck.
+        """
         self.llm_commands = {}
+        self.substitutions = substitutions
 
     def add_command(self, func: Callable):
         """Adds a function to the list. If a command with the same name already exists, a ValueError is raised."""
@@ -57,6 +65,7 @@ class LLMCommandList:
 
         s = "\n\n".join(res)
         s = s.replace("__main__.", "")  # remove unnecessary main references
+        s = replace_many(s, self.substitutions)
         return s
 
 

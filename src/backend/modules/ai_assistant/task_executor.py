@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 from src.backend.modules.ai_assistant.chunked_card_stream import ChunkedCardStream
 from src.backend.modules.ai_assistant.llm_command_list import LLMCommandList
-from src.backend.modules.ai_assistant.llm_interactor import LLMInteractor
+from src.backend.modules.ai_assistant.llm_interactor.llm_interactor import LLMInteractor
 from src.backend.modules.llm.llm_communicator import LLMCommunicator
 from src.backend.modules.srs.abstract_srs import AbstractDeck as Deck
 from src.backend.modules.srs.abstract_srs import AbstractCard as Card
@@ -130,7 +130,7 @@ About Virtual Decks:
 
 ## Available Functions for Interaction with the Flashcard System
 You can interact with the system by calling specific Python functions, each of which performs an action. The available actions are:
-{self.llm_commands.llm_commands}
+{self.llm_commands.describe_llm_commands()}
 
 ## Execution Details
 

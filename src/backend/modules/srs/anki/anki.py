@@ -30,6 +30,8 @@ logger = logging.getLogger(__name__)
 _base_dir = os.getenv("ANKI_COLLECTION_PATH", "data/anki_collection")
 
 
+# TODO: Still changes from the abstract srs that are missing here!!!
+
 @typechecked
 class AnkiDeck(AbstractDeck):
     pass
@@ -171,7 +173,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         if deck_name == "":
             raise ValueError("deck_name cannot be empty string.")
 
-        if self.get_deck_by_name(deck_name) is not None:
+        if self.get_deck_by_name_or_none(deck_name) is not None:
             raise ValueError(f"Deck '{deck_name}' already exists.")
 
         deck_id = self.col.decks.id(deck_name)
@@ -189,13 +191,13 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
             raise ValueError(f"Deck '{deck.name}' does not exist.")
 
     @override
-    def get_deck_by_name(self, deck_name: str) -> AnkiDeck | None:
+    def get_deck_by_name_or_none(self, deck_name: str) -> AnkiDeck | None:
         deck_dict = self.col.decks.by_name(deck_name)
         if deck_dict is None: return None
         return AnkiDeck(DeckID(deck_dict["id"]), deck_dict["name"])
 
     @override
-    def get_deck(self, deck_id: DeckID) -> AnkiDeck | None:
+    def get_deck_or_none(self, deck_id: DeckID) -> AnkiDeck | None:
         deck_dict = self.col.decks.get(DeckId(deck_id.numeric_id))
         if deck_dict is None: return None
         return AnkiDeck(DeckID(deck_dict["id"]), deck_dict["name"])
@@ -224,7 +226,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         return AnkiCard(new.note, deck, new.cards[0])
 
     @override
-    def get_card(self, card_id: CardID) -> AnkiCard | None:
+    def get_card_or_none(self, card_id: CardID) -> AnkiCard | None:
         try:
             card = self.col.get_card(CardId(card_id.numeric_id))
             raw_deck = self.col.decks.get(card.did)
@@ -237,7 +239,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
 
     @override
     def card_exists(self, card: AnkiCard) -> bool:
-        card2 = self.get_card(card.id.numeric_id)
+        card2 = self.get_card_or_none(card.id)
         return card2 is not None
 
     def _verify_card_exists(self, card: AnkiCard) -> None:
@@ -247,10 +249,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     @override
     def get_deck_of_card(self, card: AnkiCard) -> AnkiDeck | None:
         self._verify_card_exists(card)
-        try:
-            return self.col.decks.get(card.raw_card.did)
-        except NotFoundError:
-            return None
+        return self.col.decks.get(card.raw_card.did)
 
     @override
     def change_deck_of_card(self, card: AnkiCard, new_deck: AnkiDeck) -> AnkiCard:
@@ -269,10 +268,28 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         card_ids = self.col.find_cards(f"deck:{deck.name}")
         return [self.get_card(CardID(card_id)) for card_id in card_ids]
 
-    @override
-    def delete_card(self, card: AnkiCard) -> bool:
+    def edit_card_question(self, card: AnkiCard, new_question: str) -> AnkiCard:
         self._verify_card_exists(card)
-        return self.delete_cards_by_ids([card.id.numeric_id]) >= 1
+        self.edit_note(card.note.id, question=new_question)
+        return self.get_card(card.id)  # updated card element
+
+    def edit_card_answer(self, card: AnkiCard, new_answer: str) -> AnkiCard:
+        self._verify_card_exists(card)
+        self.edit_note(card.note.id, answer=new_answer)
+        return self.get_card(card.id)  # updated card element
+
+    def copy_card_to(self, card: AnkiCard, deck: AnkiDeck) -> AnkiCard:
+        self._verify_card_exists(card)
+        self._verify_deck_exists(deck)
+
+        # TODO: not exactly sure what to do here. Best idea:
+        new_card = self.add_card(deck, card.question, card.answer)
+        return new_card
+
+    @override
+    def delete_card(self, card: AnkiCard) -> None:
+        self._verify_card_exists(card)
+        self.delete_cards_by_ids([card.id.numeric_id])  # returns the amount of cards deleted
 
     def delete_cards_by_ids(self, card_ids: list[int]) -> int:
         """Delete the specified cards.
@@ -300,6 +317,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         )
         return len(deleted_cards)
 
+    # noinspection DuplicatedCode
     @staticmethod
     def __create_id(existing_ids: set[int]):
         attempt = 0
@@ -334,8 +352,8 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
             raise ValueError(f"Temporary collection '{tmp_collection.id}' does not exist.")
 
     @override
-    def get_temporary_collection(self, tmp_collection_id: TmpCollectionID) -> AnkiTemporaryCollection:
-        return self.__temporary_collections[tmp_collection_id]
+    def get_temporary_collection_or_none(self, tmp_collection_id: TmpCollectionID) -> AnkiTemporaryCollection | None:
+        return self.__temporary_collections.get(tmp_collection_id, None)
 
     @override
     def delete_temporary_collection(self, tmp_collection: AnkiTemporaryCollection):
@@ -393,23 +411,17 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         logger.debug(f"Deck is imported from {path}.")
 
     # Note
-    # TODO: Can you please use an enum for model_name?
-    # Running
-    # ", ".join([it[1]["name"] for it in self.col.models.models.items()])
-    # gives
-    # 'Basic, Basic (and reversed card), Basic (optional reversed card), Basic (type in the answer), Cloze, Image Occlusion'
-
     class NoteType(Enum):
-        BASIC = "Basic",
-        BASIC_REVERSED = "Basic (and reversed card)",
-        BASIC_OPTIONAL_REVERSED = "Basic (optional reversed card)",
-        BASIC_TYPE_IN_ANSWER = "Basic (type in the answer)",
-        CLOZE = "Cloze",
+        BASIC = "Basic"
+        BASIC_REVERSED = "Basic (and reversed card)"
+        BASIC_OPTIONAL_REVERSED = "Basic (optional reversed card)"
+        BASIC_TYPE_IN_ANSWER = "Basic (type in the answer)"
+        CLOZE = "Cloze"
         IMAGE_OCCLUSION = "Image Occlusion"
 
     @typechecked
     def add_note(
-            self, deck: AnkiDeck, front: str, back: str, model_name: NoteType = NoteType.BASIC
+            self, deck: AnkiDeck, front: str, back: str, model_name: "AnkiSRS.NoteType" = NoteType.BASIC
     ) -> NoteCreationResult:
         """
         Create a Note with the specified NoteType (model).
@@ -471,7 +483,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     def list_notes_for_cards_in_deck(self, deck_name: str) -> list[Note]:
         """List all Notes for cards in the specified Deck,
         returning a list of (note_id, front, back)."""
-        deck = self.get_deck_by_name(deck_name)
+        deck = self.get_deck_by_name_or_none(deck_name)
         if not deck:
             return []
 

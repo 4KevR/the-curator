@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typeguard import typechecked
 
 from src.backend.modules.evaluation.load_test_data.import_data_classes import _Test_ExpectedResult, _Test_Data
+from src.backend.modules.helpers.string_util import replace_many
 from src.backend.modules.srs.testsrs.testsrs import TestFlashcardManager, Flag, CardState, TestDeck
 
 
@@ -51,15 +52,6 @@ class EvaluationTests:
     test_flashcard_manager: TestFlashcardManager  # not really necessary, but nice to have.
     interaction: list[InteractionTest]
     question_answering: list[QuestionAnsweringTest]
-
-
-def replace_many(s: str, replacements: dict[str, str]) -> str:
-    """
-    Replace multiple substrings in a string. There is no guarantee on the order of replacements.
-    """
-    for old, new in replacements.items():
-        s = s.replace(old, new)
-    return s
 
 
 @dataclass(frozen=True)

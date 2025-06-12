@@ -25,9 +25,9 @@ if __name__ == "__main__":
     print(f"Current time: {current_time}")
 
     myDeck = myAnki.add_deck(f"test_deck {current_time}")
-    myAnki.add_note(myDeck, "front: 1", "back: eins", "Basic")
-    myAnki.add_note(myDeck, "front: 2", "back: zwei", "Basic")
-    res = myAnki.add_note(myDeck, "front: 3", "back: drei", "Basic (and reversed card)")
+    myAnki.add_note(myDeck, "front: 1", "back: eins", AnkiSRS.NoteType.BASIC)
+    myAnki.add_note(myDeck, "front: 2", "back: zwei", AnkiSRS.NoteType.BASIC)
+    res = myAnki.add_note(myDeck, "front: 3", "back: drei", AnkiSRS.NoteType.BASIC_REVERSED)
 
     print(myAnki.get_card(CardID(res.cards[0].id)))
     print(myAnki.get_card(CardID(res.cards[1].id)))

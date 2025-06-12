@@ -152,6 +152,7 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
         self._frozen = False
 
     ################# ID Handling ######################
+    # noinspection DuplicatedCode
     @staticmethod
     def __create_id(existing_ids: set[int]):
         attempt = 0
@@ -208,11 +209,11 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
             raise ValueError(f"Deck {deck.id} not found.")
 
     @override
-    def get_deck_by_name(self, deck_name: str) -> TestDeck | None:
+    def get_deck_by_name_or_none(self, deck_name: str) -> TestDeck | None:
         return self.__decks_by_name.get(deck_name, None)
 
     @override
-    def get_deck(self, deck_id: DeckID) -> TestDeck | None:
+    def get_deck_or_none(self, deck_id: DeckID) -> TestDeck | None:
         return self.__decks_by_id.get(deck_id, None)
 
     @override
@@ -268,7 +269,7 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
             raise ValueError(f"Card {card.id} not found.")
 
     @override
-    def get_card(self, card_id: CardID) -> TestCard | None:
+    def get_card_or_none(self, card_id: CardID) -> TestCard | None:
         return self.__cards_by_id.get(card_id, None)
 
     @override
@@ -288,18 +289,57 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
         return card
 
     @override
+    def copy_card_to(self, card: TestCard, deck: TestDeck) -> TestCard:
+        """
+        Copy a card to a (usually different) deck, and return the new card object.
+        Only copies the content of the card, not the metadata (e.g., id).
+        """
+        self._check_frozen()
+        self._verify_card_exists(card)
+        self._verify_deck_exists(deck)
+        new_card = TestCard(id=self.__create_card_id(), question=card.question, answer=card.answer, flag=card.flag,
+                            cardState=card.cardState, deck=deck)
+        deck.cards.append(new_card)
+        return new_card
+
+    @override
     def get_cards_in_deck(self, deck: TestDeck) -> list[TestCard]:
         self._verify_deck_exists(deck)
         return deck.cards
 
     @override
-    def delete_card(self, card: TestCard) -> bool:
+    def edit_card_question(self, card: TestCard, new_question: str) -> TestCard:
+        self._check_frozen()
+        self._verify_card_exists(card)
+        card.question = new_question
+        return card
+
+    @override
+    def edit_card_answer(self, card: TestCard, new_answer: str) -> TestCard:
+        self._check_frozen()
+        self._verify_card_exists(card)
+        card.answer = new_answer
+        return card
+
+    def edit_card_flag(self, card: TestCard, new_flag: Flag) -> TestCard:
+        self._check_frozen()
+        self._verify_card_exists(card)
+        card.flag = new_flag
+        return card
+
+    def edit_card_state(self, card: TestCard, new_state: CardState) -> TestCard:
+        self._check_frozen()
+        self._verify_card_exists(card)
+        card.cardState = new_state
+        return card
+
+    @override
+    def delete_card(self, card: TestCard) -> None:
         self._check_frozen()
         self._verify_card_exists(card)
         deck = card.deck
         deck.cards.remove(card)
         self.__cards_by_id.pop(card.id)
-        return True
 
     @override
     def create_temporary_collection(self, description: str, cards: list[TestCard]) -> TestTemporaryCollection:
@@ -313,7 +353,7 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
         return list(self.__virtual_decks_by_id.values())
 
     @override
-    def get_temporary_collection(self, tmp_collection_id: TmpCollectionID) -> TestTemporaryCollection:
+    def get_temporary_collection_or_none(self, tmp_collection_id: TmpCollectionID) -> TestTemporaryCollection | None:
         return self.__virtual_decks_by_id.get(tmp_collection_id, None)
 
     def temporary_collection_exists(self, tmp_collection: TestTemporaryCollection) -> bool:

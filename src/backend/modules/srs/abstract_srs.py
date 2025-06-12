@@ -152,16 +152,36 @@ class AbstractSRS(Generic[TTmpCol, TCard, TDeck], ABC):
     def deck_exists(self, deck: TDeck) -> bool:
         """Check if the given deck exists."""
 
+    def get_deck_by_name(self, deck_name: str) -> TDeck:
+        """
+        Retrieve a deck by name.
+        If the deck does not exist, an error is thrown.
+        """
+        deck = self.get_deck_by_name_or_none(deck_name)
+        if deck is None:
+            raise ValueError(f"Deck '{deck_name}' does not exist.")
+        return deck
+
     @abstractmethod
-    def get_deck_by_name(self, deck_name: str) -> TDeck | None:
+    def get_deck_by_name_or_none(self, deck_name: str) -> TDeck | None:
         """
         Retrieve a deck by name.
         If the deck does not exist, return None.
         """
         raise NotImplementedError
 
+    def get_deck(self, deck_id: DeckID) -> TDeck:
+        """
+        Retrieve a deck by id.
+        If the deck does not exist, an error is thrown.
+        """
+        deck = self.get_deck_or_none(deck_id)
+        if deck is None:
+            raise ValueError(f"Deck with id {deck_id} does not exist.")
+        return deck
+
     @abstractmethod
-    def get_deck(self, deck_id: DeckID) -> TDeck | None:
+    def get_deck_or_none(self, deck_id: DeckID) -> TDeck | None:
         """
         Retrieve a deck by id.
         If the deck does not exist, return None.
@@ -194,19 +214,16 @@ class AbstractSRS(Generic[TTmpCol, TCard, TDeck], ABC):
         """Check if a card exists."""
         raise NotImplementedError
 
-    @abstractmethod
-    def get_card(self, card_id: CardID) -> TCard | None:
-        """Retrieve a card by its ID."""
-        raise NotImplementedError
+    def get_card(self, card_id: CardID) -> TCard:
+        """Retrieve a card by its ID. Fails if the card is not present in any deck."""
+        card = self.get_card_or_none(card_id)
+        if card is None:
+            raise ValueError(f"Card with id {card_id} does not exist.")
+        return card
 
     @abstractmethod
-    def get_deck_of_card(self, card: TCard) -> TDeck | None:
-        """Retrieve the deck of a card. Returns None if the card is not in a deck."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def change_deck_of_card(self, card: TCard, new_deck: TDeck) -> TCard:
-        """Change the deck of a card, and return the updated card object."""
+    def get_card_or_none(self, card_id: CardID) -> TCard | None:
+        """Retrieve a card by its ID. Returns None if the card is not present in any deck."""
         raise NotImplementedError
 
     @abstractmethod
@@ -215,10 +232,38 @@ class AbstractSRS(Generic[TTmpCol, TCard, TDeck], ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def delete_card(self, card: TCard) -> bool:
+    def edit_card_question(self, card: TCard, new_question: str) -> TCard:
+        """Edit the question of a card."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def edit_card_answer(self, card: TCard, new_answer: str) -> TCard:
+        """Edit the answer of a card."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_deck_of_card(self, card: TCard) -> TDeck:
+        """Retrieve the deck of a card. Fails if the card is not present in this srs."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def change_deck_of_card(self, card: TCard, new_deck: TDeck) -> TCard:
+        """Change the deck of a card, and return the updated card object."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def copy_card_to(self, card: TCard, deck: TDeck) -> TCard:
+        """
+        Copy a card to a (usually different) deck, and return the new card object.
+        Only copies the content of the card, not the metadata (e.g., id).
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_card(self, card: TCard) -> None:
         """
         Delete a card.
-        Returns True if the card was deleted, False otherwise.
+        Raises a ValueError if the card is not present in any deck.
         """
         raise NotImplementedError
 
@@ -233,20 +278,27 @@ class AbstractSRS(Generic[TTmpCol, TCard, TDeck], ABC):
         """Retrieve all temporary collections."""
         raise NotImplementedError
 
-    @abstractmethod
     def get_temporary_collection(self, tmp_collection_id: TmpCollectionID) -> TTmpCol:
-        """Retrieve a temporary collection by its ID."""
+        """Retrieve a temporary collection by its ID. Fails if the temporary collection does not exist."""
+        tmp_col = self.get_temporary_collection_or_none(tmp_collection_id)
+        if tmp_col is None:
+            raise ValueError(f"Temporary collection with id {tmp_collection_id} does not exist.")
+        return tmp_col
+
+    @abstractmethod
+    def get_temporary_collection_or_none(self, tmp_collection_id: TmpCollectionID) -> TTmpCol | None:
+        """Retrieve a temporary collection by its ID. Returns None if the temporary collection does not exist."""
         raise NotImplementedError
 
     @abstractmethod
-    def delete_temporary_collection(self, tmp_collection: TTmpCol):
-        """Delete a temporary collection."""
+    def delete_temporary_collection(self, tmp_collection: TTmpCol) -> None:
+        """Delete a temporary collection. Raises a ValueError if the temporary collection does not exist."""
         raise NotImplementedError
 
     @abstractmethod
-    def add_cards_to_temporary_collection(self, tmp_collection: TTmpCol, cards: Collection[TCard]):
+    def add_cards_to_temporary_collection(self, tmp_collection: TTmpCol, cards: Collection[TCard]) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def remove_cards_from_temporary_collection(self, tmp_collection: TTmpCol, cards: Collection[TCard]):
+    def remove_cards_from_temporary_collection(self, tmp_collection: TTmpCol, cards: Collection[TCard]) -> None:
         raise NotImplementedError
