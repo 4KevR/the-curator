@@ -4,7 +4,8 @@ import logging
 import requests
 from sseclient import SSEClient
 
-from src.backend.modules.asr import CloudLectureTranslatorASR
+from src.backend.modules.asr.cloud_lecture_translator import \
+    CloudLectureTranslatorASR
 
 logger = logging.getLogger(__name__)
 
