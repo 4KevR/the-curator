@@ -30,8 +30,8 @@ from llama_index.vector_stores.postgres import PGVectorStore
 load_dotenv(".env")
 load_dotenv(".env.db")
 
-CREATE_INDEX = False  # Set to True to create a new index, False to use an existing one
-RUN_TESTS = True  # Set to True to run the question answering tests after init
+CREATE_INDEX = True  # Set to True to create a new index, False to use an existing one
+RUN_TESTS = False  # Set to True to run the question answering tests after init
 
 Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-en-v1.5")
 Settings.llm = HuggingFaceInferenceAPI(
@@ -71,20 +71,29 @@ vector_store_decks = PGVectorStore.from_params(
     },
 )
 
-index_store = PostgresIndexStore.from_params(
+index_store_decks = PostgresIndexStore.from_params(
     database=os.getenv("POSTGRES_DB"),
     host="localhost",
     password=os.getenv("POSTGRES_PASSWORD"),
     port=5432,
     user=os.getenv("POSTGRES_USER"),
-    table_name="the_curator_index_store",
+    table_name="the_curator_index_store_decks",
+)
+
+index_store_cards = PostgresIndexStore.from_params(
+    database=os.getenv("POSTGRES_DB"),
+    host="localhost",
+    password=os.getenv("POSTGRES_PASSWORD"),
+    port=5432,
+    user=os.getenv("POSTGRES_USER"),
+    table_name="the_curator_index_store_cards",
 )
 
 storage_context_decks = StorageContext.from_defaults(
-    vector_store=vector_store_decks, index_store=index_store
+    vector_store=vector_store_decks, index_store=index_store_decks
 )
 storage_context_cards = StorageContext.from_defaults(
-    vector_store=vector_store_cards, index_store=index_store
+    vector_store=vector_store_cards, index_store=index_store_cards
 )
 
 

@@ -149,6 +149,7 @@ class CloudLectureTranslatorASR(AbstractASR):
                 if "markup" in data:
                     continue
                 if "seq" in data:
+                    print(f"Received data: {data}")
                     self.text_queue.put(data["seq"].replace("<br><br>", ""))
 
             except json.decoder.JSONDecodeError:
@@ -162,7 +163,7 @@ class CloudLectureTranslatorASR(AbstractASR):
         chunk_size = 10000
         transcribed_text = []
         for i in range(0, len(audio_chunk), chunk_size):
-            chunk = audio_chunk[i: i + chunk_size]
+            chunk = audio_chunk[i : i + chunk_size]
             self._send_audio(chunk, duration)
         # Collect transcribed text from the queue
         time.sleep(5)

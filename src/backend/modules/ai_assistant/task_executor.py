@@ -22,10 +22,16 @@ class TaskExecutor:
     See execute_prompts for usage.
     """
 
-    def __init__(self, llm_interactor: LLMInteractor,
-                 llm_communicator: LLMCommunicator, default_max_errors: int = 5, default_max_messages: int = 10,
-                 max_stream_messages_per_chunk: int = 3, max_stream_errors_per_chunk: int = 3,
-                 verbose: bool = False):
+    def __init__(
+        self,
+        llm_interactor: LLMInteractor,
+        llm_communicator: LLMCommunicator,
+        default_max_errors: int = 5,
+        default_max_messages: int = 10,
+        max_stream_messages_per_chunk: int = 3,
+        max_stream_errors_per_chunk: int = 3,
+        verbose: bool = False,
+    ):
         """
         Parameters:
             default_max_errors: Maximum number of errors before aborting execution. Can be overwritten in individual calls.
@@ -46,7 +52,12 @@ class TaskExecutor:
         self.verbose = verbose
         self.__agent_instructions = None
 
-    def execute_prompts(self, user_prompts: list[str], max_errors: int | None = None, max_messages: int | None = None):
+    def execute_prompts(
+        self,
+        user_prompts: list[str],
+        max_errors: int | None = None,
+        max_messages: int | None = None,
+    ) -> str:
         """
         Sends the given prompts to the LLM and executes the responses using the classes llm_interactor.
 
@@ -55,7 +66,9 @@ class TaskExecutor:
           * total messages exceed max_messages.
         """
         max_errors = max_errors if max_errors is not None else self.default_max_errors
-        max_messages = max_messages if max_messages is not None else self.default_max_messages
+        max_messages = (
+            max_messages if max_messages is not None else self.default_max_messages
+        )
 
         error_count = 0
         message_count = 0
@@ -65,7 +78,9 @@ class TaskExecutor:
         for user_prompt in user_prompts:
             message_to_send = user_prompt
 
-            while True:  # cannot loop forever since message_count is capped by max_messages.
+            while (
+                True
+            ):  # cannot loop forever since message_count is capped by max_messages.
                 try:
                     message_count += 1
                     self._add_log_entry("user", message_to_send)
@@ -76,26 +91,33 @@ class TaskExecutor:
                     results = self._execute_llm_response(commands)
 
                     if len(results) == 0:
-                        return
+                        break
                     else:
                         if any(isinstance(it, ChunkedCardStream) for it in results):
                             if len(results) == 1:
                                 message_to_send = self._handle_card_stream(results[0])
                             else:
-                                raise Exception("If you want to call a method that returns a stream, you may not call"
-                                                " any other function in the same message.")
+                                raise Exception(
+                                    "If you want to call a method that returns a stream, you may not call"
+                                    " any other function in the same message."
+                                )
                         else:
                             message_to_send = self._deep_to_string(results)
+                    last_result = message_to_send
                 except Exception as e:
                     error_count += 1
-                    self._add_log_entry("error", f"Exception raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n")
+                    self._add_log_entry(
+                        "error",
+                        f"Exception raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n",
+                    )
                     message_to_send = f"""An error occurred: {e} Please try again!"""
                 if error_count > max_errors:
-                    self._add_log_entry("error", f"Too many errors. Abort execution.")
+                    self._add_log_entry("error", "Too many errors. Abort execution.")
                     raise RuntimeError("Too many errors. Abort execution.")
                 if message_count > max_messages:
-                    self._add_log_entry("error", f"Too many messages. Abort execution.")
+                    self._add_log_entry("error", "Too many messages. Abort execution.")
                     raise RuntimeError("Too many messages. Abort execution.")
+            # return last_result
 
     def _add_log_entry(self, category: str, content: str):
         """Add a log entry to the log, and print it if verbose is True."""
@@ -161,6 +183,7 @@ There are a few special cases:
   * 1. Create a temporary collection of the relevant cards using search_by_substring or search_by_content. Fuzzy-search is your friend; use it!
   * 2. List the cards in the temporary collection to get a card stream.
   * 3. You will be provided with chunks of cards; now it is your job to work with these chunks: Delete, edit, etc. the card according to your task.
+* If a user is asking a general question which may be included on some card, use the respond_to_question_answering_query function which returns an answer that can be given back to the user.
   
 If you are not sure what to do, and you are sure that the user forgot to specify some specifics, please call the above-mentioned function to request further information from the user.
 
@@ -206,7 +229,9 @@ To end the stream early (before all cards are processed), please call the functi
         self.llm_communicator.start_visibility_block()
 
         next_chunk = chunked_cards.next_chunk()
-        message_to_send = "The next messages are:\n" + "\n\n".join(str(it) for it in next_chunk)
+        message_to_send = "The next messages are:\n" + "\n\n".join(
+            str(it) for it in next_chunk
+        )
 
         error_count = 0
         message_count = 0
@@ -224,15 +249,24 @@ To end the stream early (before all cards are processed), please call the functi
                     if len(commands) == 1:
                         self.llm_communicator.end_visibility_block()
                         args_str = ", ".join(commands[0].args)
-                        kw_args = str(commands[0].kwargs) if len(commands[0].kwargs) > 0 else ""
+                        kw_args = (
+                            str(commands[0].kwargs)
+                            if len(commands[0].kwargs) > 0
+                            else ""
+                        )
                         return f"You decided to exit the stream early for the following reason: {args_str} {kw_args}"
                     raise Exception(
                         "If you want to exit the card stream, you may not call any other function in the same message."
                         " **None** of your commands from the last message have been executed."
                     )
 
-                if any(self._llm_function_return_type(c.func_name) == ChunkedCardStream for c in commands):
-                    raise Exception("You are already in a card stream. Exit this stream before entering a new one.")
+                if any(
+                    self._llm_function_return_type(c.func_name) == ChunkedCardStream
+                    for c in commands
+                ):
+                    raise Exception(
+                        "You are already in a card stream. Exit this stream before entering a new one."
+                    )
 
                 command_counter.update(it.func_name for it in commands)
 
@@ -246,7 +280,11 @@ To end the stream early (before all cards are processed), please call the functi
                         self.llm_communicator.end_visibility_block()
                         func_call_times = "\n".join(
                             f"{it[0]:<26}: {it[1]:>5}"
-                            for it in sorted(command_counter.items(), key=lambda x: x[1], reverse=True)
+                            for it in sorted(
+                                command_counter.items(),
+                                key=lambda x: x[1],
+                                reverse=True,
+                            )
                         )
                         return (
                             f"The stream containing {len(chunked_cards.items)} cards has been fully processed."
@@ -260,19 +298,24 @@ To end the stream early (before all cards are processed), please call the functi
                     next_chunk = chunked_cards.next_chunk()
                     error_count, message_count = 0, 0
                     self.llm_communicator.start_visibility_block()
-                    message_to_send = "The next messages are:\n" + "\n\n".join(str(it) for it in next_chunk)
+                    message_to_send = "The next messages are:\n" + "\n\n".join(
+                        str(it) for it in next_chunk
+                    )
             except Exception as e:
                 error_count += 1
-                self._add_log_entry("exception", f"Exception raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n")
+                self._add_log_entry(
+                    "exception",
+                    f"Exception raised: {e}.\n\nStack trace:\n{traceback.format_exc()}\n",
+                )
                 message_to_send = (
                     f"Exception raised: {e}. **The card stream is still active.** Remember to call the function"
                     f" 'abort_card_stream()' to abort the card stream prematurely if really necessary."
                 )
             if error_count > self.max_stream_errors_per_chunk:
-                self._add_log_entry("error", f"Too many errors. Abort execution.")
+                self._add_log_entry("error", "Too many errors. Abort execution.")
                 raise RuntimeError("Too many errors. Abort execution.")
             if message_count > self.max_stream_messages_per_chunk:
-                self._add_log_entry("error", f"Too many messages. Abort execution.")
+                self._add_log_entry("error", "Too many messages. Abort execution.")
                 raise RuntimeError("Too many messages. Abort execution.")
 
     def _llm_function_return_type(self, function_name: str):
@@ -291,7 +334,9 @@ To end the stream early (before all cards are processed), please call the functi
                 raise ValueError(f"Unknown function name {command.func_name}.")
 
         return [
-            self.llm_commands.llm_commands[command.func_name](self.llm_interactor, *command.args, **command.kwargs)
+            self.llm_commands.llm_commands[command.func_name](
+                self.llm_interactor, *command.args, **command.kwargs
+            )
             for command in commands
         ]
 
@@ -329,9 +374,11 @@ To end the stream early (before all cards are processed), please call the functi
         """Parse a string containing a function call into a _ParsedLLMCommand."""
         # Parse the string into an AST node
         try:
-            tree = ast.parse(call_str, mode='eval')
+            tree = ast.parse(call_str, mode="eval")
         except SyntaxError:
-            raise ValueError(f"The string\n\n{call_str}\n\nis not a ast-parsable Python expression.")
+            raise ValueError(
+                f"The string\n\n{call_str}\n\nis not a ast-parsable Python expression."
+            )
 
         # Ensure it's a function call
         if not isinstance(tree.body, ast.Call):
@@ -359,11 +406,17 @@ To end the stream early (before all cards are processed), please call the functi
     @staticmethod
     def _parse_llm_response(response: str) -> list[_ParsedLLMCommand]:
         """Parses the 'execute' block in the LLM response into a list of _ParsedLLMCommand objects."""
-        match = re.search(r"^ *<execute>(.*?)</execute>", response, re.DOTALL + re.MULTILINE)
+        match = re.search(
+            r"^ *<execute>(.*?)</execute>", response, re.DOTALL + re.MULTILINE
+        )
         if not match:
             raise ValueError(
                 "No execute block found in response. Remember to use <execute>...</execute> to mark your execution"
                 " plan, and send an empty block to indicate that you do not wish to take any further action."
             )
         plan = match.group(1)
-        return [TaskExecutor._parse_function_call(line[1:].strip()) for line in plan.splitlines() if line.strip()]
+        return [
+            TaskExecutor._parse_function_call(line[1:].strip())
+            for line in plan.splitlines()
+            if line.strip()
+        ]
