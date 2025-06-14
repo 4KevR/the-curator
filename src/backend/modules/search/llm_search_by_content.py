@@ -1,3 +1,4 @@
+from src.backend.modules.helpers.string_util import find_substring_in_llm_response
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher
 from src.backend.modules.srs.abstract_srs import AbstractCard
@@ -43,11 +44,4 @@ Please return true if it fits, and else false."""
             {"role": "user", "content": prompt},
         ]
         response = self.llm.generate(messages).lower()
-
-        false_index = response.rfind("false")
-        true_index = response.rfind("true")
-
-        if false_index != -1 and true_index != -1:
-            raise ValueError(f"Unexpected llm response: {response!r}")
-
-        return true_index > false_index
+        return find_substring_in_llm_response(response, "true", "false")

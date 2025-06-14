@@ -1,3 +1,4 @@
+from src.backend.modules.helpers.string_util import find_substring_in_llm_response
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.srs.testsrs.testsrs import TestCard
 
@@ -24,13 +25,7 @@ Remember to only respond with 'true' or 'false'.
         messages = [{"role": "user", "content": prompt}]
         response = self.judge_llm.generate(messages)
 
-        false_index = response.rfind("false")
-        true_index = response.rfind("true")
-
-        if false_index != -1 and true_index != -1:
-            raise ValueError(f"Unexpected llm response: {response!r}")
-
-        return true_index > false_index
+        return find_substring_in_llm_response(response, "true", "false")
 
     def judge_card_similarity(self, expected_card: TestCard, actual_card: TestCard) -> bool:
         """
@@ -63,10 +58,4 @@ Remember to only respond with 'true' or 'false'.
         messages = [{"role": "user", "content": prompt}]
         response = self.llm_for_fuzzy_matching.generate(messages)
 
-        false_index = response.rfind("false")
-        true_index = response.rfind("true")
-
-        if false_index != -1 and true_index != -1:
-            raise ValueError(f"Unexpected llm response: {response!r}")
-
-        return true_index > false_index
+        return find_substring_in_llm_response(response, "true", "false")

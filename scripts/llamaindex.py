@@ -101,12 +101,12 @@ storage_context_decks = StorageContext.from_defaults(vector_store=vector_store_d
 storage_context_cards = StorageContext.from_defaults(vector_store=vector_store_cards, index_store=index_store_cards)
 
 
-def load_test_data(path: str) -> dict:
+def _load_test_data(path: str) -> dict:
     json_path = pathlib.Path(path)
     return json.loads(json_path.read_text(encoding="utf-8"))
 
 
-def get_deck_summaries(test_data: dict) -> list[dict]:
+def _get_deck_summaries(test_data: dict) -> list[dict]:
     decks = test_data["test_decks"]
     summaries = []
     for _, deck in decks.items():
@@ -125,7 +125,7 @@ def get_deck_summaries(test_data: dict) -> list[dict]:
     return summaries
 
 
-def get_all_cards(test_data: dict) -> list[dict]:
+def _get_all_cards(test_data: dict) -> list[dict]:
     decks = test_data["test_decks"]
     cards = []
     for deck in decks.values():
@@ -142,16 +142,16 @@ def get_all_cards(test_data: dict) -> list[dict]:
 
 if CREATE_INDEX:
     test_data_path = base + "tests/data/tests.json"
-    test_data = load_test_data(test_data_path)
+    test_data = _load_test_data(test_data_path)
 
     # Index 1: Deck summaries
-    deck_summaries = get_deck_summaries(test_data)
+    deck_summaries = _get_deck_summaries(test_data)
     deck_docs = [Document(text=deck["summary"], metadata={"deck_name": deck["deck_name"]}) for deck in deck_summaries]
     deck_index = VectorStoreIndex.from_documents(deck_docs, storage_context=storage_context_decks, show_progress=True)
     print(f"Created deck_index with id {deck_index.index_id}")
 
     # Index 2: All cards (question + answer)
-    card_entries = get_all_cards(test_data)
+    card_entries = _get_all_cards(test_data)
     card_docs = [
         Document(
             text=f"Q: {card['question']}\nA: {card['answer']}",
