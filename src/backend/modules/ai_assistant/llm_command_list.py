@@ -1,6 +1,7 @@
 import inspect
-from typing import Callable
+from typing import Callable, Optional
 
+from src.backend.modules.ai_assistant.user_state import UserState
 from src.backend.modules.helpers.string_util import replace_many
 
 
@@ -47,10 +48,12 @@ class LLMCommandList:
         type_str = f"{origin.__name__}[{', '.join(arg.__name__ for arg in args)}]"
         return type_str
 
-    def describe_llm_commands(self) -> str:
+    def describe_llm_commands(self, state: Optional[UserState] = None) -> str:
         """Returns a string describing all commands in the list, including their signatures and docstrings."""
         res = []
         for cmnd_name, llm_command in self.llm_commands.items():
+            if state and hasattr(llm_command, "_allowed_states") and state not in llm_command._allowed_states:
+                continue
             params = []
             sig = inspect.signature(llm_command)
             for name, param in sig.parameters.items():
@@ -74,11 +77,12 @@ class LLMCommandList:
         return s
 
 
-def llm_command(llm_command_list):
+def llm_command(llm_command_list, *, allowed_states=None):
     """A decorator factory that adds a function to the given LLMCommandList."""
 
     def decorator(func):
         llm_command_list.add_command(func)
+        func._allowed_states = set(allowed_states) if allowed_states else set()
         return func
 
     return decorator

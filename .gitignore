@@ -182,6 +182,7 @@ data
 
 # Env
 .env.local
+.env.db
 
 # Recordings
 asr/*/recording session*/

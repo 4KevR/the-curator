@@ -145,6 +145,7 @@ class CloudLectureTranslatorASR(AbstractASR):
                 if "markup" in data:
                     continue
                 if "seq" in data:
+                    print(f"Received data: {data}")
                     self.text_queue.put(data["seq"].replace("<br><br>", ""))
 
             except json.decoder.JSONDecodeError:

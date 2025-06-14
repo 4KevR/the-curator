@@ -8,4 +8,7 @@
     "editor.defaultFormatter": "charliermarsh.ruff"
   },
   "python.testing.pytestEnabled": true,
+  "files.exclude": {
+    "**/__pycache__": true
+  }
 }

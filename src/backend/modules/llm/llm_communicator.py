@@ -52,6 +52,7 @@ class LLMCommunicator:
     def send_message(self, message: str) -> str:
         """Send a (user) message to the LLM and return the response."""
         self.add_message(message)
+        print(self.messages)
         response = self.__llm.generate(self.messages)
         self.add_message(response, role=LLMRole.ASSISTANT.value)
         return response
