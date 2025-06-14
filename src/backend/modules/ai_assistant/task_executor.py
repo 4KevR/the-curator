@@ -233,6 +233,7 @@ When previously the respond_to_question_answering_query was called and now the c
 </response>
 
 Remember to not generate arbitrary cards in you execution plan, but only those that were asked for by the user prompt.
+Keep your planning concise to not exceed token limits.
 """
         # Add for Llama 8B: Everytime you are done with generating the respective execution plan, stop your response by writing User:
         self.__agent_instructions = template

@@ -83,7 +83,7 @@ class BaseTestEvaluator:
         """
         Use the LLM to judge if the actual answer is similar enough to the expected answer.
         """
-        prompt = f"""Please evaluate the following two answers, and tell me if they contain the same information. Ignore differences in grammar, length, or wording, as long as the answers are semantically equivalent. If they are similar, end your response with "true", else with "false" (without quotation marks). Only the last word of your response will be evaluated.
+        prompt = f"""Please evaluate the following two answers, and tell me if they contain the same information. Ignore differences in grammar, length, or wording, as long as the answers are semantically equivalent. Also similar responses are accepted, as phrasing might be very different. If they are similar, end your response with "true", else with "false" (without quotation marks). Only the last word of your response will be evaluated.
 
 Expected answer:
 {expected}
@@ -270,7 +270,7 @@ Remember to only respond with 'true' or 'false'.
                     if str_transcribed_text.strip() == "":
                         print(f"Transcribed text for test {test.name} is empty. Skipping test.")
                         continue
-                    transcribed_query = [str_transcribed_text]
+                    transcribed_query = str_transcribed_text
                 try:
                     task_executor.execute_prompts(test.queries if not with_recording else [transcribed_query])
                     evaluation = self._compare_srs(test.expected_result, fcm)
@@ -354,9 +354,8 @@ class QuestionAnsweringTestEvaluator(BaseTestEvaluator):
                     if str_transcribed_text.strip() == "":
                         print(f"Transcribed text for test {test.name} is empty. Skipping test.")
                         continue
-                    transcribed_query = [str_transcribed_text]
+                    transcribed_query = str_transcribed_text
                 try:
-                    # Flatten queries for multi-step/multi-prompt
                     all_passed = True
                     error_messages = []
                     log_messages = []
@@ -375,7 +374,7 @@ class QuestionAnsweringTestEvaluator(BaseTestEvaluator):
                             passed=all_passed,
                             crashed=False,
                             error_messages=error_messages,
-                            queries=all_queries,
+                            queries=test.queries[0],
                             name=test.name,
                             log_messages=log_messages,
                         )
