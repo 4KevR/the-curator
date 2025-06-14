@@ -65,13 +65,17 @@ class TaskExecutor:
         user_prompts: list[str],
         max_errors: int | None = None,
         max_messages: int | None = None,
-    ) -> str:
+    ) -> str | None:
         """
         Sends the given prompts to the LLM and executes the responses using the classes llm_interactor.
 
         Stops execution if:
           * encountered errors exceed max_errors, or
           * total messages exceed max_messages.
+
+        If the LLM answers a question (returns a <response>...</response> block), the response is returned;
+        if the LLM executes tasks (returns a <execute>...</execute> block), the tasks are executed, and None
+        is returned.
         """
         max_errors = max_errors if max_errors is not None else self.default_max_errors
         max_messages = max_messages if max_messages is not None else self.default_max_messages
@@ -93,6 +97,7 @@ class TaskExecutor:
                     if response_block is not None:
                         self._add_log_entry("assistant-response", response_block)
                         return response_block
+
                     self._add_log_entry("assistant", answer)
 
                     commands = self._parse_llm_response(answer)
@@ -111,7 +116,6 @@ class TaskExecutor:
                                 )
                         else:
                             message_to_send = self._deep_to_string(results)
-                    last_result = message_to_send
                 except Exception as e:
                     error_count += 1
                     self._add_log_entry(
@@ -125,7 +129,8 @@ class TaskExecutor:
                 if message_count > max_messages:
                     self._add_log_entry("error", "Too many messages. Abort execution.")
                     raise RuntimeError("Too many messages. Abort execution.")
-            # return last_result
+
+        return None
 
     def _add_log_entry(self, category: str, content: str):
         """Add a log entry to the log, and print it if verbose is True."""

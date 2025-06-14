@@ -40,9 +40,9 @@ class QuestionAnsweringTest:
     category: str
     description: str
     environment: TestFlashcardManager
-    queries: list[list[str]]
+    queries: list[str]
     expected_answer: str
-    sound_file_name: str
+    sound_file_names: list[str]
 
 
 @dataclass(frozen=True)
@@ -212,20 +212,41 @@ def _parse_tests(
 
     for category in test_data.question_answering:
         for test in test_data.question_answering[category]:
-            for step_id, step in enumerate(test.queries):
-                for prompt_id, prompt_template in enumerate(step):
+            if len(test.queries) == 1:  # single-step:
+                for prompt_id, prompt_template in enumerate(test.queries[0]):
                     question_answering_tests.append(
                         QuestionAnsweringTest(
                             name=test.name,
                             category=category,
                             description=test.description,
                             environment=known_environments[test.environment].copy(),
-                            queries=test.queries,
+                            queries=[prompt_template],
                             expected_answer=test.expected_answer,
-                            sound_file_name=test.name
-                            + (f"_multistep_{step_id}_{prompt_id}" if len(test.queries) > 1 else f"_{prompt_id}"),
+                            sound_file_names=[test.name + f"_{prompt_id}"],
                         )
                     )
+            else:  # multi-step
+                queries: list[str] = []
+                for step in test.queries:  #
+                    if len(step) != 1:
+                        raise ValueError(
+                            f"Only one prompt per step is supported for multi-step question answering "
+                            f"tests. Test {test.name} has {len(step)} prompts."
+                        )
+                    queries.append(step[0])
+
+                audio_file_names = [f"_multistep_{step_id}_0" for (step_id) in range(len(test.queries))]
+                question_answering_tests.append(
+                    QuestionAnsweringTest(
+                        name=test.name,
+                        category=category,
+                        description=test.description,
+                        environment=known_environments[test.environment].copy(),
+                        queries=queries,
+                        expected_answer=test.expected_answer,
+                        sound_file_names=audio_file_names,
+                    )
+                )
 
     return interaction_tests, question_answering_tests
 
