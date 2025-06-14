@@ -1,8 +1,6 @@
 import nltk
 from flask import Blueprint, jsonify, request
 
-from src.backend.modules.llm.kit_llm import KitLLM
-
 nltk.download("punkt_tab")
 
 action_blueprint = Blueprint("action", __name__)
@@ -26,16 +24,12 @@ def perform_action():
             return jsonify({"error": "User is required."}), 400
 
         temporary_user_data[user_name] = (
-            transcription
-            if not temporary_user_data.get(user_name)
-            else temporary_user_data[user_name] + transcription
+            transcription if not temporary_user_data.get(user_name) else temporary_user_data[user_name] + transcription
         )
 
         # Check if transcription contains a complete sentence
         sentences = nltk.tokenize.sent_tokenize(temporary_user_data[user_name])
-        complete_sentences = [
-            sentence for sentence in sentences if sentence.endswith((".", "!", "?"))
-        ]
+        complete_sentences = [sentence for sentence in sentences if sentence.endswith((".", "!", "?"))]
         if not complete_sentences:
             print("No complete sentence found in transcription.")
             return jsonify({"message": "Waiting for a complete sentence."}), 200
@@ -48,8 +42,7 @@ def perform_action():
 
         # Process transcription
         result = action_service.process_transcription(complete_sentences[0])
-        temporary_user_data[user_name] = \
-            temporary_user_data[user_name][len(complete_sentences[0]):].strip()
+        temporary_user_data[user_name] = temporary_user_data[user_name][len(complete_sentences[0]) :].strip()
 
         return jsonify(result), 200
 

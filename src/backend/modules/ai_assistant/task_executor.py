@@ -22,10 +22,16 @@ class TaskExecutor:
     See execute_prompts for usage.
     """
 
-    def __init__(self, llm_interactor: LLMInteractor,
-                 llm_communicator: LLMCommunicator, default_max_errors: int = 5, default_max_messages: int = 10,
-                 max_stream_messages_per_chunk: int = 3, max_stream_errors_per_chunk: int = 3,
-                 verbose: bool = False):
+    def __init__(
+        self,
+        llm_interactor: LLMInteractor,
+        llm_communicator: LLMCommunicator,
+        default_max_errors: int = 5,
+        default_max_messages: int = 10,
+        max_stream_messages_per_chunk: int = 3,
+        max_stream_errors_per_chunk: int = 3,
+        verbose: bool = False,
+    ):
         """
         Parameters:
             default_max_errors: Maximum number of errors before aborting execution. Can be overwritten in individual calls.
@@ -82,8 +88,10 @@ class TaskExecutor:
                             if len(results) == 1:
                                 message_to_send = self._handle_card_stream(results[0])
                             else:
-                                raise Exception("If you want to call a method that returns a stream, you may not call"
-                                                " any other function in the same message.")
+                                raise Exception(
+                                    "If you want to call a method that returns a stream, you may not call"
+                                    " any other function in the same message."
+                                )
                         else:
                             message_to_send = self._deep_to_string(results)
                 except Exception as e:
@@ -307,9 +315,7 @@ To end the stream early (before all cards are processed), please call the functi
         elif isinstance(obj, dict):
             items = []
             for key, value in obj.items():
-                items.append(
-                    f"{TaskExecutor._deep_to_string(key)}: {TaskExecutor._deep_to_string(value)}"
-                )
+                items.append(f"{TaskExecutor._deep_to_string(key)}: {TaskExecutor._deep_to_string(value)}")
             return "{" + ", ".join(items) + "}"
         elif isinstance(obj, (list, tuple)):
             elements = [TaskExecutor._deep_to_string(e) for e in obj]
@@ -329,7 +335,7 @@ To end the stream early (before all cards are processed), please call the functi
         """Parse a string containing a function call into a _ParsedLLMCommand."""
         # Parse the string into an AST node
         try:
-            tree = ast.parse(call_str, mode='eval')
+            tree = ast.parse(call_str, mode="eval")
         except SyntaxError:
             raise ValueError(f"The string\n\n{call_str}\n\nis not a ast-parsable Python expression.")
 

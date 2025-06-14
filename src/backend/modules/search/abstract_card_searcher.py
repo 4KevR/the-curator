@@ -3,7 +3,7 @@ from typing import Generic, TypeVar
 
 from src.backend.modules.srs.abstract_srs import AbstractCard
 
-C = TypeVar('C', bound=AbstractCard)
+C = TypeVar("C", bound=AbstractCard)
 
 
 class AbstractCardSearcher(ABC, Generic[C]):

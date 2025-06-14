@@ -57,9 +57,7 @@ def enter_action_loop():
                 "b64_pcm": base64.b64encode(batch).decode("ascii"),
                 "duration": len(batch) / 32000,
             }
-            lecture_translator._send_audio(
-                encoded_audio=data["b64_pcm"], duration=data["duration"]
-            )
+            lecture_translator._send_audio(encoded_audio=data["b64_pcm"], duration=data["duration"])
     except KeyboardInterrupt:
         print("\nStopping action loop.")
         lecture_translator._send_end()
@@ -79,32 +77,22 @@ def process_audio_file(file_path: str):
         if not data["b64_pcm"]:
             print("No more audio data to process.")
             break
-        lecture_translator._send_audio(
-            encoded_audio=data["b64_pcm"], duration=data["duration"]
-        )
+        lecture_translator._send_audio(encoded_audio=data["b64_pcm"], duration=data["duration"])
     lecture_translator._send_end()
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="CLI application for the-curator project."
-    )
+    parser = argparse.ArgumentParser(description="CLI application for the-curator project.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    transcribe_parser = subparsers.add_parser(
-        "transcribe", help="Transcribe audio using the recording client."
-    )
+    transcribe_parser = subparsers.add_parser("transcribe", help="Transcribe audio using the recording client.")
     transcribe_parser.add_argument(
         "--enable-tts",
         action="store_true",
         help="Enable TTS playback for transcriptions.",
     )
-    transcribe_parser.set_defaults(
-        func=lambda args: transcribe_audio(enable_tts=args.enable_tts)
-    )
-    action_parser = subparsers.add_parser(
-        "action", help="Send an action to the server."
-    )
+    transcribe_parser.set_defaults(func=lambda args: transcribe_audio(enable_tts=args.enable_tts))
+    action_parser = subparsers.add_parser("action", help="Send an action to the server.")
     action_parser.add_argument(
         "transcription",
         type=str,
@@ -115,9 +103,7 @@ def main():
         type=str,
         help="User identifier to associate with the action.",
     )
-    action_parser.set_defaults(
-        func=lambda args: send_action(args.transcription, args.user)
-    )
+    action_parser.set_defaults(func=lambda args: send_action(args.transcription, args.user))
 
     action_loop_parser = subparsers.add_parser(
         "action-loop", help="Enter the action loop to continuously send transcriptions."
@@ -128,9 +114,7 @@ def main():
         "process-file",
         help="Process an audio file and send transcription to the action endpoint.",
     )
-    file_parser.add_argument(
-        "file_path", type=str, help="Path to the local audio file to process."
-    )
+    file_parser.add_argument("file_path", type=str, help="Path to the local audio file to process.")
     file_parser.set_defaults(func=lambda args: process_audio_file(args.file_path))
 
     args = parser.parse_args()

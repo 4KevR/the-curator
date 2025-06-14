@@ -9,12 +9,20 @@ from src.backend.modules.ai_assistant.llm_interactor.llm_interactor import LLMIn
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher
 from src.backend.modules.srs.abstract_srs import DeckID, CardID
-from src.backend.modules.srs.testsrs.testsrs import TestTemporaryCollection, \
-    TestDeck, TestFlashcardManager, Flag, CardState, TestCard
+from src.backend.modules.srs.testsrs.testsrs import (
+    TestTemporaryCollection,
+    TestDeck,
+    TestFlashcardManager,
+    Flag,
+    CardState,
+    TestCard,
+)
 
 _commands = LLMCommandList(
     {"TestTemporaryCollection": "TemporaryCollection", "TestDeck": "Deck", "TestFlashcardManager": "FlashcardManager"},
-    card_type=TestCard, deck_type=TestDeck, temp_collection_type=TestTemporaryCollection
+    card_type=TestCard,
+    deck_type=TestDeck,
+    temp_collection_type=TestTemporaryCollection,
 )
 
 
@@ -26,11 +34,11 @@ class LLMInteractorTest(LLMInteractor, metaclass=InheritDocstrings):
     """
     A LLMInteractor for TestSRS.
     """
+
     flashcard_manager: TestFlashcardManager
     command_list = _commands
 
-    def __init__(self, flashcard_manager: TestFlashcardManager,
-                 content_search_llm: AbstractLLM):
+    def __init__(self, flashcard_manager: TestFlashcardManager, content_search_llm: AbstractLLM):
         super().__init__(flashcard_manager, content_search_llm)
 
     @llm_command(_commands)
@@ -138,20 +146,29 @@ class LLMInteractorTest(LLMInteractor, metaclass=InheritDocstrings):
         return super().list_cards_temporary_collection(temporary_collection_id_str)
 
     @llm_command(_commands)
-    def add_all_cards_from_temporary_collection_to_deck(self, temporary_collection_hex_string: str,
-                                                        deck_hex_string: str) -> None:
+    def add_all_cards_from_temporary_collection_to_deck(
+        self, temporary_collection_hex_string: str, deck_hex_string: str
+    ) -> None:
         super().add_all_cards_from_temporary_collection_to_deck(temporary_collection_hex_string, deck_hex_string)
 
     @llm_command(_commands)
-    def search_for_substring(self, deck_id_str: str, search_substring: str, search_in_question: bool = True,
-                             search_in_answer: bool = True, case_sensitive: bool = False,
-                             fuzzy: Optional[float] = None) -> TestTemporaryCollection:
-        return super().search_for_substring(deck_id_str, search_substring, search_in_question, search_in_answer,
-                                            case_sensitive, fuzzy)
+    def search_for_substring(
+        self,
+        deck_id_str: str,
+        search_substring: str,
+        search_in_question: bool = True,
+        search_in_answer: bool = True,
+        case_sensitive: bool = False,
+        fuzzy: Optional[float] = None,
+    ) -> TestTemporaryCollection:
+        return super().search_for_substring(
+            deck_id_str, search_substring, search_in_question, search_in_answer, case_sensitive, fuzzy
+        )
 
     @llm_command(_commands)
-    def search_for_content(self, deck_id_str: str, search_prompt: str, search_in_question: bool = True,
-                           search_in_answer: bool = True) -> TestTemporaryCollection:
+    def search_for_content(
+        self, deck_id_str: str, search_prompt: str, search_in_question: bool = True, search_in_answer: bool = True
+    ) -> TestTemporaryCollection:
         return super().search_for_content(deck_id_str, search_prompt, search_in_question, search_in_answer)
 
     def _search(self, deck_id_str: str, searcher: AbstractCardSearcher, description: str) -> TestTemporaryCollection:

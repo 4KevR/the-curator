@@ -26,9 +26,9 @@ class CardGeneratorService:
         return self.create_anki_cards(pdf_text_content)
 
     def create_anki_cards(
-            self,
-            page_content: dict,
-            max_cards: int = 3,
+        self,
+        page_content: dict,
+        max_cards: int = 3,
     ) -> dict:
         """Create Anki flashcards from a PDF file.
         :param page_content: Dictionary with page numbers and text content.
@@ -49,8 +49,7 @@ class CardGeneratorService:
             messages = [
                 {
                     "role": "system",
-                    "content": "You are an AI assistant that is good at "
-                               "knowledge extraction.",
+                    "content": "You are an AI assistant that is good at " "knowledge extraction.",
                 },
                 {"role": "user", "content": user_prompt},
             ]
@@ -79,11 +78,7 @@ class CardGeneratorService:
 
         for block in blocks:
             lines = block.strip().split("\n")
-            if (
-                    len(lines) >= 2
-                    and lines[0].startswith("Q:")
-                    and lines[1].startswith("A:")
-            ):
+            if len(lines) >= 2 and lines[0].startswith("Q:") and lines[1].startswith("A:"):
                 # Skip the prefixes Q: and A:, and remove whitespace.
                 question = lines[0][2:].strip()
                 answer = lines[1][2:].strip()

@@ -93,15 +93,8 @@ class PortaudioStream(BaseAdapter):
         deviceCount = info.get("deviceCount")
 
         for i in range(0, deviceCount):
-            if (
-                self._pyaudio.get_device_info_by_host_api_device_index(0, i).get(
-                    "maxInputChannels"
-                )
-                > 0
-            ):
-                devices[i] = self._pyaudio.get_device_info_by_host_api_device_index(
-                    0, i
-                ).get("name")
+            if self._pyaudio.get_device_info_by_host_api_device_index(0, i).get("maxInputChannels") > 0:
+                devices[i] = self._pyaudio.get_device_info_by_host_api_device_index(0, i).get("name")
         return devices
 
     def print_all_devices(self) -> None:
@@ -120,8 +113,6 @@ class PortaudioStream(BaseAdapter):
         # actually chosing a specific channel is apparently impossible with portaudio,
         # so we record all channels instead and then filter out
         # the wanted channel with numpy
-        channelCount = self._pyaudio.get_device_info_by_host_api_device_index(
-            0, self.input_id
-        ).get("maxInputChannels")
+        channelCount = self._pyaudio.get_device_info_by_host_api_device_index(0, self.input_id).get("maxInputChannels")
         self.channel_count = channelCount
         self.chosen_channel = channel

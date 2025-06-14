@@ -74,9 +74,7 @@ class FfmpegStream(BaseAdapter):
                 "pcm_s16le",
                 "-",
             ]
-            self._process = subprocess.Popen(
-                args, stdin=subprocess.PIPE, stdout=subprocess.PIPE
-            )
+            self._process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         return self._process.stdout
 
     def read(self) -> bytes:
@@ -89,10 +87,7 @@ class FfmpegStream(BaseAdapter):
                     self.chunk_size -= 2 * 960
             else:
                 if sleep < -5:
-                    print(
-                        "WARNING: Network is to slow. "
-                        "Having at least 5 seconds of delay!"
-                    )
+                    print("WARNING: Network is to slow. " "Having at least 5 seconds of delay!")
                 self.chunk_size += 2 * 960
         chunk = cast(bytes, stream.read(self.chunk_size))
         if self._process is not None and self._process.poll() is not None:

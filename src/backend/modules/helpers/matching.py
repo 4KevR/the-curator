@@ -7,11 +7,11 @@ RIGHT = TypeVar("RIGHT")
 # O(max(n, m))
 # if multiple items in left/right have the same key, they are compared using the given equality function.
 def match_by_key(
-        left: list[LEFT],
-        right: list[RIGHT],
-        equals: Callable[[LEFT, RIGHT], bool],
-        left_key: Callable[[LEFT], Any] = lambda x: x,
-        right_key: Callable[[RIGHT], Any] = lambda x: x
+    left: list[LEFT],
+    right: list[RIGHT],
+    equals: Callable[[LEFT, RIGHT], bool],
+    left_key: Callable[[LEFT], Any] = lambda x: x,
+    right_key: Callable[[RIGHT], Any] = lambda x: x,
 ) -> tuple[list[tuple[LEFT, RIGHT]], list[LEFT], list[RIGHT]]:
     """
     Matches elements in left and right by key.
@@ -56,10 +56,7 @@ def match_by_key(
 
 # O( n * m )
 def match_by_equals(
-        left: list[LEFT],
-        right: list[RIGHT],
-        equals: Callable[[LEFT, RIGHT], bool],
-        allow_multiple_matches: bool = True
+    left: list[LEFT], right: list[RIGHT], equals: Callable[[LEFT, RIGHT], bool], allow_multiple_matches: bool = True
 ) -> tuple[list[tuple[LEFT, RIGHT]], list[LEFT], list[RIGHT]]:
     """
     Matches elements in left and right by equality.

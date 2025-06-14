@@ -6,8 +6,15 @@ from typing import Any, Collection
 from overrides import override
 from typeguard import typechecked
 
-from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS, DeckID, TmpCollectionID, \
-    CardID, AbstractTemporaryCollection
+from src.backend.modules.srs.abstract_srs import (
+    AbstractCard,
+    AbstractDeck,
+    AbstractSRS,
+    DeckID,
+    TmpCollectionID,
+    CardID,
+    AbstractTemporaryCollection,
+)
 
 
 @typechecked
@@ -63,6 +70,7 @@ class TestCard(AbstractCard):
       cardState (str): The state of the card in the flashcard system. **Must** be one of:
           new, learning, review, suspended, buried
     """
+
     id: CardID
     deck: "TestDeck"
     question: str
@@ -101,6 +109,7 @@ class TestDeck(AbstractDeck):
        name (str): The name of the deck. This is **not** the id, and is **not** sufficient to address decks.
        cards (List[Card]): The cards contained in the deck. The order has no meaning.
     """
+
     id: DeckID
     name: str
     cards: list[TestCard]
@@ -124,6 +133,7 @@ class TestTemporaryCollection(AbstractTemporaryCollection):
        description (str): A description that may explain how this deck was created. Optional, may be left blank.
        cards (List[Card]): The cards contained in the temporary collection. The order has no meaning.
     """
+
     id: TmpCollectionID
     description: str
     cards: list[TestCard]
@@ -243,19 +253,40 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
     def add_card(self, deck: TestDeck, question: str, answer: str) -> TestCard:
         self._check_frozen()
         self._verify_deck_exists(deck)
-        card = TestCard(id=self.__create_card_id(), question=question, answer=answer, flag=Flag.NONE,
-                        cardState=CardState.NEW, deck=deck)
+        card = TestCard(
+            id=self.__create_card_id(),
+            question=question,
+            answer=answer,
+            flag=Flag.NONE,
+            cardState=CardState.NEW,
+            deck=deck,
+        )
         self.__cards_by_id[card.id] = card
         deck.cards.append(card)
         return card
 
-    def add_full_card(self, deck: TestDeck, question: str, answer: str, flag: Flag,
-                      card_state: CardState, fuzzymatch_question: bool = False,
-                      fuzzymatch_answer: bool = False) -> TestCard:
+    def add_full_card(
+        self,
+        deck: TestDeck,
+        question: str,
+        answer: str,
+        flag: Flag,
+        card_state: CardState,
+        fuzzymatch_question: bool = False,
+        fuzzymatch_answer: bool = False,
+    ) -> TestCard:
         self._check_frozen()
         self._verify_deck_exists(deck)
-        card = TestCard(id=self.__create_card_id(), question=question, answer=answer, flag=flag, cardState=card_state,
-                        deck=deck, fuzzymatch_question=fuzzymatch_question, fuzzymatch_answer=fuzzymatch_answer)
+        card = TestCard(
+            id=self.__create_card_id(),
+            question=question,
+            answer=answer,
+            flag=flag,
+            cardState=card_state,
+            deck=deck,
+            fuzzymatch_question=fuzzymatch_question,
+            fuzzymatch_answer=fuzzymatch_answer,
+        )
         self.__cards_by_id[card.id] = card
         deck.cards.append(card)
         return card
@@ -297,8 +328,14 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
         self._check_frozen()
         self._verify_card_exists(card)
         self._verify_deck_exists(deck)
-        new_card = TestCard(id=self.__create_card_id(), question=card.question, answer=card.answer, flag=card.flag,
-                            cardState=card.cardState, deck=deck)
+        new_card = TestCard(
+            id=self.__create_card_id(),
+            question=card.question,
+            answer=card.answer,
+            flag=card.flag,
+            cardState=card.cardState,
+            deck=deck,
+        )
         deck.cards.append(new_card)
         return new_card
 
@@ -377,8 +414,9 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
             tmp_collection.cards.append(card)
 
     @override
-    def remove_cards_from_temporary_collection(self, tmp_collection: TestTemporaryCollection,
-                                               cards: Collection[TestCard]):
+    def remove_cards_from_temporary_collection(
+        self, tmp_collection: TestTemporaryCollection, cards: Collection[TestCard]
+    ):
         self._verify_temporary_collection_exists(tmp_collection)
         for card in cards:  # fail early
             self._verify_card_exists(card)
@@ -391,8 +429,9 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
         for deck in self.get_all_decks():
             new_deck = new_manager.add_deck(deck.name)
             for card in deck.cards:
-                new_manager.add_full_card(deck=new_deck, question=card.question,
-                                          answer=card.answer, flag=card.flag, card_state=card.cardState)
+                new_manager.add_full_card(
+                    deck=new_deck, question=card.question, answer=card.answer, flag=card.flag, card_state=card.cardState
+                )
         return new_manager
 
     def __str__(self):

@@ -1,13 +1,14 @@
-from typing import TypeVar, Generic, Collection, Any
 import re
 from abc import abstractmethod, ABC
 from dataclasses import dataclass
 from typing import ClassVar
+from typing import TypeVar, Generic, Collection, Any
+
 from typeguard import typechecked
 
-TCard = TypeVar('TCard', bound='AbstractCard')  # Must be a subtype of AbstractCard
-TDeck = TypeVar('TDeck', bound='AbstractDeck')  # Must be a subtype of AbstractDeck
-TTmpCol = TypeVar('TTmpCol', bound='AbstractTemporaryCollection')  # Must be a subtype of AbstractDeck
+TCard = TypeVar("TCard", bound="AbstractCard")  # Must be a subtype of AbstractCard
+TDeck = TypeVar("TDeck", bound="AbstractDeck")  # Must be a subtype of AbstractDeck
+TTmpCol = TypeVar("TTmpCol", bound="AbstractTemporaryCollection")  # Must be a subtype of AbstractDeck
 
 
 @typechecked
@@ -23,6 +24,7 @@ class DeckID:
     The hex string format supports an optional underscore separator after the first 4 digits,
     e.g., 'deck_0000_ffff'.
     """
+
     numeric_id: int
     __DECK_ID_REGEX: ClassVar[re.Pattern] = re.compile(r"^deck_[0-9a-fA-F]{4}_?[0-9a-fA-F]{4}$")
 
@@ -52,6 +54,7 @@ class CardID:
     The hex string format supports an optional underscore separator after the first 4 digits,
     e.g., 'card_0000_ffff'.
     """
+
     numeric_id: int
     __CARD_ID_REGEX: ClassVar[re.Pattern] = re.compile(r"^card_[0-9a-fA-F]{4}_?[0-9a-fA-F]{4}$")
 
@@ -81,6 +84,7 @@ class TmpCollectionID:
     The hex string format supports an optional underscore separator after the first 4 digits,
     e.g., 'tmp_collection_0000_ffff'.
     """
+
     numeric_id: int
     __TMP_COLLECTION_ID_REGEX: ClassVar[re.Pattern] = re.compile(r"^tmp_collection_[0-9a-fA-F]{4}_?[0-9a-fA-F]{4}$")
 
@@ -93,12 +97,13 @@ class TmpCollectionID:
         """Returns a DeckID from a hex string."""
         if not TmpCollectionID.__TMP_COLLECTION_ID_REGEX.match(hex_str):
             raise ValueError(f"Invalid temporary collection ID format: {hex_str}")
-        hex_nr = hex_str[len("tmp_collection_"):].replace("_", "")
+        hex_nr = hex_str[len("tmp_collection_") :].replace("_", "")
         return TmpCollectionID(int(hex_nr, 16))
 
 
 class AbstractDeck(ABC):
     """A deck in a spaced repetition system."""
+
     id: DeckID
     name: str
 
@@ -109,6 +114,7 @@ class AbstractDeck(ABC):
 
 class AbstractCard(ABC):
     """A card in a spaced repetition system"""
+
     id: CardID
     question: str
     answer: str
@@ -125,6 +131,7 @@ class AbstractCard(ABC):
 
 class AbstractTemporaryCollection(ABC):
     """A temporary collection of cards in a spaced repetition system, e.g. for a search result."""
+
     id: TmpCollectionID
     description: str
 
@@ -190,7 +197,7 @@ class AbstractSRS(Generic[TTmpCol, TCard, TDeck], ABC):
 
     @abstractmethod
     def get_all_decks(self) -> list[TDeck]:
-        """ Retrieve all decks."""
+        """Retrieve all decks."""
         raise NotImplementedError
 
     @abstractmethod

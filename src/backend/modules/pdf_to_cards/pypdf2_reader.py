@@ -4,10 +4,9 @@ import PyPDF2
 
 from src.backend.modules.pdf_to_cards.AbstractPDFReader import AbstractPDFReader
 
+
 class PyPDF2Reader(AbstractPDFReader):
-    def read(
-        self, file_path: str, page_range: Optional[tuple[int, int]] = None
-    ) -> dict:
+    def read(self, file_path: str, page_range: Optional[tuple[int, int]] = None) -> dict:
         """Read PDF file.
 
         :param file_path: PDF file path.
@@ -26,15 +25,9 @@ class PyPDF2Reader(AbstractPDFReader):
                     start, end = 1, num_pages
                 else:
                     if page_range[0] > page_range[1]:
-                        raise ValueError(
-                            "The start page number cannot be "
-                            "greater than the end page number"
-                        )
+                        raise ValueError("The start page number cannot be " "greater than the end page number")
                     if page_range[0] > num_pages:
-                        raise ValueError(
-                            "The starting page number cannot be "
-                            "greater than the total number of pages"
-                        )
+                        raise ValueError("The starting page number cannot be " "greater than the total number of pages")
                     else:
                         start = max(1, page_range[0])
                         end = min(page_range[1], num_pages)

@@ -1,4 +1,5 @@
 import rapidfuzz
+
 from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher
 from src.backend.modules.srs.abstract_srs import AbstractCard
 
@@ -12,8 +13,12 @@ class SearchBySubstringFuzzy(AbstractCardSearcher[AbstractCard]):
     """
 
     def __init__(
-            self, search_substring: str, search_in_question: bool,
-            search_in_answer: bool, case_sensitive: bool, fuzzy: float
+        self,
+        search_substring: str,
+        search_in_question: bool,
+        search_in_answer: bool,
+        case_sensitive: bool,
+        fuzzy: float,
     ):
         if not (fuzzy is None or 0.0 <= fuzzy <= 1.0):
             raise ValueError("If fuzzy is set, it must be between 0 and 1.")
@@ -29,10 +34,12 @@ class SearchBySubstringFuzzy(AbstractCardSearcher[AbstractCard]):
     def search(self, card: AbstractCard) -> bool:
         if self.search_in_question:
             search_question = card.question if self.case_sensitive else card.question.lower()
-            if self.__fuzzy_search(search_question): return True
+            if self.__fuzzy_search(search_question):
+                return True
 
         if self.search_in_answer:
             search_answer = card.answer if self.case_sensitive else card.answer.lower()
-            if self.__fuzzy_search(search_answer): return True
+            if self.__fuzzy_search(search_answer):
+                return True
 
         return False
