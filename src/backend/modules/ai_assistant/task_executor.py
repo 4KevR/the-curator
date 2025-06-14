@@ -52,6 +52,16 @@ class TaskExecutor:
         self.verbose = verbose
         self.__agent_instructions = None
 
+    @staticmethod
+    def _extract_response_block(response: str) -> str | None:
+        response_wo_think = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL)
+        matches = re.findall(
+            r"<response>(.*?)</response>", response_wo_think, re.DOTALL
+        )
+        if matches:
+            return matches[-1].strip()
+        return None
+
     def execute_prompts(
         self,
         user_prompts: list[str],
@@ -85,6 +95,10 @@ class TaskExecutor:
                     message_count += 1
                     self._add_log_entry("user", message_to_send)
                     answer = self.llm_communicator.send_message(message_to_send)
+                    response_block = self._extract_response_block(answer)
+                    if response_block is not None:
+                        self._add_log_entry("assistant-response", response_block)
+                        return response_block
                     self._add_log_entry("assistant", answer)
 
                     commands = self._parse_llm_response(answer)
@@ -171,6 +185,16 @@ If no further actions are needed, please return an empty execute block:
 <execute>
 </execute>
 
+## User-Facing Responses
+
+If you want to directly respond to the user and end the execution (for example, to summarize results, provide a final answer, or bundle output for the user), you can return a response block in the following format:
+
+<response>
+Your message to the user goes here. This will be shown as the final output and end the execution. The response should only be used for whatever response comes from respond_to_question_answering_query. So wrap the response of this tool in the <response>...</response> block.
+</response>
+
+If a <response>...</response> block is present, the system will return its content to the user and stop further execution.
+
 ## Further Instructions
 There are a few special cases:
 * If the prompt does not specify which deck to operate on, please check (by listing the decks) if only one deck exists. In this case, please use this deck. In this case, do not generate a default deck.
@@ -183,13 +207,13 @@ There are a few special cases:
   * 1. Create a temporary collection of the relevant cards using search_by_substring or search_by_content. Fuzzy-search is your friend; use it!
   * 2. List the cards in the temporary collection to get a card stream.
   * 3. You will be provided with chunks of cards; now it is your job to work with these chunks: Delete, edit, etc. the card according to your task.
-* If a user is asking a general question which may be included on some card, use the respond_to_question_answering_query function which returns an answer that can be given back to the user.
+* If a user is asking a general question which may be included on some card, use the respond_to_question_answering_query function which returns an answer that can be given back to the user. Do not use the previously mentioned search functions when the user just asks a question that expects a natural answer (and not e.g. a set of cards where you would require the previous functions.).
   
 If you are not sure what to do, and you are sure that the user forgot to specify some specifics, please call the above-mentioned function to request further information from the user.
 
 ## An Example
 For example, if the user prompt was:
-"Create a new deck with the name Astrology and add What is the largest planet in our solar system? and Jupiter to it. Flag it as Purple."
+"Create a new deck with the name Astrology"
 Your steps should be:
 * Create a new deck with the name Astrology. Wait for the output to get the id of this new deck.
 * Add a card with the given question, answer and flag to the deck.
@@ -202,18 +226,21 @@ So the first execution plan would be:
 The system then would answer you the information of the newly created deck, e.g.:
 ["Deck 'Astrology' (id: deck_9874_2787)"]
 
-Then, the next execution plan would be:
-<execute>
-* add_card(deck_id_str="deck_9874_2787", question="What is the largest planet in our solar system?", answer="Jupiter", state="new", flag="purple")
-</execute>
-
 The system then provides you with an empty response.
 Then, you have achieved your task, and return:
 
 <execute>
 </execute>
-"""
 
+When previously the respond_to_question_answering_query was called and now the context is available, generate a response block duplicating the retrieved content. Do not generate an answer with your own knowledge, use it only after respond_to_question_answering_query.
+
+<response>
+(# Answer here)
+</response>
+
+Remember to not generate arbitrary cards in you execution plan, but only those that were asked for by the user prompt.
+"""
+        # Add for Llama 8B: Everytime you are done with generating the respective execution plan, stop your response by writing User:
         self.__agent_instructions = template
         return self.__agent_instructions
 
@@ -416,7 +443,7 @@ To end the stream early (before all cards are processed), please call the functi
             )
         plan = match.group(1)
         return [
-            TaskExecutor._parse_function_call(line[1:].strip())
+            TaskExecutor._parse_function_call(line.lstrip().lstrip("*").strip())
             for line in plan.splitlines()
             if line.strip()
         ]

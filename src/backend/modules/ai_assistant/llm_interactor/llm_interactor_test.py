@@ -220,8 +220,4 @@ class LLMInteractorTest(LLMInteractor, metaclass=InheritDocstrings):
 
     @llm_command(_commands)
     def respond_to_question_answering_query(self, search_prompt: str) -> str:
-        """
-        Responds to a question from the user about available content in the SRS.
-        The search prompt is used to search for relevant cards.
-        """
         return super().respond_to_question_answering_query(search_prompt)

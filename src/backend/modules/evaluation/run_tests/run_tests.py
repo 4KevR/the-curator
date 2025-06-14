@@ -74,8 +74,13 @@ class TestInfo:
 
 
 class BaseTestEvaluator:
-    def __init__(self, llm_for_fuzzy_matching: AbstractLLM):
+    def __init__(
+        self,
+        llm_for_fuzzy_matching: AbstractLLM,
+        lecture_translator: CloudLectureTranslatorASR,
+    ):
         self.llm_for_fuzzy_matching = llm_for_fuzzy_matching
+        self.lecture_translator = lecture_translator
 
     def _llm_judge_similarity(self, expected: str, actual: str) -> bool:
         """
@@ -102,11 +107,40 @@ Remember to only respond with 'true' or 'false'.
 
         return true_index > false_index
 
+    def _transcribe_audio(self, file_path: str) -> str:
+        if not os.path.exists(file_path):
+            print(f"File {file_path} does not exist.")
+            return ""
+        client = RecordingClient(file_path)
+        while True:
+            batch = client.get_next_batch()
+            data = {
+                "b64_pcm": base64.b64encode(batch).decode("ascii"),
+                "duration": len(batch) / 32000,
+            }
+            if not data["b64_pcm"]:
+                break
+            self.lecture_translator._send_audio(
+                encoded_audio=data["b64_pcm"], duration=data["duration"]
+            )
+        for _ in range(50):
+            silence = (np.zeros(int(0.1 * 32000), dtype=np.int16)).tobytes()
+            encoded_silence = base64.b64encode(silence).decode("ascii")
+            self.lecture_translator._send_audio(
+                encoded_audio=encoded_silence, duration=0.1
+            )
+        time.sleep(5)  # Give some time for the ASR to process the audio
+        transcribed_text = []
+        while not self.lecture_translator.text_queue.empty():
+            transcribed_text.append(self.lecture_translator.text_queue.get())
+
+        return " ".join(transcribed_text)
+
 
 class InteractionTestEvaluator(BaseTestEvaluator):
     def __init__(self, llm_for_fuzzy_matching: AbstractLLM):
         self.llm_for_fuzzy_matching = llm_for_fuzzy_matching
-        self.lecture_translator = CloudLectureTranslatorASR()
+        super().__init__(llm_for_fuzzy_matching, CloudLectureTranslatorASR())
 
     def _fuzzy_match_test_cards(
         self, expected_card: TestCard, actual_card: TestCard
@@ -267,37 +301,7 @@ Remember to only respond with 'true' or 'false'.
                     "../data/recording_data/fabian", test.sound_file_names[0] + ".wav"
                 )
                 if with_recording:
-                    if not os.path.exists(file_path):
-                        print(
-                            f"File {file_path} does not exist. Skipping test {test.name}."
-                        )
-                        continue
-                    client = RecordingClient(file_path)
-                    while True:
-                        batch = client.get_next_batch()
-                        data = {
-                            "b64_pcm": base64.b64encode(batch).decode("ascii"),
-                            "duration": len(batch) / 32000,
-                        }
-                        if not data["b64_pcm"]:
-                            break
-                        self.lecture_translator._send_audio(
-                            encoded_audio=data["b64_pcm"], duration=data["duration"]
-                        )
-                    for _ in range(50):
-                        silence = (np.zeros(int(0.1 * 32000), dtype=np.int16)).tobytes()
-                        encoded_silence = base64.b64encode(silence).decode("ascii")
-                        self.lecture_translator._send_audio(
-                            encoded_audio=encoded_silence, duration=0.1
-                        )
-                    time.sleep(5)  # Give some time for the ASR to process the audio
-                    transcribed_text = []
-                    while not self.lecture_translator.text_queue.empty():
-                        transcribed_text.append(
-                            self.lecture_translator.text_queue.get()
-                        )
-
-                    str_transcribed_text = " ".join(transcribed_text)
+                    str_transcribed_text = self._transcribe_audio(file_path)
                     print(
                         f"Transcribed text for test {test.name}: {str_transcribed_text}"
                         f"\nOriginal text: {test.queries[0]}"
@@ -358,6 +362,7 @@ class QuestionAnsweringTestEvaluator(BaseTestEvaluator):
         verbose_task_execution: bool,
         print_progress: bool = False,
         log_file_path: str = None,
+        with_recording: bool = False,
     ):
         if log_file_path is not None:
             if os.path.exists(log_file_path):
@@ -385,27 +390,39 @@ class QuestionAnsweringTestEvaluator(BaseTestEvaluator):
                     max_stream_errors_per_chunk,
                     verbose_task_execution,
                 )
-                print(task_executor.llm_commands.describe_llm_commands())
-
+                self.lecture_translator.text_queue = Queue()
+                file_path = os.path.join(
+                    "../data/recording_data/fabian", test.sound_file_name + ".wav"
+                )
+                if with_recording:
+                    str_transcribed_text = self._transcribe_audio(file_path)
+                    print(
+                        f"Transcribed text for test {test.name}: {str_transcribed_text}"
+                        f"\nOriginal text: {test.queries[0]}"
+                    )
+                    if str_transcribed_text.strip() == "":
+                        print(
+                            f"Transcribed text for test {test.name} is empty. Skipping test."
+                        )
+                        continue
+                    transcribed_query = [str_transcribed_text]
                 try:
                     # Flatten queries for multi-step/multi-prompt
-                    all_queries = [q for group in test.queries for q in group]
                     all_passed = True
                     error_messages = []
                     log_messages = []
-                    for query in all_queries:
-                        response = task_executor.execute_prompts([[query]])
-                        if print_progress:
-                            print(f"Test {test_nr} responded with message: {response}")
-                        passed = self._llm_judge_similarity(
-                            test.expected_answer, response
+                    response = task_executor.execute_prompts(
+                        test.queries[0] if not with_recording else [transcribed_query]
+                    )
+                    if print_progress:
+                        print(f"Test {test_nr} responded with message: {response}")
+                    passed = self._llm_judge_similarity(test.expected_answer, response)
+                    if not passed:
+                        all_passed = False
+                        error_messages.append(
+                            f"Expected: {test.expected_answer}\nActual: {response}"
                         )
-                        if not passed:
-                            all_passed = False
-                            error_messages.append(
-                                f"Expected: {test.expected_answer}\nActual: {response}"
-                            )
-                        log_messages.extend(task_executor.log)
+                    log_messages.extend(task_executor.log)
                     res.append(
                         TestInfo(
                             passed=all_passed,
