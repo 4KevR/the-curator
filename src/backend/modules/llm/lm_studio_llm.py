@@ -26,29 +26,6 @@ class LMStudioLLM(AbstractLLM):
         self.model = model
         self.add_no_think = add_no_think
 
-    def map_messages_for_lmstudio(
-        self,
-        messages: list[dict[str, str]],
-    ) -> list[dict[str, list[str]]]:
-        """
-        Convert messages so that 'content' is always a list of strings.
-        """
-        mapped = []
-        for msg in messages:
-            # If content is already a list, leave it; otherwise, wrap in a list
-            content = msg["content"]
-            if isinstance(content, list):
-                # Only keep string elements
-                content = [
-                    str(c)
-                    for c in content
-                    if isinstance(c, str) or isinstance(c, (int, float))
-                ]
-            else:
-                content = [str(content)]
-            mapped.append({"role": msg["role"], "content": content})
-        return mapped
-
     @overrides
     def generate(
         self,
@@ -66,8 +43,6 @@ class LMStudioLLM(AbstractLLM):
 
         # This works, be quiet
         # noinspection PyTypeChecker
-        # messages = self.map_messages_for_lmstudio(messages)
-        print(messages)
         return (
             self.client.chat.completions.create(
                 model=self.model,
