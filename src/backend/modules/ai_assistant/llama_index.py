@@ -21,18 +21,10 @@ Settings.llm = HuggingFaceInferenceAPI(
 
 class LlamaIndexExecutor:
     def __init__(self):
-        self.vector_store_decks = self.__load_vector_store_from_table(
-            "the_curator_decks"
-        )
-        self.vector_store_cards = self.__load_vector_store_from_table(
-            "the_curator_cards"
-        )
-        self.index_store_decks = self.__load_index_store_from_table(
-            "the_curator_index_store_decks"
-        )
-        self.index_store_cards = self.__load_index_store_from_table(
-            "the_curator_index_store_cards"
-        )
+        self.vector_store_decks = self.__load_vector_store_from_table("the_curator_decks")
+        self.vector_store_cards = self.__load_vector_store_from_table("the_curator_cards")
+        self.index_store_decks = self.__load_index_store_from_table("the_curator_index_store_decks")
+        self.index_store_cards = self.__load_index_store_from_table("the_curator_index_store_cards")
         self.storage_context_decks = StorageContext.from_defaults(
             vector_store=self.vector_store_decks, index_store=self.index_store_decks
         )
@@ -48,9 +40,7 @@ class LlamaIndexExecutor:
         self.deck_query_engine = self.deck_index.as_query_engine(
             response_mode="compact",
         )
-        self.card_query_engine = self.card_index.as_query_engine(
-            response_mode="compact"
-        )
+        self.card_query_engine = self.card_index.as_query_engine(response_mode="compact")
 
     def __load_vector_store_from_table(self, table_name: str) -> PGVectorStore:
         return PGVectorStore.from_params(
@@ -82,9 +72,7 @@ class LlamaIndexExecutor:
     def load_index(self, index_id: str, storage_context: StorageContext):
         if not index_id:
             raise RuntimeError("No index_id found for the given table.")
-        return load_index_from_storage(
-            storage_context=storage_context, index_id=index_id
-        )
+        return load_index_from_storage(storage_context=storage_context, index_id=index_id)
 
     def query_decks(self, query: str):
         return self.deck_query_engine.query(query)

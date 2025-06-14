@@ -22,6 +22,7 @@ from src.backend.modules.llm.llm_communicator import LLMCommunicator
 from src.backend.modules.srs.testsrs.testsrs import TestCard, TestFlashcardManager
 from src.cli.recording.recording_client import RecordingClient
 
+
 # TODO: Currently only compares TestSRS with TestSRS. Implement comparing/converting AnkiSRS to TestSRS too!
 
 
@@ -35,11 +36,7 @@ class TestInfo:
     log_messages: list[str]
 
     def pretty_print(self, skip_thinking=False):
-        header = (
-            f"Test {self.name} "
-            + ("PASSED" if self.passed else ("CRASHED" if self.crashed else "FAILED"))
-            + "."
-        )
+        header = f"Test {self.name} " + ("PASSED" if self.passed else ("CRASHED" if self.crashed else "FAILED")) + "."
         queries = "\n".join(" * " + it for it in self.queries)
 
         log = []
@@ -120,15 +117,11 @@ Remember to only respond with 'true' or 'false'.
             }
             if not data["b64_pcm"]:
                 break
-            self.lecture_translator._send_audio(
-                encoded_audio=data["b64_pcm"], duration=data["duration"]
-            )
+            self.lecture_translator._send_audio(encoded_audio=data["b64_pcm"], duration=data["duration"])
         for _ in range(50):
             silence = (np.zeros(int(0.1 * 32000), dtype=np.int16)).tobytes()
             encoded_silence = base64.b64encode(silence).decode("ascii")
-            self.lecture_translator._send_audio(
-                encoded_audio=encoded_silence, duration=0.1
-            )
+            self.lecture_translator._send_audio(encoded_audio=encoded_silence, duration=0.1)
         time.sleep(5)  # Give some time for the ASR to process the audio
         transcribed_text = []
         while not self.lecture_translator.text_queue.empty():
@@ -142,19 +135,15 @@ class InteractionTestEvaluator(BaseTestEvaluator):
         self.llm_for_fuzzy_matching = llm_for_fuzzy_matching
         super().__init__(llm_for_fuzzy_matching, CloudLectureTranslatorASR())
 
-    def _fuzzy_match_test_cards(
-        self, expected_card: TestCard, actual_card: TestCard
-    ) -> bool:
+    def _fuzzy_match_test_cards(self, expected_card: TestCard, actual_card: TestCard) -> bool:
         """
         Match two cards by their content using a llm as a judge.
         """
         required = [
             expected_card.cardState == actual_card.cardState,
             expected_card.flag == actual_card.flag,
-            expected_card.fuzzymatch_question
-            or expected_card.question == actual_card.question,
-            expected_card.fuzzymatch_answer
-            or expected_card.answer == actual_card.answer,
+            expected_card.fuzzymatch_question or expected_card.question == actual_card.question,
+            expected_card.fuzzymatch_answer or expected_card.answer == actual_card.answer,
         ]
         if not all(required):
             return False
@@ -182,18 +171,12 @@ Remember to only respond with 'true' or 'false'.
 
         return true_index > false_index
 
-    def _compare_decks(
-        self, expected: list[TestCard], actual: list[TestCard]
-    ) -> list[str]:
+    def _compare_decks(self, expected: list[TestCard], actual: list[TestCard]) -> list[str]:
         """
         Compares two decks. The two decks must be of the same type.
         """
-        exp_strict = [
-            x for x in expected if not x.fuzzymatch_question and not x.fuzzymatch_answer
-        ]
-        exp_fuzzy = [
-            x for x in expected if x.fuzzymatch_question or x.fuzzymatch_answer
-        ]
+        exp_strict = [x for x in expected if not x.fuzzymatch_question and not x.fuzzymatch_answer]
+        exp_fuzzy = [x for x in expected if x.fuzzymatch_question or x.fuzzymatch_answer]
 
         # match exact
         (_, unm_exp, tmp_unm_act) = match_by_key(
@@ -204,56 +187,38 @@ Remember to only respond with 'true' or 'false'.
             right_key=lambda x: x.to_hashable(),
         )
 
-        (_, unm_exp_fuzzy, final_unm_act) = match_by_equals(
-            exp_fuzzy, tmp_unm_act, equals=self._fuzzy_match_test_cards
-        )
+        (_, unm_exp_fuzzy, final_unm_act) = match_by_equals(exp_fuzzy, tmp_unm_act, equals=self._fuzzy_match_test_cards)
 
         # Now create the error messages
         errors = []
         for additional_fuzzy in unm_exp_fuzzy:
-            errors += [
-                f"The following expected, fuzzy-matching card has not found a partner:\n{additional_fuzzy}"
-            ]
+            errors += [f"The following expected, fuzzy-matching card has not found a partner:\n{additional_fuzzy}"]
 
         for additional_expected in unm_exp:
-            errors += [
-                f"The following expected card has not found a partner:\n{additional_expected}"
-            ]
+            errors += [f"The following expected card has not found a partner:\n{additional_expected}"]
 
         for additional_actual in final_unm_act:
-            errors += [
-                f"The following provided card was not expected:\n{additional_actual}"
-            ]
+            errors += [f"The following provided card was not expected:\n{additional_actual}"]
         return errors
 
-    def _compare_srs(
-        self, expected: TestFlashcardManager, actual: TestFlashcardManager
-    ) -> list[str]:
+    def _compare_srs(self, expected: TestFlashcardManager, actual: TestFlashcardManager) -> list[str]:
         (matched, unmatched_expected, unmatched_actual) = match_by_key(
             expected.get_all_decks(),
             actual.get_all_decks(),
-            equals=(
-                lambda x, y: x.name == y.name
-            ),  # checking by name is sufficient, as names must be unique
+            equals=(lambda x, y: x.name == y.name),  # checking by name is sufficient, as names must be unique
             left_key=lambda l: l.name,
             right_key=lambda r: r.name,
         )
 
         errors: list[str] = []
         for unmatched_expected_deck in unmatched_expected:
-            errors += [
-                f"The deck {unmatched_expected_deck.name} was expected, but was not in the actual result."
-            ]
+            errors += [f"The deck {unmatched_expected_deck.name} was expected, but was not in the actual result."]
 
         for unmatched_actual_deck in unmatched_actual:
-            errors += [
-                f"The deck {unmatched_actual_deck.name} was in the actual result, but was unexpected."
-            ]
+            errors += [f"The deck {unmatched_actual_deck.name} was in the actual result, but was unexpected."]
 
         for e, a in matched:
-            errors += self._compare_decks(
-                expected.get_cards_in_deck(e), actual.get_cards_in_deck(a)
-            )
+            errors += self._compare_decks(expected.get_cards_in_deck(e), actual.get_cards_in_deck(a))
 
         return errors
 
@@ -281,9 +246,7 @@ Remember to only respond with 'true' or 'false'.
         try:
             for test_nr, test in enumerate(tests):
                 if print_progress:
-                    print(
-                        f"Test {test_nr} out of {len(tests)} ({100.0 * test_nr / len(tests):.2f}%): {test.name}"
-                    )
+                    print(f"Test {test_nr} out of {len(tests)} ({100.0 * test_nr / len(tests):.2f}%): {test.name}")
                 fcm = test.environment.copy()
                 llm_communicator = LLMCommunicator(task_llm)
                 llm_interactor.change_flashcard_manager(fcm)
@@ -297,9 +260,7 @@ Remember to only respond with 'true' or 'false'.
                     verbose_task_execution,
                 )
                 self.lecture_translator.text_queue = Queue()
-                file_path = os.path.join(
-                    "../data/recording_data/fabian", test.sound_file_names[0] + ".wav"
-                )
+                file_path = os.path.join("../data/recording_data/fabian", test.sound_file_names[0] + ".wav")
                 if with_recording:
                     str_transcribed_text = self._transcribe_audio(file_path)
                     print(
@@ -307,15 +268,11 @@ Remember to only respond with 'true' or 'false'.
                         f"\nOriginal text: {test.queries[0]}"
                     )
                     if str_transcribed_text.strip() == "":
-                        print(
-                            f"Transcribed text for test {test.name} is empty. Skipping test."
-                        )
+                        print(f"Transcribed text for test {test.name} is empty. Skipping test.")
                         continue
                     transcribed_query = [str_transcribed_text]
                 try:
-                    task_executor.execute_prompts(
-                        test.queries if not with_recording else [transcribed_query]
-                    )
+                    task_executor.execute_prompts(test.queries if not with_recording else [transcribed_query])
                     evaluation = self._compare_srs(test.expected_result, fcm)
                     res.append(
                         TestInfo(
@@ -343,9 +300,7 @@ Remember to only respond with 'true' or 'false'.
 
         if log_file_path is not None:
             with open(log_file_path, "w", encoding="utf-8") as f:
-                json.dump(
-                    [asdict(item) for item in res], f, ensure_ascii=False, indent=4
-                )
+                json.dump([asdict(item) for item in res], f, ensure_ascii=False, indent=4)
         return res
 
 
@@ -374,9 +329,7 @@ class QuestionAnsweringTestEvaluator(BaseTestEvaluator):
         try:
             for test_nr, test in enumerate(tests):
                 if print_progress:
-                    print(
-                        f"Test {test_nr} out of {len(tests)} ({100.0 * test_nr / len(tests):.2f}%): {test.name}"
-                    )
+                    print(f"Test {test_nr} out of {len(tests)} ({100.0 * test_nr / len(tests):.2f}%): {test.name}")
 
                 fcm = test.environment.copy()
                 llm_communicator = LLMCommunicator(task_llm)
@@ -391,9 +344,7 @@ class QuestionAnsweringTestEvaluator(BaseTestEvaluator):
                     verbose_task_execution,
                 )
                 self.lecture_translator.text_queue = Queue()
-                file_path = os.path.join(
-                    "../data/recording_data/fabian", test.sound_file_name + ".wav"
-                )
+                file_path = os.path.join("../data/recording_data/fabian", test.sound_file_name + ".wav")
                 if with_recording:
                     str_transcribed_text = self._transcribe_audio(file_path)
                     print(
@@ -401,9 +352,7 @@ class QuestionAnsweringTestEvaluator(BaseTestEvaluator):
                         f"\nOriginal text: {test.queries[0]}"
                     )
                     if str_transcribed_text.strip() == "":
-                        print(
-                            f"Transcribed text for test {test.name} is empty. Skipping test."
-                        )
+                        print(f"Transcribed text for test {test.name} is empty. Skipping test.")
                         continue
                     transcribed_query = [str_transcribed_text]
                 try:
@@ -419,9 +368,7 @@ class QuestionAnsweringTestEvaluator(BaseTestEvaluator):
                     passed = self._llm_judge_similarity(test.expected_answer, response)
                     if not passed:
                         all_passed = False
-                        error_messages.append(
-                            f"Expected: {test.expected_answer}\nActual: {response}"
-                        )
+                        error_messages.append(f"Expected: {test.expected_answer}\nActual: {response}")
                     log_messages.extend(task_executor.log)
                     res.append(
                         TestInfo(
@@ -449,7 +396,5 @@ class QuestionAnsweringTestEvaluator(BaseTestEvaluator):
 
         if log_file_path is not None:
             with open(log_file_path, "w", encoding="utf-8") as f:
-                json.dump(
-                    [asdict(item) for item in res], f, ensure_ascii=False, indent=4
-                )
+                json.dump([asdict(item) for item in res], f, ensure_ascii=False, indent=4)
         return res

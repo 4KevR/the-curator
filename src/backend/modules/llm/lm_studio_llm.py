@@ -39,11 +39,7 @@ class LMStudioLLM(AbstractLLM):
             content = msg["content"]
             if isinstance(content, list):
                 # Only keep string elements
-                content = [
-                    str(c)
-                    for c in content
-                    if isinstance(c, str) or isinstance(c, (int, float))
-                ]
+                content = [str(c) for c in content if isinstance(c, str) or isinstance(c, (int, float))]
             else:
                 content = [str(content)]
             mapped.append({"role": msg["role"], "content": content})

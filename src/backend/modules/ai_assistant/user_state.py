@@ -11,6 +11,7 @@ class UserState(Enum):
     IN_DECK = auto()
     IN_LEARN = auto()
 
+
 @dataclass
 class UserContext:
     state: UserState = UserState.IN_COLLECTION
@@ -23,9 +24,13 @@ def allowed_in_states(*allowed_states: UserState):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             if self.user_context.state not in allowed_states:
-                raise PermissionError(f"Operation '{func.__name__}' not allowed in state '{self.user_context.state.name}'")
+                raise PermissionError(
+                    f"Operation '{func.__name__}' not allowed in state '{self.user_context.state.name}'"
+                )
             return func(self, *args, **kwargs)
+
         return wrapper
+
     return decorator
 
 

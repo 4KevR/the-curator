@@ -29,9 +29,7 @@ class CloudLectureTranslatorASR(AbstractASR):
 
     def _run_session(self):
         session_id, stream_id = self._set_graph()
-        self.session_url = urljoin(
-            self.url, f"{self.api}/{session_id}/{stream_id}/append"
-        )
+        self.session_url = urljoin(self.url, f"{self.api}/{session_id}/{stream_id}/append")
 
         self.session_thread = Thread(target=self._read_text)
         self.session_thread.daemon = True
@@ -137,9 +135,7 @@ class CloudLectureTranslatorASR(AbstractASR):
 
     def _read_text(self):
         logging.debug("Starting SSEClient")
-        messages = SSEClient(
-            self.url + "/" + self.api + "/stream?channel=" + self.session_id
-        )
+        messages = SSEClient(self.url + "/" + self.api + "/stream?channel=" + self.session_id)
 
         for msg in messages:
             if len(msg.data) == 0:

@@ -24,6 +24,6 @@ class ChunkedCardStream:
         """Returns the next chunk of cards. If there are no more chunks, returns an empty list."""
         if not self.has_next():
             return []
-        res = self.items[self.current_index: self.current_index + self.chunk_size]
+        res = self.items[self.current_index : self.current_index + self.chunk_size]
         self.current_index += self.chunk_size
         return res

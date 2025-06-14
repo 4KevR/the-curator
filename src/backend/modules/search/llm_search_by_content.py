@@ -10,8 +10,7 @@ class LLMSearchByContent(AbstractCardSearcher[AbstractCard]):
     The search may fail if the LLM returns an unfitting response.
     """
 
-    def __init__(self, llm: AbstractLLM, search_prompt: str,
-                 search_in_question: bool, search_in_answer: bool):
+    def __init__(self, llm: AbstractLLM, search_prompt: str, search_in_question: bool, search_in_answer: bool):
         self.llm = llm
         self.search_prompt = search_prompt
         self.search_in_question = search_in_question
@@ -40,7 +39,9 @@ Please return true if it fits, and else false."""
         else:
             raise ValueError("At least one of question or answer must be specified.")
 
-        messages = [{"role": "user", "content": prompt}, ]
+        messages = [
+            {"role": "user", "content": prompt},
+        ]
         response = self.llm.generate(messages).lower()
 
         false_index = response.rfind("false")

@@ -3,8 +3,7 @@ import logging
 
 from sseclient import SSEClient
 
-from src.backend.modules.asr.cloud_lecture_translator import \
-    CloudLectureTranslatorASR
+from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR
 
 logger = logging.getLogger(__name__)
 
@@ -12,9 +11,7 @@ logger = logging.getLogger(__name__)
 class LocalLectureTranslatorASR(CloudLectureTranslatorASR):
     def _read_text(self):
         logging.debug("Starting SSEClient")
-        messages = SSEClient(
-            self.url + "/" + self.api + "/stream?channel=" + self.session_id
-        )
+        messages = SSEClient(self.url + "/" + self.api + "/stream?channel=" + self.session_id)
 
         for msg in messages:
             if len(msg.data) == 0:

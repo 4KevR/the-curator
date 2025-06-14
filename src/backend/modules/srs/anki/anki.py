@@ -18,14 +18,16 @@ from anki.notes import Note, NoteId
 from overrides import override
 from typeguard import typechecked
 
-from src.backend.modules.ai_assistant.user_state import (UserContext,
-                                                         UserState,
-                                                         allowed_in_states)
-from src.backend.modules.srs.abstract_srs import (AbstractCard, AbstractDeck,
-                                                  AbstractSRS,
-                                                  AbstractTemporaryCollection,
-                                                  CardID, DeckID,
-                                                  TmpCollectionID)
+from src.backend.modules.ai_assistant.user_state import UserContext, UserState, allowed_in_states
+from src.backend.modules.srs.abstract_srs import (
+    AbstractCard,
+    AbstractDeck,
+    AbstractSRS,
+    AbstractTemporaryCollection,
+    CardID,
+    DeckID,
+    TmpCollectionID,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +37,7 @@ _base_dir = os.getenv("ANKI_COLLECTION_PATH", "data/anki_collection")
 
 
 # TODO: Still changes from the abstract srs that are missing here!!!
+
 
 @typechecked
 class AnkiDeck(AbstractDeck):
@@ -65,9 +68,7 @@ class AnkiCard(AbstractCard):
 
     def __init__(self, note: Note, deck: AnkiDeck, raw_card: anki.cards.Card):
         super().__init__(
-            CardID(raw_card.id),
-            question=note.fields[raw_card.ord],
-            answer=note.fields[1 - raw_card.ord]
+            CardID(raw_card.id), question=note.fields[raw_card.ord], answer=note.fields[1 - raw_card.ord]
         )  # If raw_card.ord == 0, then the first field is the question, the second the answer. If .ord == 1, other way around.
         self.note = note
         self.deck = deck
@@ -202,14 +203,16 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     @allowed_in_states(UserState.IN_COLLECTION)
     def get_deck_by_name_or_none(self, deck_name: str) -> AnkiDeck | None:
         deck_dict = self.col.decks.by_name(deck_name)
-        if deck_dict is None: return None
+        if deck_dict is None:
+            return None
         return AnkiDeck(DeckID(deck_dict["id"]), deck_dict["name"])
 
     @override
     @allowed_in_states(UserState.IN_COLLECTION)
     def get_deck_or_none(self, deck_id: DeckID) -> AnkiDeck | None:
         deck_dict = self.col.decks.get(DeckId(deck_id.numeric_id))
-        if deck_dict is None: return None
+        if deck_dict is None:
+            return None
         return AnkiDeck(DeckID(deck_dict["id"]), deck_dict["name"])
 
     @override
@@ -336,10 +339,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
                 logger.debug(f"Card ID {card_id} is invalid: {e}")
 
         deleted_notes = sorted(set(old_note_ids) - set(self.list_all_notes()))
-        logger.debug(
-            f"Delete Cards: {deleted_cards}. "
-            + f"Automatically deleted notes: {deleted_notes}"
-        )
+        logger.debug(f"Delete Cards: {deleted_cards}. " + f"Automatically deleted notes: {deleted_notes}")
         return len(deleted_cards)
 
     # noinspection DuplicatedCode
@@ -385,8 +385,9 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         self.__temporary_collections.pop(tmp_collection.id)
 
     @override
-    def add_cards_to_temporary_collection(self, tmp_collection: AnkiTemporaryCollection,
-                                          cards: typing.Collection[AnkiCard]):
+    def add_cards_to_temporary_collection(
+        self, tmp_collection: AnkiTemporaryCollection, cards: typing.Collection[AnkiCard]
+    ):
         self._verify_tmp_collection_exists(tmp_collection)
         for card in cards:  # fail before changing anything
             self._verify_card_exists(card)
@@ -395,9 +396,9 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
             tmp_collection.add_card(card)
 
     @override
-    def remove_cards_from_temporary_collection(self,
-                                               tmp_collection: AnkiTemporaryCollection,
-                                               cards: typing.Collection[AnkiCard]):
+    def remove_cards_from_temporary_collection(
+        self, tmp_collection: AnkiTemporaryCollection, cards: typing.Collection[AnkiCard]
+    ):
         self._verify_tmp_collection_exists(tmp_collection)
         for card in cards:  # fail before changing anything
             self._verify_card_exists(card)
@@ -449,7 +450,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     @typechecked
     @allowed_in_states(UserState.IN_DECK)
     def add_note(
-            self, deck: AnkiDeck, front: str, back: str, model_name: "AnkiSRS.NoteType" = NoteType.BASIC
+        self, deck: AnkiDeck, front: str, back: str, model_name: "AnkiSRS.NoteType" = NoteType.BASIC
     ) -> NoteCreationResult:
         """
         Create a Note with the specified NoteType (model).
@@ -495,9 +496,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
                 try:
                     note = self.col.get_note(NoteId(note_id))
                     card_ids = [card.id for card in note.cards()]
-                    logger.debug(
-                        f"Note {note_id} is deleted. Also deleted Cards: {card_ids}."
-                    )
+                    logger.debug(f"Note {note_id} is deleted. Also deleted Cards: {card_ids}.")
                 except Exception as e:
                     # Note might already be deleted or invalid
                     logger.debug(f"Note ID {note_id} is invalid: {e}")
@@ -558,7 +557,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         note = self.col.get_note(NoteId(note_id))
         card_ids = [card.id for card in note.cards()]
         return card_ids
-    
+
     @allowed_in_states(UserState.IN_DECK)
     def set_type(self, card_id: int, type_code: int) -> None:
         """
@@ -622,9 +621,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         self.col.update_card(card)
 
     @allowed_in_states(UserState.IN_DECK)
-    def set_review_stats(
-            self, card_id: int, reps: int = None, lapses: int = None, left: int = None
-    ) -> None:
+    def set_review_stats(self, card_id: int, reps: int = None, lapses: int = None, left: int = None) -> None:
         """
         :reps: total number of reviews
         :lapses: number of abandonments (forgetting)
@@ -711,10 +708,10 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
             relearn=count["relearn"],
             total=count["total"],
         )
-    
+
     @allowed_in_states(UserState.IN_DECK, UserState.IN_LEARN)
     def reset_states(self):
-        '''Switch the user status to IN_COLLECTION'''
+        """Switch the user status to IN_COLLECTION"""
         self.user_context.state = UserState.IN_COLLECTION
         self.user_context.current_deck = None
         self.user_context.current_card = None
@@ -722,7 +719,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     # choose deck
     @allowed_in_states(UserState.IN_COLLECTION)
     def choose_deck_by_name(self, deck_name: str):
-        '''Select a deck, enter the deck, and switch the user status to IN_DECK'''
+        """Select a deck, enter the deck, and switch the user status to IN_DECK"""
         deck = self.get_deck_by_name(deck_name)
         self.user_context.state = UserState.IN_DECK
         self.user_context.current_deck = deck
@@ -730,22 +727,22 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     # start learning
     @allowed_in_states(UserState.IN_DECK)
     def start_learning(self):
-        '''Switch the user status to IN_LEARN'''
+        """Switch the user status to IN_LEARN"""
         self.user_context.state = UserState.IN_LEARN
         # Then start
         self.learning_process()
-        print('Learning process finished.')
+        print("Learning process finished.")
         self.reset_states()
 
     def learning_process(self):
-        
+
         self.activate_preview_cards(self.user_context.current_deck.name)
-        
+
         cards = self.col.db.list(
             "SELECT id FROM cards WHERE did = ? AND queue IN (1, 2, 3)",
             self.get_deck_by_name(self.user_context.current_deck.name).id.numeric_id,
         )
-        
+
         for card_id in cards:
             card = self.col.get_card(card_id)
 
@@ -753,7 +750,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
             # set self.user_context.current_card
             # get question and answer
             ...
-            
+
             # 1.tts
             # 2.wait user response
             # 3.llm judge

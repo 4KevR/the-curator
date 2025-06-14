@@ -44,18 +44,14 @@ class LLMInteractor:
     A class that handles the interaction between the LLM and the SRS.
     """
 
-    flashcard_manager: AbstractSRS[
-        AbstractDeck, AbstractCard, AbstractTemporaryCollection
-    ]
+    flashcard_manager: AbstractSRS[AbstractDeck, AbstractCard, AbstractTemporaryCollection]
     content_search_llm: AbstractLLM
     llama_index_executor: LlamaIndexExecutor
     command_list = _commands
 
     def __init__(
         self,
-        flashcard_manager: AbstractSRS[
-            AbstractDeck, AbstractCard, AbstractTemporaryCollection
-        ],
+        flashcard_manager: AbstractSRS[AbstractDeck, AbstractCard, AbstractTemporaryCollection],
         content_search_llm: AbstractLLM,
         llama_index_executor: LlamaIndexExecutor,
     ):
@@ -65,9 +61,7 @@ class LLMInteractor:
 
     def change_flashcard_manager(
         self,
-        flashcard_manager: AbstractSRS[
-            AbstractDeck, AbstractCard, AbstractTemporaryCollection
-        ],
+        flashcard_manager: AbstractSRS[AbstractDeck, AbstractCard, AbstractTemporaryCollection],
     ):
         self.flashcard_manager = flashcard_manager
 
@@ -118,9 +112,7 @@ class LLMInteractor:
         The question and answer must all be non-empty strings.
         """
         if not all(isinstance(x, str) and x.strip() for x in [question, answer]):
-            raise ValueError(
-                "Question, answer, state, and flag must all be non-empty strings."
-            )
+            raise ValueError("Question, answer, state, and flag must all be non-empty strings.")
         deck_id = DeckID.from_hex_string(deck_id_str)
         deck = self.flashcard_manager.get_deck(deck_id)
         self.flashcard_manager.add_card(deck, question, answer)
@@ -154,9 +146,7 @@ class LLMInteractor:
         self.flashcard_manager.delete_card(card)
 
     @llm_command(_commands)
-    def create_new_temporary_collection(
-        self, temporary_collection_description: str
-    ) -> AbstractTemporaryCollection:
+    def create_new_temporary_collection(self, temporary_collection_description: str) -> AbstractTemporaryCollection:
         """
         Creates a new, empty temporary collection with the given name.
         A temporary collection is a collection of cards that are part of (possibly different) decks.
@@ -167,9 +157,7 @@ class LLMInteractor:
         if not isinstance(temporary_collection_description, str):
             raise ValueError("Temporary collection name must be a non-empty string.")
 
-        temporary_collection = self.flashcard_manager.create_temporary_collection(
-            temporary_collection_description, []
-        )
+        temporary_collection = self.flashcard_manager.create_temporary_collection(temporary_collection_description, [])
         return temporary_collection
 
     @llm_command(_commands)
@@ -186,15 +174,11 @@ class LLMInteractor:
         The temporary_collection_id_str must be a string in the format 'tmp_collection_xxxx_xxxx'.
         """
         tmp_col_id = TmpCollectionID.from_hex_string(temporary_collection_id_str)
-        temporary_collection = self.flashcard_manager.get_temporary_collection(
-            tmp_col_id
-        )
+        temporary_collection = self.flashcard_manager.get_temporary_collection(tmp_col_id)
         self.flashcard_manager.delete_temporary_collection(temporary_collection)
 
     @llm_command(_commands)
-    def temporary_collection_add_card(
-        self, temporary_collection_str: str, card_id_str: str
-    ) -> None:
+    def temporary_collection_add_card(self, temporary_collection_str: str, card_id_str: str) -> None:
         """
         Adds the given card to the given temporary collection. Cards may be part of arbitrary many temporary collections.
 
@@ -202,27 +186,16 @@ class LLMInteractor:
         The temporary_collection_id_str must be a string in the format 'tmp_collection_xxxx_xxxx'.
         """
         # noinspection DuplicatedCode
-        if not all(
-            isinstance(x, str) and x.strip()
-            for x in [temporary_collection_str, card_id_str]
-        ):
-            raise ValueError(
-                "Question, answer, state, and flag must all be non-empty strings."
-            )
+        if not all(isinstance(x, str) and x.strip() for x in [temporary_collection_str, card_id_str]):
+            raise ValueError("Question, answer, state, and flag must all be non-empty strings.")
 
         tmp_col_id = TmpCollectionID.from_hex_string(temporary_collection_str)
-        temporary_collection = self.flashcard_manager.get_temporary_collection(
-            tmp_col_id
-        )
+        temporary_collection = self.flashcard_manager.get_temporary_collection(tmp_col_id)
         card = self.flashcard_manager.get_card(CardID.from_hex_string(card_id_str))
-        self.flashcard_manager.add_cards_to_temporary_collection(
-            temporary_collection, card
-        )
+        self.flashcard_manager.add_cards_to_temporary_collection(temporary_collection, card)
 
     @llm_command(_commands)
-    def temporary_collection_remove_card(
-        self, temporary_collection_str: str, card_id_str: str
-    ) -> None:
+    def temporary_collection_remove_card(self, temporary_collection_str: str, card_id_str: str) -> None:
         """
         Removes the given card from the given temporary collection. This does not delete the card from their 'normal' deck.
 
@@ -230,27 +203,16 @@ class LLMInteractor:
         The temporary_collection_id_str must be a string in the format 'tmp_collection_xxxx_xxxx'.
         """
         # noinspection DuplicatedCode
-        if not all(
-            isinstance(x, str) and x.strip()
-            for x in [temporary_collection_str, card_id_str]
-        ):
-            raise ValueError(
-                "Question, answer, state, and flag must all be non-empty strings."
-            )
+        if not all(isinstance(x, str) and x.strip() for x in [temporary_collection_str, card_id_str]):
+            raise ValueError("Question, answer, state, and flag must all be non-empty strings.")
 
         tmp_col_id = TmpCollectionID.from_hex_string(temporary_collection_str)
-        temporary_collection = self.flashcard_manager.get_temporary_collection(
-            tmp_col_id
-        )
+        temporary_collection = self.flashcard_manager.get_temporary_collection(tmp_col_id)
         card = self.flashcard_manager.get_card(CardID.from_hex_string(card_id_str))
-        self.flashcard_manager.remove_cards_from_temporary_collection(
-            temporary_collection, [card]
-        )
+        self.flashcard_manager.remove_cards_from_temporary_collection(temporary_collection, [card])
 
     @llm_command(_commands)
-    def list_cards_temporary_collection(
-        self, temporary_collection_id_str: str
-    ) -> ChunkedCardStream:
+    def list_cards_temporary_collection(self, temporary_collection_id_str: str) -> ChunkedCardStream:
         """
         List all cards in a temporary collection, optionally filtering by a substring in the question.
         The temporary_collection_id_str must be a string in the format 'tmp_collection_xxxx_xxxx'.
@@ -288,9 +250,7 @@ class LLMInteractor:
         if deck_id_str.strip() == "*":
             decks = self.flashcard_manager.get_all_decks()
         else:
-            decks = [
-                self.flashcard_manager.get_deck(DeckID.from_hex_string(deck_id_str))
-            ]
+            decks = [self.flashcard_manager.get_deck(DeckID.from_hex_string(deck_id_str))]
 
         cards = []
         for deck in decks:
@@ -299,9 +259,7 @@ class LLMInteractor:
         res_cards = searcher.search_all(cards)
 
         description = re.sub(r'[^\w .,?\'"]', "_", description)
-        res_temporary_collection = self.flashcard_manager.create_temporary_collection(
-            description, res_cards
-        )
+        res_temporary_collection = self.flashcard_manager.create_temporary_collection(description, res_cards)
 
         return res_temporary_collection
 
@@ -339,19 +297,13 @@ class LLMInteractor:
             or not isinstance(search_in_answer, bool)
             or not isinstance(case_sensitive, bool)
         ):
-            raise ValueError(
-                "search_in_question, search_in_answer, case_sensitive must be booleans."
-            )
+            raise ValueError("search_in_question, search_in_answer, case_sensitive must be booleans.")
         if not search_in_question and not search_in_answer:
             raise ValueError("search_in_question or search_in_answer must be True.")
 
         if fuzzy is None or fuzzy == 0.0:
-            searcher = SearchBySubstring(
-                search_substring, search_in_question, search_in_answer, case_sensitive
-            )
-            description = (
-                f"Search result for substring {search_substring} without fuzzy search."
-            )
+            searcher = SearchBySubstring(search_substring, search_in_question, search_in_answer, case_sensitive)
+            description = f"Search result for substring {search_substring} without fuzzy search."
         else:
             searcher = SearchBySubstringFuzzy(
                 search_substring,
@@ -392,18 +344,12 @@ class LLMInteractor:
         """
         if not isinstance(search_prompt, str):
             raise ValueError("Search prompt must be a string.")
-        if not isinstance(search_in_question, bool) or not isinstance(
-            search_in_answer, bool
-        ):
-            raise ValueError(
-                "search_in_question and search_in_answer must be booleans."
-            )
+        if not isinstance(search_in_question, bool) or not isinstance(search_in_answer, bool):
+            raise ValueError("search_in_question and search_in_answer must be booleans.")
         if not search_in_question and not search_in_answer:
             raise ValueError("search_in_question or search_in_answer must be True.")
 
-        searcher = LLMSearchByContent(
-            self.content_search_llm, search_prompt, search_in_question, search_in_answer
-        )
+        searcher = LLMSearchByContent(self.content_search_llm, search_prompt, search_in_question, search_in_answer)
         description = f"Search result for prompt {search_prompt} using an LLM to judge similarity."
 
         return self._search(deck_id_str, searcher, description)

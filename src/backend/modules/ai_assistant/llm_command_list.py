@@ -1,8 +1,8 @@
 import inspect
 from typing import Callable, Optional
 
-from src.backend.modules.helpers.string_util import replace_many
 from src.backend.modules.ai_assistant.user_state import UserState
+from src.backend.modules.helpers.string_util import replace_many
 
 
 class LLMCommandList:
@@ -11,6 +11,7 @@ class LLMCommandList:
     The commands can then be described using the describe_llm_commands method for tool
     use in a llm.
     """
+
     llm_commands: dict[str, Callable]
 
     def __init__(self, substitutions: dict[str, str], card_type: type, deck_type: type, temp_collection_type: type):
@@ -35,11 +36,12 @@ class LLMCommandList:
     @staticmethod
     def annotation_to_string(annotation) -> str:
         """Converts a type annotation to a string. Also handles generic types."""
-        if annotation is None: return "None"
+        if annotation is None:
+            return "None"
 
         # generic?
         if not hasattr(annotation, "__origin__"):
-            return getattr(annotation, '__name__', annotation)
+            return getattr(annotation, "__name__", annotation)
 
         origin = annotation.__origin__
         args = annotation.__args__
