@@ -12,6 +12,8 @@ from sseclient import SSEClient
 
 from src.backend.modules.asr.abstract_asr import AbstractASR
 
+logger = logging.getLogger(__name__)
+
 
 class CloudLectureTranslatorASR(AbstractASR):
     def __init__(self):
@@ -145,7 +147,7 @@ class CloudLectureTranslatorASR(AbstractASR):
                 if "markup" in data:
                     continue
                 if "seq" in data:
-                    print(f"Received data: {data}")
+                    logger.debug(f"Received data: {data}")
                     self.text_queue.put(data["seq"].replace("<br><br>", ""))
 
             except json.decoder.JSONDecodeError:

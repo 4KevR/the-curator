@@ -26,6 +26,7 @@ class LMStudioLLM(AbstractLLM):
         self.model = model
         self.add_no_think = add_no_think
 
+    # TODO: What is this function for?
     def map_messages_for_lmstudio(
         self,
         messages: list[dict[str, str]],
@@ -63,7 +64,6 @@ class LMStudioLLM(AbstractLLM):
         # This works, be quiet
         # noinspection PyTypeChecker
         # messages = self.map_messages_for_lmstudio(messages)
-        print(messages)
         return (
             self.client.chat.completions.create(
                 model=self.model,
