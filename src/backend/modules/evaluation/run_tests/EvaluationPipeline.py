@@ -16,6 +16,7 @@ from src.backend.modules.evaluation.load_test_data.load_test_data import (
 )
 from src.backend.modules.evaluation.run_tests.LLMSimilarityJudge import LLMSimilarityJudge
 from src.backend.modules.evaluation.run_tests.SRSComparator import SRSComparator
+from src.backend.modules.helpers.string_util import remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.llm.llm_communicator import LLMCommunicator
 
@@ -39,7 +40,7 @@ class TestEvalResult:
         log = []
         for role, message in self.log_messages:
             if skip_thinking:
-                message = re.sub(r"<think>.*?</think>", "", message, flags=re.DOTALL)
+                message = remove_block(message, "think")
                 message = re.sub("\n\n+", "\n", message)
                 message = message.strip()
 

@@ -92,7 +92,7 @@ def _get_prompt_with_parameters(prompts: list[list[str]], parameters: dict[str, 
     keys = parameters.keys()
     keys_with_angles = [f"<{it}>" for it in keys]
     values = parameters.values()
-    indices = [range(len(it)) for it in values]
+    indices = [range(len(it)) for it in values if not isinstance(it, str)]
 
     only_zip = "join" in parameters and parameters.pop("join") == "zip"
 
@@ -101,13 +101,15 @@ def _get_prompt_with_parameters(prompts: list[list[str]], parameters: dict[str, 
         combinations_idx = itertools.product(*indices)
     else:  # zip
         assert len({len(it) for it in parameters.values()}) <= 1, "all parameters must have the same length"
-        combinations = zip(*values)
-        combinations_idx = zip(*indices)
+        combinations = list(zip(*values))
+        combinations_idx = list(zip(*indices))
 
-    raw_substitutions: list[dict[str, str]] = [dict(zip(keys_with_angles, combination)) for combination in combinations]
+    raw_substitutions: list[dict[str, str]] = [
+        dict(list(zip(keys_with_angles, combination))) for combination in combinations
+    ]
 
     # get the substitutions with the ids used for audio file names
-    substitutions_with_ids = zip(raw_substitutions, combinations_idx)
+    substitutions_with_ids = list(zip(raw_substitutions, combinations_idx))
 
     # Second: Get all possible prompt combinations (steps):
     # (no idea what goes wrong here. It is clearly int, not Any).

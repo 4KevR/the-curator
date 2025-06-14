@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 from src.backend.modules.ai_assistant.chunked_card_stream import ChunkedCardStream
 from src.backend.modules.ai_assistant.llm_interactor.llm_interactor import LLMInteractor
+from src.backend.modules.helpers.string_util import remove_block
 from src.backend.modules.llm.llm_communicator import LLMCommunicator
 
 
@@ -54,7 +55,7 @@ class TaskExecutor:
 
     @staticmethod
     def _extract_response_block(response: str) -> str | None:
-        response_wo_think = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL)
+        response_wo_think = remove_block(response, "think")
         matches = re.findall(r"<response>(.*?)</response>", response_wo_think, re.DOTALL)
         if matches:
             return matches[-1].strip()
@@ -414,7 +415,7 @@ To end the stream early (before all cards are processed), please call the functi
     @staticmethod
     def _parse_llm_response(response: str) -> list[_ParsedLLMCommand]:
         """Parses the 'execute' block in the LLM response into a list of _ParsedLLMCommand objects."""
-        response_wo_think = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL)
+        response_wo_think = remove_block(response, "think")
         match = re.search(r"^ *<execute>(.*?)</execute>", response_wo_think, re.DOTALL + re.MULTILINE)
         if not match:
             raise ValueError(

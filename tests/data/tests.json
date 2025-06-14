@@ -2068,7 +2068,7 @@
       "environment": "all",
       "queries": [
         [
-          "Please add a deck called tmp that contains card regarding calling functions with a non-predetermined amount of arguments.",
+          "Please add a deck called tmp that contains all cards regarding calling functions with a non-predetermined amount of arguments.",
           "There are some cards that contain information about calling functions with a variable amount of arguments (decided at runtime). Please create a new deck out of those cards called tmp."
         ]
       ],

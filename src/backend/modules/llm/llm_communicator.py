@@ -1,6 +1,7 @@
 import re
 from enum import Enum
 
+from src.backend.modules.helpers.string_util import remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 
 
@@ -81,7 +82,7 @@ class LLMCommunicator:
         """
         for role, message in self.messages:
             if skip_thinking:
-                message = re.sub(r"<think>.*?</think>", "", message, flags=re.DOTALL)
+                message = remove_block(message, "think")
                 message = re.sub("\n\n+", "\n", message)
                 message = message.strip()
 
