@@ -27,8 +27,16 @@ from llama_index.vector_stores.postgres import PGVectorStore
 # Ideally, in the future, we will have an index that will be maintained
 # when the user makes changes to the environment.
 
-load_dotenv(".env")
-load_dotenv(".env.db")
+if os.path.exists(".env"):
+    base = "./"
+elif os.path.exists("../.env"):
+    base = "../"
+else:
+    raise FileNotFoundError("Neither .env nor ../.env exists.")
+
+
+load_dotenv(base + ".env")
+load_dotenv(base + ".env.db")
 
 CREATE_INDEX = True  # Set to True to create a new index, False to use an existing one
 RUN_TESTS = False  # Set to True to run the question answering tests after init
@@ -89,12 +97,8 @@ index_store_cards = PostgresIndexStore.from_params(
     table_name="the_curator_index_store_cards",
 )
 
-storage_context_decks = StorageContext.from_defaults(
-    vector_store=vector_store_decks, index_store=index_store_decks
-)
-storage_context_cards = StorageContext.from_defaults(
-    vector_store=vector_store_cards, index_store=index_store_cards
-)
+storage_context_decks = StorageContext.from_defaults(vector_store=vector_store_decks, index_store=index_store_decks)
+storage_context_cards = StorageContext.from_defaults(vector_store=vector_store_cards, index_store=index_store_cards)
 
 
 def load_test_data(path: str) -> dict:
@@ -137,18 +141,13 @@ def get_all_cards(test_data: dict) -> list[dict]:
 
 
 if CREATE_INDEX:
-    test_data_path = "./tests/data/tests.json"
+    test_data_path = base + "tests/data/tests.json"
     test_data = load_test_data(test_data_path)
 
     # Index 1: Deck summaries
     deck_summaries = get_deck_summaries(test_data)
-    deck_docs = [
-        Document(text=deck["summary"], metadata={"deck_name": deck["deck_name"]})
-        for deck in deck_summaries
-    ]
-    deck_index = VectorStoreIndex.from_documents(
-        deck_docs, storage_context=storage_context_decks, show_progress=True
-    )
+    deck_docs = [Document(text=deck["summary"], metadata={"deck_name": deck["deck_name"]}) for deck in deck_summaries]
+    deck_index = VectorStoreIndex.from_documents(deck_docs, storage_context=storage_context_decks, show_progress=True)
     print(f"Created deck_index with id {deck_index.index_id}")
 
     # Index 2: All cards (question + answer)
@@ -160,19 +159,13 @@ if CREATE_INDEX:
         )
         for card in card_entries
     ]
-    card_index = VectorStoreIndex.from_documents(
-        card_docs, storage_context=storage_context_cards, show_progress=True
-    )
+    card_index = VectorStoreIndex.from_documents(card_docs, storage_context=storage_context_cards, show_progress=True)
     print(f"Created card_index with id {card_index.index_id}")
 else:
     deck_index_id = "a92ac466-dd85-4e7a-9480-665fb342b24a"
     card_index_id = "25a89de1-b32d-4b38-b76e-48a64ef64d73"
-    deck_index = load_index_from_storage(
-        storage_context=storage_context_decks, index_id=deck_index_id
-    )
-    card_index = load_index_from_storage(
-        storage_context=storage_context_cards, index_id=card_index_id
-    )
+    deck_index = load_index_from_storage(storage_context=storage_context_decks, index_id=deck_index_id)
+    card_index = load_index_from_storage(storage_context=storage_context_cards, index_id=card_index_id)
     print("Loaded existing indices:")
     print(f"deck_index_id: {deck_index.index_id}")
     print(f"card_index_id: {card_index.index_id}")
@@ -190,9 +183,7 @@ card_retriever = QueryEngineTool.from_defaults(
     description="Use this query engine for specific questions about content",
 )
 
-query_engine = RouterQueryEngine.from_defaults(
-    query_engine_tools=[deck_retriever, card_retriever]
-)
+query_engine = RouterQueryEngine.from_defaults(query_engine_tools=[deck_retriever, card_retriever])
 
 # The above router is not working consistently (due to to Llama 7B) - needs more
 # investigation. For now, we will use the card query engine directly for testing
@@ -215,10 +206,7 @@ def run_question_answering_tests():
 
     amount_of_environments = len(qa_tests.items())
     for index, (env, tests) in enumerate(qa_tests.items()):
-        print(
-            f"\n--- Environment: {env} "
-            f"({index + 1} out of {amount_of_environments}) ---\n"
-        )
+        print(f"\n--- Environment: {env} " f"({index + 1} out of {amount_of_environments}) ---\n")
         amount_of_tests = len(tests)
         for index_test, test in enumerate(tests):
             print(f"\n--- Test {index_test + 1} out of {amount_of_tests} ---")

@@ -409,7 +409,8 @@ To end the stream early (before all cards are processed), please call the functi
     @staticmethod
     def _parse_llm_response(response: str) -> list[_ParsedLLMCommand]:
         """Parses the 'execute' block in the LLM response into a list of _ParsedLLMCommand objects."""
-        match = re.search(r"^ *<execute>(.*?)</execute>", response, re.DOTALL + re.MULTILINE)
+        response_wo_think = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL)
+        match = re.search(r"^ *<execute>(.*?)</execute>", response_wo_think, re.DOTALL + re.MULTILINE)
         if not match:
             raise ValueError(
                 "No execute block found in response. Remember to use <execute>...</execute> to mark your execution"
