@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from src.backend.modules.ai_assistant.action_states import (
-    StateAction,
     AbstractActionState,
+    StateAction,
     StateAnswer,
     StateFinishedTask,
 )

@@ -1,5 +1,4 @@
-from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR
-from src.backend.modules.evaluation.run_tests.LLMSimilarityJudge import LLMSimilarityJudge
+from src.backend.modules.evaluation.run_tests.llm_similarity_judge import LLMSimilarityJudge
 from src.backend.modules.helpers.matching import match_by_equals, match_by_key
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.srs.testsrs.testsrs import TestCard, TestFlashcardManager
@@ -47,8 +46,8 @@ class SRSComparator:
             expected.get_all_decks(),
             actual.get_all_decks(),
             equals=(lambda x, y: x.name == y.name),  # checking by name is sufficient, as names must be unique
-            left_key=lambda l: l.name,
-            right_key=lambda r: r.name,
+            left_key=lambda l_k: l_k.name,
+            right_key=lambda r_k: r_k.name,
         )
 
         errors: list[str] = []

@@ -12,7 +12,11 @@ class LLMSimilarityJudge:
         """
         Use the LLM to judge if the actual answer to a question-answering-test is similar enough to the expected answer.
         """
-        prompt = f"""Please evaluate the following two answers, and tell me if they contain the same information. Ignore differences in grammar, length, or wording, as long as the answers are semantically equivalent. Also similar responses are accepted, as phrasing might be very different. If they are similar, end your response with "true", else with "false" (without quotation marks). Only the last word of your response will be evaluated.
+        prompt = f"""Please evaluate the following two answers, and tell me if they contain the same information.
+        Ignore differences in grammar, length, or wording, as long as the answers are semantically equivalent.
+        Also similar responses are accepted, as phrasing might be very different.
+        If they are similar, end your response with "true", else with "false" (without quotation marks).
+        Only the last word of your response will be evaluated.
 
 Expected answer:
 {expected}
@@ -43,7 +47,12 @@ Remember to only respond with 'true' or 'false'.
         if not all(required):
             return False
 
-        prompt = f"""Please evaluate the following two flashcards, and tell me if they have the same content. It is fine if the spelling, the grammar, the length and the wording differs, as long as the cards contain roughly the same information. Punctuation or enclosing quotation marks are irrelevant. If these cards are quite similar, please end your response with "true", else with "false" (without quotation marks). Only the last word of your response will be evaluated.
+        prompt = f"""Please evaluate the following two flashcards, and tell me if they have the same content.
+        It is fine if the spelling, the grammar, the length and the wording differs,
+        as long as the cards contain roughly the same information.
+        Punctuation or enclosing quotation marks are irrelevant.
+        If these cards are quite similar, please end your response with "true",
+        else with "false" (without quotation marks). Only the last word of your response will be evaluated.
 
 Card 1:
 Question: {expected_card.question}

@@ -1,4 +1,4 @@
-from typing import TypeVar, Callable, Any
+from typing import Any, Callable, TypeVar
 
 LEFT = TypeVar("LEFT")
 RIGHT = TypeVar("RIGHT")
@@ -25,20 +25,20 @@ def match_by_key(
        ([(1, '1'), (5, '5')], [3], ['7', '9'])
     """
     left_by_key = dict()
-    for l in left:
-        l_key = left_key(l)
+    for l_val in left:
+        l_key = left_key(l_val)
         if l_key not in left_by_key:
-            left_by_key[l_key] = [l]
+            left_by_key[l_key] = [l_val]
         else:
-            left_by_key[l_key].append(l)
+            left_by_key[l_key].append(l_val)
 
     right_by_key = dict()
-    for r in right:
-        r_key = right_key(r)
+    for r_val in right:
+        r_key = right_key(r_val)
         if r_key not in right_by_key:
-            right_by_key[r_key] = [r]
+            right_by_key[r_key] = [r_val]
         else:
-            right_by_key[r_key].append(r)
+            right_by_key[r_key].append(r_val)
 
     all_keys = left_by_key.keys() | right_by_key.keys()
 

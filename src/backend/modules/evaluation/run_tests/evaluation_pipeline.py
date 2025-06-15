@@ -13,8 +13,8 @@ from src.backend.modules.evaluation.load_test_data.load_test_data import (
     InteractionTest,
     QuestionAnsweringTest,
 )
-from src.backend.modules.evaluation.run_tests.LLMSimilarityJudge import LLMSimilarityJudge
-from src.backend.modules.evaluation.run_tests.SRSComparator import SRSComparator
+from src.backend.modules.evaluation.run_tests.llm_similarity_judge import LLMSimilarityJudge
+from src.backend.modules.evaluation.run_tests.srs_comparator import SRSComparator
 from src.backend.modules.helpers.string_util import remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 
@@ -52,7 +52,7 @@ class TestEvalResult:
         log = []
         for group in self.log_messages:
             log.append(
-                f"=============================================================================================\n"
+                "=============================================================================================\n"
             )
             for role, message in group:
                 if skip_thinking:
@@ -61,7 +61,8 @@ class TestEvalResult:
                     message = message.strip()
 
                 log.append(
-                    f"------------------------------------- {role + ' ':>18}-------------------------------------\n{message}\n\n"
+                    "------------------------------------- {role + ' ':>18}-------------------------------------"
+                    f"\n{message}\n\n"
                 )
 
         log_msgs = "\n".join(log)
@@ -121,10 +122,10 @@ class TestEvalResult:
 
                 log.append(f"**{role}:**\n{message}\n\n")
 
-        c = f"### Interaction Log\n" + "\n\n".join(log)
+        c = "### Interaction Log\n" + "\n\n".join(log)
 
-        d = f"### State History\n" + "\n\n".join(
-            f" 1. {str(it).replace("<", "").replace(">", "")}" for it in self.state_history
+        d = "### State History\n" + "\n\n".join(
+            f" 1. {str(it).replace('<', '').replace('>', '')}" for it in self.state_history
         )
 
         if len(self.error_messages) == 0:

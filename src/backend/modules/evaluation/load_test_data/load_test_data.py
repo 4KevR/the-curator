@@ -4,10 +4,9 @@ from dataclasses import dataclass
 
 from typeguard import typechecked
 
-from src.backend.modules.evaluation.load_test_data.import_data_classes import _Test_ExpectedResult, _Test_Data
+from src.backend.modules.evaluation.load_test_data.import_data_classes import _Test_Data, _Test_ExpectedResult
 from src.backend.modules.helpers.string_util import replace_many
-from src.backend.modules.srs.testsrs.testsrs import TestFlashcardManager, Flag, CardState, TestDeck
-
+from src.backend.modules.srs.testsrs.testsrs import CardState, Flag, TestDeck, TestFlashcardManager
 
 # ####################################################################################################################
 # # Clean dataclasses for the test data
@@ -82,7 +81,7 @@ def _get_prompt_with_parameters(prompts: list[list[str]], parameters: dict[str, 
                 audio_file_suffixes=["_prm_0"]
             ),
             _ParsedPrompt(
-                parsed_prompt_sequence=["Please explain what a monokaryotic mycelium is.", "Please explain in Chinese."],
+                parsed_prompt_sequence=["Please explain what a monokaryotic mycelium is.","Please explain in Chinese."],
                 parameters={"subject": "monokaryotic mycelium"},
                 audio_file_suffixes=["_prm_1"]
             )
@@ -262,7 +261,8 @@ def _parse_test_environments(
      * test environments ("dummy_environments" in json) into flashcard managers
 
     Returns:
-        The master flashcard manager, a dictionary of environments by environment key, and a dictionary of decks by deck key.
+        The master flashcard manager, a dictionary of environments by environment key,
+        and a dictionary of decks by deck key.
     """
     key_to_srs_deck: dict[str, TestDeck] = {}
 

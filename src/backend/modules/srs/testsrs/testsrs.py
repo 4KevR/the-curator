@@ -10,10 +10,10 @@ from src.backend.modules.srs.abstract_srs import (
     AbstractCard,
     AbstractDeck,
     AbstractSRS,
+    AbstractTemporaryCollection,
+    CardID,
     DeckID,
     TmpCollectionID,
-    CardID,
-    AbstractTemporaryCollection,
 )
 
 
@@ -58,10 +58,12 @@ class CardState(Enum):
 @typechecked
 class TestCard(AbstractCard):
     """
-    A Card is a representation of a flashcard, containing a question and an answer. The card is uniquely identified by the id.
+    A Card is a representation of a flashcard, containing a question and an answer.
+    The card is uniquely identified by the id.
 
     Properties:
-      id (str): The id uniquely identifies the card. It is represented as "card_xxxx_xxxx", with x being hexadecimal digits.
+      id (str): The id uniquely identifies the card.
+          It is represented as "card_xxxx_xxxx", with x being hexadecimal digits.
           The id is the only way to identify a card.
       question (str): The question (frontside) of the card.
       answer (str): The answer (frontside) of the card.
@@ -99,7 +101,8 @@ class TestDeck(AbstractDeck):
     A Deck represents a collection of flashcards.
 
     Properties:
-       id (str): The id uniquely identifies the deck. It is represented as "deck_xxxx_xxxx", with x being hexadecimal digits.
+       id (str): The id uniquely identifies the deck.
+          It is represented as "deck_xxxx_xxxx", with x being hexadecimal digits.
           The id is the only way to identify a deck. It is assigned randomly, there is no way to guess it!
        name (str): The name of the deck. This is **not** the id, and is **not** sufficient to address decks.
        cards (List[Card]): The cards contained in the deck. The order has no meaning.
@@ -117,14 +120,18 @@ class TestDeck(AbstractDeck):
 @dataclass(frozen=False)
 class TestTemporaryCollection(AbstractTemporaryCollection):
     """
-    A Temporary Collection represents a collection of flashcards. However, the flashcards themselves are part of another deck; a temporary collection is a
-    temporary collection of flashcards. Any changes to the cards in the temporary collection will also change the cards in their 'normal' deck.
+    A Temporary Collection represents a collection of flashcards.
+    However, the flashcards themselves are part of another deck;
+    a temporary collection is a temporary collection of flashcards.
+    Any changes to the cards in the temporary collection will also change the cards in their 'normal' deck.
     Temporary Collections are e.g. used to represent the result of search queries.
     Temporary Collections do not have names.
 
     Properties:
-       id (str): The id uniquely identifies the temporary collection. It is represented as "tmp_collection_xxxx_xxxx", with x being hexadecimal digits.
-          The id is the only way to identify a temporary collection. It is assigned randomly, there is no way to guess it!
+       id (str): The id uniquely identifies the temporary collection.
+          It is represented as "tmp_collection_xxxx_xxxx", with x being hexadecimal digits.
+          The id is the only way to identify a temporary collection.
+          It is assigned randomly, there is no way to guess it!
        description (str): A description that may explain how this deck was created. Optional, may be left blank.
        cards (List[Card]): The cards contained in the temporary collection. The order has no meaning.
     """
@@ -156,7 +163,7 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
         self.__temp_collections_by_id = {}
         self._frozen = False
 
-    ################# ID Handling ######################
+    # ################ ID Handling ######################
     # noinspection DuplicatedCode
     @staticmethod
     def __create_id(existing_ids: set[int]):
@@ -182,7 +189,7 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
         nr_id = self.__create_id({it.numeric_id for it in self.__temp_collections_by_id})
         return TmpCollectionID(nr_id)
 
-    ################# Freeze / Unfreeze ######################
+    # ################ Freeze / Unfreeze ######################
     def freeze(self):
         self._frozen = True
 
@@ -193,7 +200,7 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
         if self._frozen:
             raise RuntimeError("The SRS is frozen. No changes can be made.")
 
-    ################# SRS Functions ######################
+    # ################ SRS Functions ######################
     @override
     def add_deck(self, deck_name: str) -> TestDeck:
         self._check_frozen()
@@ -432,4 +439,7 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
     def __str__(self):
         if len(self.get_all_decks()) == 0:
             return "Empty Flashcard Manager."
-        return f"Flashcard Manager with the following decks:\n{'\n'.join(['* ' + str(deck) for deck in self.get_all_decks()])}\n"
+        return (
+            "Flashcard Manager with the following decks:"
+            f"\n{'\n'.join(['* ' + str(deck) for deck in self.get_all_decks()])}\n"
+        )

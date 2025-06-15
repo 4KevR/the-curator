@@ -6,13 +6,10 @@ from typing import Optional
 from typeguard import typechecked
 
 from src.backend.modules.ai_assistant.chunked_card_stream import ChunkedCardStream
-from src.backend.modules.search.llama_index import LlamaIndexExecutor
-from src.backend.modules.ai_assistant.llm_interactor.llm_command_list import (
-    LLMCommandList,
-    llm_command,
-)
+from src.backend.modules.ai_assistant.llm_interactor.llm_command_list import LLMCommandList, llm_command
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher
+from src.backend.modules.search.llama_index import LlamaIndexExecutor
 from src.backend.modules.search.llm_search_by_content import LLMSearchByContent
 from src.backend.modules.search.search_by_substring import SearchBySubstring
 from src.backend.modules.search.search_by_substring_fuzzy import SearchBySubstringFuzzy
@@ -154,7 +151,7 @@ class LLMInteractor:
         A temporary collection is a collection of cards that are part of (possibly different) decks.
         A temporary collection can be used to collect and store cards that will be the target of future operations.
 
-        The temporary collection description may describe how the temporary collection was created or what its purpose is. It may be empty.
+        The description may describe how the temporary collection was created or what its purpose is. It may be empty.
         """
         if not isinstance(temporary_collection_description, str):
             raise ValueError("Temporary collection name must be a non-empty string.")
@@ -182,7 +179,8 @@ class LLMInteractor:
     # @llm_command(_commands)
     def temporary_collection_add_card(self, temporary_collection_str: str, card_id_str: str) -> None:
         """
-        Adds the given card to the given temporary collection. Cards may be part of arbitrary many temporary collections.
+        Adds the given card to the given temporary collection.
+        Cards may be part of arbitrary many temporary collections.
 
         The card_id_str must be a string in the format 'card_xxxx_xxxx'.
         The temporary_collection_id_str must be a string in the format 'tmp_collection_xxxx_xxxx'.
@@ -199,7 +197,8 @@ class LLMInteractor:
     # @llm_command(_commands)
     def temporary_collection_remove_card(self, temporary_collection_str: str, card_id_str: str) -> None:
         """
-        Removes the given card from the given temporary collection. This does not delete the card from their 'normal' deck.
+        Removes the given card from the given temporary collection.
+        This does not delete the card from their 'normal' deck.
 
         The card_id_str must be a string in the format 'card_xxxx_xxxx'.
         The temporary_collection_id_str must be a string in the format 'tmp_collection_xxxx_xxxx'.
@@ -328,7 +327,7 @@ class LLMInteractor:
     ) -> AbstractTemporaryCollection:
         """
         Search for all cards in a deck that talk about the given topic using an LLM.
-        This function is not limited to word matching and should be used if there is not a specific keyword to search for.
+        The function is not limited to word matching and shall be used if there is not a specific keyword to search for.
         The LLM will evaluate each card separately and decide whether it fits the search prompt.
 
         If search_in_question is True, the question is searched, if search_in_answer is True, the answer is searched.

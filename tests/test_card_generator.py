@@ -6,7 +6,7 @@ from src.backend.modules.pdf_to_cards.pypdf2_reader import PyPDF2Reader
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.backend.modules.llm.kit_llm import KitLLM
+from src.backend.modules.llm.kit_llm import KitLLM  # noqa: E402
 
 if __name__ == "__main__":
     path = "data/test.pdf"  # 6 pages, the last page is blank

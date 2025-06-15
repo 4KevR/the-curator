@@ -36,19 +36,13 @@ class PromptRecorderApp:
         self.bind_shortcuts()
 
     def setup_gui(self):
-        self.prompt_label = tk.Label(
-            self.root, text="", wraplength=400, font=("Arial", 14)
-        )
+        self.prompt_label = tk.Label(self.root, text="", wraplength=400, font=("Arial", 14))
         self.prompt_label.pack(pady=10)
 
         self.mic_label = tk.Label(self.root, text="Select Microphone:")
         self.mic_label.pack()
         self.device_list = sd.query_devices()
-        self.input_devices = [
-            (i, d["name"])
-            for i, d in enumerate(self.device_list)
-            if d["max_input_channels"] > 0
-        ]
+        self.input_devices = [(i, d["name"]) for i, d in enumerate(self.device_list) if d["max_input_channels"] > 0]
         self.device_names = [name for i, name in self.input_devices]
         self.device_index_map = {name: i for i, name in self.input_devices}
 
@@ -56,38 +50,26 @@ class PromptRecorderApp:
         for i, name in self.input_devices:
             print(f"  [{i}] {name}")
 
-        self.mic_combo = ttk.Combobox(
-            self.root, values=self.device_names, state="readonly"
-        )
+        self.mic_combo = ttk.Combobox(self.root, values=self.device_names, state="readonly")
         self.mic_combo.pack(pady=5)
         self.mic_combo.current(0)
 
         btn_frame = tk.Frame(self.root)
         btn_frame.pack(pady=10)
 
-        self.start_btn = tk.Button(
-            btn_frame, text="Start Recording (A)", command=self.start_recording
-        )
+        self.start_btn = tk.Button(btn_frame, text="Start Recording (A)", command=self.start_recording)
         self.start_btn.grid(row=0, column=0, padx=5)
 
-        self.stop_btn = tk.Button(
-            btn_frame, text="Stop Recording (S)", command=self.stop_recording
-        )
+        self.stop_btn = tk.Button(btn_frame, text="Stop Recording (S)", command=self.stop_recording)
         self.stop_btn.grid(row=0, column=1, padx=5)
 
-        self.listen_btn = tk.Button(
-            btn_frame, text="Listen to Recording (D)", command=self.listen_recording
-        )
+        self.listen_btn = tk.Button(btn_frame, text="Listen to Recording (D)", command=self.listen_recording)
         self.listen_btn.grid(row=0, column=2, padx=5)
 
-        self.submit_btn = tk.Button(
-            btn_frame, text="Submit (Space)", command=self.submit_recording
-        )
+        self.submit_btn = tk.Button(btn_frame, text="Submit (Space)", command=self.submit_recording)
         self.submit_btn.grid(row=0, column=3, padx=5)
 
-        self.skip_btn = tk.Button(
-            btn_frame, text="Skip (Backspace)", command=self.skip_prompt
-        )
+        self.skip_btn = tk.Button(btn_frame, text="Skip (Backspace)", command=self.skip_prompt)
         self.skip_btn.grid(row=0, column=4, padx=5)
 
         self.display_prompt()
@@ -123,9 +105,7 @@ class PromptRecorderApp:
         selected_device = self.device_index_map[self.mic_combo.get()]
         if self.recording_data is not None:
             self.recording_data = None
-        self.recording = sd.rec(
-            int(60 * self.fs), samplerate=self.fs, channels=1, device=selected_device
-        )
+        self.recording = sd.rec(int(60 * self.fs), samplerate=self.fs, channels=1, device=selected_device)
         self.recording[:] = (
             0  # No idea why i need that now, it was not necessary last version?
             # Maybe python/package version???
@@ -135,9 +115,7 @@ class PromptRecorderApp:
     def stop_recording(self):
         if self.recording is not None:
             sd.stop()
-            self.recording_data = self.recording[
-                : np.flatnonzero(self.recording)[-1]
-            ].copy()
+            self.recording_data = self.recording[: np.flatnonzero(self.recording)[-1]].copy()
             self.recording = None
             print("Recording stopped.")
 
@@ -169,9 +147,7 @@ def replace_many(s: str, replacements: dict) -> str:
 
 
 # returns prompt and file name suffix
-def get_prompt_with_parameters(
-    prompt: str, parameters: dict[str, list[str]]
-) -> list[tuple[str, str]]:
+def get_prompt_with_parameters(prompt: str, parameters: dict[str, list[str]]) -> list[tuple[str, str]]:
     if len(parameters) == 0:
         return [(prompt, "")]
 
@@ -186,15 +162,11 @@ def get_prompt_with_parameters(
         combinations = itertools.product(*values)
         combinations_idx = itertools.product(*indices)
     else:  # zip
-        assert len({len(it) for it in parameters.values()}) == 1, (
-            "all parameters must have the same length"
-        )
+        assert len({len(it) for it in parameters.values()}) == 1, "all parameters must have the same length"
         combinations = zip(*values)
         combinations_idx = zip(*indices)
 
-    substitutions = [
-        dict(zip(keysWithAngles, combination)) for combination in combinations
-    ]
+    substitutions = [dict(zip(keysWithAngles, combination)) for combination in combinations]
     res = [
         (replace_many(prompt, params), "_prm_" + "_".join(str(id) for id in idx))
         for params, idx in zip(substitutions, combinations_idx)
@@ -257,9 +229,7 @@ def get_prompts_from_tests():
         ]
 
         single_step = prompts_test_single_turn + prompts_test_question_answering_single
-        multi_step = (
-            prompts_test_multi_turn + prompts_test_question_answering_multi_turn
-        )
+        multi_step = prompts_test_multi_turn + prompts_test_question_answering_multi_turn
         sizes = f"""
     Sizes:
         tests_single:              {len(prompts_test_single_turn):>5},
@@ -272,18 +242,16 @@ def get_prompts_from_tests():
         return single_step, multi_step
 
 
-########## CHANGE VARIABLES HERE ##################
+# CHANGE VARIABLES HERE
 SINGLE_STEP_SAMPLE_SIZE = 0
 RANDOM_STATE = 2308421
 RECORD_MULTISTEP_QUERIES = True
-###################################################
+# END OF VARIABLE CHANGES
 
 if __name__ == "__main__":
     single_prompts, multi_prompts = get_prompts_from_tests()
 
-    single_prompts_sample = pd.Series(single_prompts).sample(
-        SINGLE_STEP_SAMPLE_SIZE, random_state=RANDOM_STATE
-    )
+    single_prompts_sample = pd.Series(single_prompts).sample(SINGLE_STEP_SAMPLE_SIZE, random_state=RANDOM_STATE)
     multi_prompts_sample = multi_prompts if RECORD_MULTISTEP_QUERIES else []
 
     print("Single step prompts:")
@@ -294,7 +262,5 @@ if __name__ == "__main__":
     print("DONE")
 
     root = tk.Tk()
-    app = PromptRecorderApp(
-        root, list(single_prompts_sample) + list(multi_prompts_sample)
-    )
+    app = PromptRecorderApp(root, list(single_prompts_sample) + list(multi_prompts_sample))
     root.mainloop()

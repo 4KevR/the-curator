@@ -1,8 +1,7 @@
 import re
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import ClassVar
-from typing import TypeVar, Generic, Collection, Any
+from typing import Any, ClassVar, Collection, Generic, TypeVar
 
 from typeguard import typechecked
 

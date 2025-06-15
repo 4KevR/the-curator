@@ -8,7 +8,7 @@ from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTransla
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.cli.recording.recording_client import RecordingClient
+from src.cli.recording.recording_client import RecordingClient  # noqa: E402
 
 if __name__ == "__main__":
     load_dotenv(".env")

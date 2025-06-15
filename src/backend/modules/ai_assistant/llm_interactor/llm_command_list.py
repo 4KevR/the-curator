@@ -1,7 +1,7 @@
 # TODO: This class is now unused. Delete!
 
 import inspect
-from typing import Callable, Optional
+from typing import Callable
 
 from src.backend.modules.helpers.string_util import replace_many
 
@@ -49,12 +49,10 @@ class LLMCommandList:
         type_str = f"{origin.__name__}[{', '.join(arg.__name__ for arg in args)}]"
         return type_str
 
-    def describe_llm_commands(self, state: Optional[UserState] = None) -> str:
+    def describe_llm_commands(self) -> str:
         """Returns a string describing all commands in the list, including their signatures and docstrings."""
         res = []
         for cmnd_name, llm_command in self.llm_commands.items():
-            if state and hasattr(llm_command, "_allowed_states") and state not in llm_command._allowed_states:
-                continue
             params = []
             sig = inspect.signature(llm_command)
             for name, param in sig.parameters.items():

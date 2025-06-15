@@ -4,15 +4,15 @@ from typing import Optional
 
 import pandas as pd
 
-from src.backend.modules.helpers.string_util import remove_block, find_substring_in_llm_response_or_null
+from src.backend.modules.helpers.string_util import find_substring_in_llm_response_or_null, remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.llm.llm_communicator import LLMCommunicator
 from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher
 from src.backend.modules.search.llama_index import LlamaIndexExecutor, LlamaIndexSearcher
 from src.backend.modules.search.search_by_substring import SearchBySubstring
 from src.backend.modules.search.search_by_substring_fuzzy import SearchBySubstringFuzzy
-from src.backend.modules.srs.abstract_srs import AbstractSRS, AbstractDeck, AbstractCard
-from src.backend.modules.srs.testsrs.testsrs import TestFlashcardManager, Flag, CardState
+from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS
+from src.backend.modules.srs.testsrs.testsrs import CardState, Flag, TestFlashcardManager
 
 
 class AbstractActionState(ABC):
@@ -142,7 +142,8 @@ class StateTask(AbstractActionState):
 
 class StateTaskSearchDecks(AbstractActionState):
     _prompt_template = """
-You are an assistant of a flashcard management system. You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+You are an assistant of a flashcard management system.
+You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
 
 The user gave the following input:
 
@@ -154,8 +155,9 @@ The following decks are available:
 {decks}
 
 If you want to search in all decks, answer "all". If you want to search in a specific deck, answer the name of the deck.
-If you want to search in multiple, specific decks, answer a comma-separated list of deck names. If you are unsure, 
-rather include than exclude a deck. Make sure to exactly match the deck names. **Do not answer anything else**!
+If you want to search in multiple, specific decks, answer a comma-separated list of deck names.
+If you are unsure, rather include than exclude a deck. Make sure to exactly match the deck names.
+**Do not answer anything else**!
 """.strip()
     MAX_ATTEMPTS = 3
 
@@ -191,7 +193,8 @@ rather include than exclude a deck. Make sure to exactly match the deck names. *
 
                 message = (
                     f"The following deck names are unknown: {', '.join(unknown_deck_strings)}.\n"
-                    'If you want to search in all decks, answer "all" (and nothing else!). If you want to search in a specific deck, answer the name of the deck.\n'
+                    'If you want to search in all decks, answer "all" (and nothing else!)."'
+                    "If you want to search in a specific deck, answer the name of the deck.\n"
                     "If you want to search in multiple, specific decks, answer a comma-separated list of deck names.\n"
                     "Please make sure to exactly match the deck names."
                 )
@@ -201,28 +204,32 @@ rather include than exclude a deck. Make sure to exactly match the deck names. *
 
 class StateTaskSearch(AbstractActionState):
     _prompt_template = """
-You are an assistant of a flashcard management system. You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+You are an assistant of a flashcard management system.
+You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
 
 The user gave the following input:
 
 {user_input}
 
-You already decided that you have to search for cards. Please decide now how you want to search for cards. Your options are:
+You already decided that you have to search for cards.
+Please decide now how you want to search for cards. Your options are:
 
 * Search for keyword (exact): You give me a keyword and I will search for all cards that contain this keyword.
 You will be able to specify whether you want to search in the question or the answer or both. You can also decide
 whether the search should be case sensitive or not.
 
 * Search for keyword (fuzzy search): You give me a keyword and I will search for all cards that contain this keyword, or
-contain a 'similar' substring. You will be able to specify whether you want to search in the question or the answer or both.
+contain a 'similar' substring.
+You will be able to specify whether you want to search in the question or the answer or both.
 You can also decide whether the search should be case sensitive or not.
 
 * Search cards with fitting content: You give me a search prompt and I will search for cards that fit the search prompt.
 The search is *not* limited to exact wording, but searches for cards with fitting content.
 
 
-If you have an exact keyword to look for, you should use exact search. If you have a word to search for, but it can be slightly different
-(e.g. plural form, etc.) use fuzzy search. In all remaining cases, use content-based search.
+If you have an exact keyword to look for, you should use exact search.
+If you have a word to search for, but it can be slightly different (e.g. plural form, etc.) use fuzzy search.
+In all remaining cases, use content-based search.
 
 Please answer "exact", "fuzzy" or "content", and **nothing else**. All other details will be determined later.
 """.strip()
@@ -260,7 +267,8 @@ Please answer "exact", "fuzzy" or "content", and **nothing else**. All other det
 
 class StateKeywordSearch(AbstractActionState):
     _prompt_template = """
-You are an assistant of a flashcard management system. You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+You are an assistant of a flashcard management system.
+You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
 
 The user gave the following input:
 
@@ -326,7 +334,8 @@ Please answer only with the filled-in, valid json. You may only send a single co
 
 class StateFuzzySearch(AbstractActionState):
     _prompt_template = """
-You are an assistant of a flashcard management system. You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+You are an assistant of a flashcard management system.
+You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
 
 The user gave the following input:
 
@@ -347,7 +356,7 @@ If you are unsure, use these defaults:
   search_in_answer: true
   case_sensitive: false
   fuzzy: 0.8
-   
+
 Please answer only with the filled-in, valid json.
 """.strip()
     MAX_ATTEMPTS = 3
@@ -403,7 +412,8 @@ Please answer only with the filled-in, valid json.
 
 class StateContentSearch(AbstractActionState):
     _prompt_template = """
-You are an assistant of a flashcard management system. You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+You are an assistant of a flashcard management system.
+You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
 
 The user gave the following input:
 
@@ -752,19 +762,21 @@ The following decks currently exist:
 You now have to call exactly one of the following functions:
 
 * create_deck: {{"task": "create_deck", "name": "<deck name here>"}}
-Calling this function will create a new deck with the given name. If the deck already exists, you will receive 
-an error and can try again.
+Calling this function will create a new deck with the given name.
+If the deck already exists, you will receive an error and can try again.
 
 * rename_deck: {{"task": "rename_deck", "old_name": "<old deck name here>", "new_name": "<new deck name here>"}}
-Calling this function will rename the deck to the given name. If no deck exists with the old name, you will receive an 
-error and can try again.
+Calling this function will rename the deck to the given name.
+If no deck exists with the old name, you will receive an error and can try again.
 
 * delete_deck: {{"task": "delete_deck", "name": "<deck name here>"}}
-Calling this function will delete the deck with the given name. If no deck exists with the given name, you will receive an 
-error and can try again.
+Calling this function will delete the deck with the given name.
+If no deck exists with the given name, you will receive an error and can try again.
 
-* add_card: {{"task": "add_card", "deck_name": "<deck name here>", "question": "<question here>", "answer": "<answer here>", "state": "<card state here>", "flag": "<flag here>"}}
-Calling this function will add a new card to the deck with the given name. If no deck exists with the given name, you will receive an error and can try again.
+* add_card: {{"task": "add_card", "deck_name": "<deck name here>", "question": "<question here>",
+"answer": "<answer here>", "state": "<card state here>", "flag": "<flag here>"}}
+Calling this function will add a new card to the deck with the given name.
+If no deck exists with the given name, you will receive an error and can try again.
 Valid flags are: ['none', 'red', 'orange', 'green', 'blue', 'pink', 'turquoise', 'purple']
 Valid card states are: ['new', 'learning', 'review', 'suspended', 'buried']
 
@@ -829,7 +841,7 @@ Please answer only with the filled-in, valid json. You may only send a single co
                     deck = self.srs.get_deck_by_name_or_none(deck_name)
                     if deck is not None:
                         raise ValueError("Deck already exists")
-                    new_deck = self.srs.add_deck(deck_name)
+                    self.srs.add_deck(deck_name)
                     message = f"Deck '{deck_name}' created successfully."
                 elif parsed["task"] == "rename_deck":
                     old_name = parsed["old_name"]
@@ -881,12 +893,12 @@ Please answer only with the filled-in, valid json. You may only send a single co
                     test_srs.add_full_card(deck, question, answer, flag, state)
                     message = f"Card added to deck {deck_name}."
                 elif parsed["task"] == "exit":
-                    return StateFinishedTask(f"Task finished.")  # TODO: Command count?
+                    return StateFinishedTask("Task finished.")  # TODO: Command count?
                 elif parsed["task"] == "abort":
                     reason = parsed["reason"]
                     if not isinstance(reason, str):
                         raise ValueError("Reason must be a string")
-                    return StateFinishedTask(f"Task aborted.")
+                    return StateFinishedTask("Task aborted.")
             except Exception as e:
                 message = f"Your answer must be a valid json string. Exception: {e}. Please try again."
 

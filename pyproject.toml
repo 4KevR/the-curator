@@ -3,3 +3,16 @@ line-length = 120
 
 [tool.flake8]
 max-line-length = 120
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "build",
+    "dist"
+]
+ignore = ["E203", "W503"]
+
+[tool.isort]
+profile = "black"
+line_length = 120
+skip = [".venv", "build", "dist", "__pycache__"]

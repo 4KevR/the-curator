@@ -37,14 +37,15 @@ def perform_action():
         print(f"Processing transcription for user '{user_name}': {complete_sentences[0]}")
 
         # Initialize Anki adapter with the provided user
-        anki_adapter = Anki(user_name=user_name)
-        action_service = ActionService(llm=llm_adapter, anki=anki_adapter)
+        # anki_adapter = AnkiSRS(user_name=user_name)
+
+        # TODO integrate new setup
 
         # Process transcription
-        result = action_service.process_transcription(complete_sentences[0])
-        temporary_user_data[user_name] = temporary_user_data[user_name][len(complete_sentences[0]) :].strip()
+        # result = action_service.process_transcription(complete_sentences[0])
+        # temporary_user_data[user_name] = temporary_user_data[user_name][len(complete_sentences[0]) :].strip()
 
-        return jsonify(result), 200
+        return jsonify(""), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

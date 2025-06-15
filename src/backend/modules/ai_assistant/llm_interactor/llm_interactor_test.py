@@ -5,17 +5,12 @@ from typing import Optional
 from typeguard import typechecked
 
 from src.backend.modules.ai_assistant.chunked_card_stream import ChunkedCardStream
-from src.backend.modules.search.llama_index import LlamaIndexExecutor
-from src.backend.modules.ai_assistant.llm_interactor.llm_command_list import (
-    LLMCommandList,
-    llm_command,
-)
-from src.backend.modules.ai_assistant.llm_interactor.inherit_docstrings import (
-    InheritDocstrings,
-)
+from src.backend.modules.ai_assistant.llm_interactor.inherit_docstrings import InheritDocstrings
+from src.backend.modules.ai_assistant.llm_interactor.llm_command_list import LLMCommandList, llm_command
 from src.backend.modules.ai_assistant.llm_interactor.llm_interactor import LLMInteractor
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher
+from src.backend.modules.search.llama_index import LlamaIndexExecutor
 from src.backend.modules.srs.abstract_srs import CardID, DeckID
 from src.backend.modules.srs.testsrs.testsrs import (
     CardState,

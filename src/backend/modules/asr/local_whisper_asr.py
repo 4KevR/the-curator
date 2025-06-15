@@ -1,7 +1,7 @@
 import logging
 
 import torch
-from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline, Pipeline
+from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, Pipeline, pipeline
 
 from src.backend.modules.asr.abstract_asr import AbstractASR
 

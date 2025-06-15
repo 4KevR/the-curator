@@ -3,7 +3,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.cli.tts import tts_and_play
+from src.cli.tts import tts_and_play  # noqa: E402
 
 # Recommendation:
 # Do not use sentences that are too long.

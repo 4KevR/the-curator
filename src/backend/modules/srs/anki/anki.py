@@ -67,9 +67,9 @@ class AnkiCard(AbstractCard):
     }
 
     def __init__(self, note: Note, deck: AnkiDeck, raw_card: anki.cards.Card):
-        super().__init__(
-            CardID(raw_card.id), question=note.fields[raw_card.ord], answer=note.fields[1 - raw_card.ord]
-        )  # If raw_card.ord == 0, then the first field is the question, the second the answer. If .ord == 1, other way around.
+        # If raw_card.ord == 0, then the first field is the question, the second the answer.
+        # If .ord == 1, other way around.
+        super().__init__(CardID(raw_card.id), question=note.fields[raw_card.ord], answer=note.fields[1 - raw_card.ord])
         self.note = note
         self.deck = deck
         self.raw_card = raw_card
@@ -87,7 +87,10 @@ class AnkiCard(AbstractCard):
         return self.question, self.answer, self.raw_card.type, self.raw_card.flags, self.raw_card.queue
 
     def __str__(self) -> str:
-        return f"AnkiCard(id={self.id}, question={self.question}, answer={self.answer}, deck={self.deck.name}, note={self.note}, raw_card={self.raw_card}, type={self.type}, queue={self.queue})"
+        return (
+            f"AnkiCard(id={self.id}, question={self.question}, answer={self.answer}, deck={self.deck.name}, "
+            f"note={self.note}, raw_card={self.raw_card}, type={self.type}, queue={self.queue})"
+        )
 
 
 @typechecked
@@ -97,7 +100,7 @@ class AnkiTemporaryCollection(AbstractTemporaryCollection):
 
     def __init__(self, anki_srs: "AnkiSRS", tmp_collection_id: TmpCollectionID, description: str):
         super().__init__(tmp_collection_id, description)
-        _cards = set()
+        self._cards = set()
         self._anki = anki_srs
 
     def add_card(self, card: AnkiCard) -> None:
@@ -407,7 +410,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
             tmp_collection.remove_card(card)
 
     ####################################################################################################################
-    ################# ANKI-Specific Functions ##########################################################################
+    # ################ ANKI-Specific Functions #########################################################################
     ####################################################################################################################
 
     @allowed_in_states(UserState.IN_COLLECTION)
@@ -744,7 +747,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         )
 
         for card_id in cards:
-            card = self.col.get_card(card_id)
+            # card = self.col.get_card(card_id)
 
             # TODO
             # set self.user_context.current_card

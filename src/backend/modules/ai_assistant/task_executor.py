@@ -37,10 +37,12 @@ class TaskExecutor:
     ):
         """
         Parameters:
-            default_max_errors: Maximum number of errors before aborting execution. Can be overwritten in individual calls.
-            default_max_messages: Maximum number of messages before aborting execution. Can be overwritten in individual calls.
+            default_max_errors: Maximum number of errors before aborting execution.
+                Can be overwritten in individual calls.
+            default_max_messages: Maximum number of messages before aborting execution.
+                Can be overwritten in individual calls.
             max_stream_messages_per_chunk: Maximum number of messages before aborting a card stream.
-              The count is reset after each chunk of cards.
+                The count is reset after each chunk of cards.
             max_stream_errors_per_chunk: Maximum number of errors per chunk before aborting a card stream.
               The count is reset after each chunk of cards.
         """
@@ -163,14 +165,19 @@ About Temporary Collections:
 {cl.temp_collection_type.__doc__.strip("\n")}
 
 ## Available Functions for Interaction with the Flashcard System
-You can interact with the system by calling specific Python functions, each of which performs an action. The available actions are:
+You can interact with the system by calling specific Python functions, each of which performs an action.
+The available actions are:
 {cl.describe_llm_commands()}
 
 ## Execution Details
 
-First, you **have to** think about what the user wants, which information you need, and make a rough plan of your actions. Almost always you will need further information (e.g., deck ids, card ids, or card content). In this case, you will request the information using the functions at your disposal.
+First, you **have to** think about what the user wants, which information you need,
+ and make a rough plan of your actions.
+Almost always you will need further information (e.g., deck ids, card ids, or card content).
+In this case, you will request the information using the functions at your disposal.
 However, please **be concise while thinking**. Do not spend much time.
-**Only** execute what the user asks you to. Do not perform further tasks. If you are tasked to create a deck, you create a deck, and not anything else like additional cards.
+**Only** execute what the user asks you to. Do not perform further tasks.
+If you are tasked to create a deck, you create a deck, and not anything else like additional cards.
 After reasoning, output the steps you want to execute **now** in the following format:
 
 <execute>
@@ -189,29 +196,46 @@ If no further actions are needed, please return an empty execute block:
 
 ## User-Facing Responses
 
-If you want to directly respond to the user and end the execution (for example, to summarize results, provide a final answer, or bundle output for the user), you can return a response block in the following format:
+If you want to directly respond to the user and end the execution
+(for example, to summarize results, provide a final answer, or bundle output for the user),
+you can return a response block in the following format:
 
 <response>
-Your message to the user goes here. This will be shown as the final output and end the execution. The response should only be used for whatever response comes from respond_to_question_answering_query. So wrap the response of this tool in the <response>...</response> block.
+Your message to the user goes here. This will be shown as the final output and end the execution.
+The response should only be used for whatever response comes from respond_to_question_answering_query.
+So wrap the response of this tool in the <response>...</response> block.
 </response>
 
-If a <response>...</response> block is present, the system will return its content to the user and stop further execution.
+If a <response>...</response> block is present,
+the system will return its content to the user and stop further execution.
 
 ## Further Instructions
 There are a few special cases:
-* If the prompt does not specify which deck to operate on, please check (by listing the decks) if only one deck exists. In this case, please use this deck. In this case, do not generate a default deck.
-* Some prompts may contain questions and answers in quotation marks, some prompts may not. Please remove those quotation marks. E.g. if the user wants you to:
+* If the prompt does not specify which deck to operate on, please check (by listing the decks) if only one deck exists.
+ In this case, please use this deck. In this case, do not generate a default deck.
+* Some prompts may contain questions and answers in quotation marks, some prompts may not.
+ Please remove those quotation marks. E.g. if the user wants you to:
  Create a card with question "What is the most common pet in Germany?" and answer "Dogs".
  You should **not** include these quotation marks in the card.
-* If the user asks you to find cards about a topic, use the right function. If you have a given or obvious keyword, use functions like search_for_substring. If the user asks about an concept, please use methods like search_for_content instead, that actually evaluate the content of the query and the cards.
-* If you performed a substring search and found no cards, please always try a fuzzy search! So single-letter mistakes or punctuation do not prevent you from finding the correct card.
+* If the user asks you to find cards about a topic, use the right function.
+ If you have a given or obvious keyword, use functions like search_for_substring.
+ If the user asks about an concept, please use methods like search_for_content instead,
+ that actually evaluate the content of the query and the cards.
+* If you performed a substring search and found no cards, please always try a fuzzy search!
+ So single-letter mistakes or punctuation do not prevent you from finding the correct card.
 * If your job is to edit/delete all cards that are related to a specific topic / have a certain keyword, your steps are:
-  * 1. Create a temporary collection of the relevant cards using search_by_substring or search_by_content. Fuzzy-search is your friend; use it!
+  * 1. Create a temporary collection of the relevant cards using search_by_substring or search_by_content.
+   Fuzzy-search is your friend; use it!
   * 2. List the cards in the temporary collection to get a card stream.
-  * 3. You will be provided with chunks of cards; now it is your job to work with these chunks: Delete, edit, etc. the card according to your task.
-* If a user is asking a general question which may be included on some card, use the respond_to_question_answering_query function which returns an answer that can be given back to the user. Do not use the previously mentioned search functions when the user just asks a question that expects a natural answer (and not e.g. a set of cards where you would require the previous functions.).
-  
-If you are not sure what to do, and you are sure that the user forgot to specify some specifics, please call the above-mentioned function to request further information from the user.
+  * 3. You will be provided with chunks of cards;
+   now it is your job to work with these chunks: Delete, edit, etc. the card according to your task.
+* If a user is asking a general question which may be included on some card,
+ use the respond_to_question_answering_query function which returns an answer that can be given back to the user.
+ Do not use the previously mentioned search functions when the user just asks a question that expects a natural answer
+ (and not e.g. a set of cards where you would require the previous functions.).
+
+If you are not sure what to do, and you are sure that the user forgot to specify some specifics,
+please call the above-mentioned function to request further information from the user.
 
 ## An Example
 For example, if the user prompt was:
@@ -234,7 +258,9 @@ Then, you have achieved your task, and return:
 <execute>
 </execute>
 
-When previously the respond_to_question_answering_query was called and now the context is available, generate a response block duplicating the retrieved content. Do not generate an answer with your own knowledge, use it only after respond_to_question_answering_query.
+When previously the respond_to_question_answering_query was called and now the context is available,
+generate a response block duplicating the retrieved content.
+Do not generate an answer with your own knowledge, use it only after respond_to_question_answering_query.
 
 <response>
 (# Answer here)
@@ -243,17 +269,21 @@ When previously the respond_to_question_answering_query was called and now the c
 Remember to not generate arbitrary cards in you execution plan, but only those that were asked for by the user prompt.
 Keep your planning concise to not exceed token limits.
 """
-        # Add for Llama 8B: Everytime you are done with generating the respective execution plan, stop your response by writing User:
+        # Add for Llama 8B: Everytime you are done with generating the respective execution plan,
+        # stop your response by writing User:
         self.__agent_instructions = template
         return self.__agent_instructions
 
     def _handle_card_stream(self, chunked_cards: ChunkedCardStream) -> str:
         """Handle a card stream, passing the chunked cards to the LLM."""
 
-        stream_info = """You are currently in a card stream. You will be provided with groups of cards. **Now** you can work with these cards; you can use the card ids to call edit, delete, add operations.
-Once you are done with the current chunk, and you want to continue to the next chunk, please return an empty <execute>...</execute> block.
+        stream_info = """You are currently in a card stream. You will be provided with groups of cards.
+        **Now** you can work with these cards; you can use the card ids to call edit, delete, add operations.
+Once you are done with the current chunk, and you want to continue to the next chunk,
+please return an empty <execute>...</execute> block.
 You will **not** be able to see the previous chunk and the messages you sent in the previous chunks.
-To end the stream early (before all cards are processed), please call the function "abort_card_stream(reason: str)". Only call this if there is an error, as you usually have to see all cards in the stream!!
+To end the stream early (before all cards are processed), please call the function "abort_card_stream(reason: str)".
+Only call this if there is an error, as you usually have to see all cards in the stream!!
         """
         self.llm_communicator.add_message(stream_info)
         self.llm_communicator.start_visibility_block()
