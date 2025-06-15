@@ -1,11 +1,13 @@
+# TODO: THIS CLASS IS NOW UNUSED! DELETE!
+
 import re
 from typing import Optional
 
 from typeguard import typechecked
 
 from src.backend.modules.ai_assistant.chunked_card_stream import ChunkedCardStream
-from src.backend.modules.ai_assistant.llama_index import LlamaIndexExecutor
-from src.backend.modules.ai_assistant.llm_command_list import (
+from src.backend.modules.search.llama_index import LlamaIndexExecutor
+from src.backend.modules.ai_assistant.llm_interactor.llm_command_list import (
     LLMCommandList,
     llm_command,
 )
@@ -117,7 +119,7 @@ class LLMInteractor:
         deck = self.flashcard_manager.get_deck(deck_id)
         self.flashcard_manager.add_card(deck, question, answer)
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def edit_card_question(self, card_id_str: str, new_question: str) -> None:
         """
         Edit the question of a card. The card_id_str must be a string in the format 'card_xxxx_xxxx'.
@@ -127,7 +129,7 @@ class LLMInteractor:
         card = self.flashcard_manager.get_card(CardID.from_hex_string(card_id_str))
         self.flashcard_manager.edit_card_question(card, new_question)
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def edit_card_answer(self, card_id_str: str, new_answer: str) -> None:
         """
         Edit the answer of a card. The card_id_str must be a string in the format 'card_xxxx_xxxx'.
@@ -137,7 +139,7 @@ class LLMInteractor:
         card = self.flashcard_manager.get_card(CardID.from_hex_string(card_id_str))
         self.flashcard_manager.edit_card_answer(card, new_answer)
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def delete_card(self, card_id_str: str) -> None:
         """
         Delete a card by its id. The card_id_str must be a string in the format 'card_xxxx_xxxx'.
@@ -145,7 +147,7 @@ class LLMInteractor:
         card = self.flashcard_manager.get_card(CardID.from_hex_string(card_id_str))
         self.flashcard_manager.delete_card(card)
 
-    @llm_command(_commands)
+    # @llm_search_command(_search_commands)
     def create_new_temporary_collection(self, temporary_collection_description: str) -> AbstractTemporaryCollection:
         """
         Creates a new, empty temporary collection with the given name.
@@ -160,14 +162,14 @@ class LLMInteractor:
         temporary_collection = self.flashcard_manager.create_temporary_collection(temporary_collection_description, [])
         return temporary_collection
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def get_temporary_collections(self) -> list[AbstractTemporaryCollection]:
         """
         Returns all existing temporary collections.
         """
         return self.flashcard_manager.get_temporary_collections()
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def delete_temporary_collection(self, temporary_collection_id_str: str) -> None:
         """
         Deletes the temporary collection with the given id.
@@ -177,7 +179,7 @@ class LLMInteractor:
         temporary_collection = self.flashcard_manager.get_temporary_collection(tmp_col_id)
         self.flashcard_manager.delete_temporary_collection(temporary_collection)
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def temporary_collection_add_card(self, temporary_collection_str: str, card_id_str: str) -> None:
         """
         Adds the given card to the given temporary collection. Cards may be part of arbitrary many temporary collections.
@@ -194,7 +196,7 @@ class LLMInteractor:
         card = self.flashcard_manager.get_card(CardID.from_hex_string(card_id_str))
         self.flashcard_manager.add_cards_to_temporary_collection(temporary_collection, card)
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def temporary_collection_remove_card(self, temporary_collection_str: str, card_id_str: str) -> None:
         """
         Removes the given card from the given temporary collection. This does not delete the card from their 'normal' deck.
@@ -211,7 +213,7 @@ class LLMInteractor:
         card = self.flashcard_manager.get_card(CardID.from_hex_string(card_id_str))
         self.flashcard_manager.remove_cards_from_temporary_collection(temporary_collection, [card])
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def list_cards_temporary_collection(self, temporary_collection_id_str: str) -> ChunkedCardStream:
         """
         List all cards in a temporary collection, optionally filtering by a substring in the question.
@@ -222,7 +224,7 @@ class LLMInteractor:
         tmp_col = self.flashcard_manager.get_temporary_collection(tmp_col_id)
         return ChunkedCardStream(tmp_col.cards)
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def add_all_cards_from_temporary_collection_to_deck(
         self, temporary_collection_hex_string: str, deck_hex_string: str
     ) -> None:
@@ -263,7 +265,7 @@ class LLMInteractor:
 
         return res_temporary_collection
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def search_for_substring(
         self,
         deck_id_str: str,
@@ -316,7 +318,7 @@ class LLMInteractor:
 
         return self._search(deck_id_str, searcher, description)
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def search_for_content(
         self,
         deck_id_str: str,
@@ -354,7 +356,7 @@ class LLMInteractor:
 
         return self._search(deck_id_str, searcher, description)
 
-    @llm_command(_commands)
+    # @llm_command(_commands)
     def respond_to_question_answering_query(self, search_prompt: str) -> str:
         """
         Responds to a question from the user about available content in the SRS.

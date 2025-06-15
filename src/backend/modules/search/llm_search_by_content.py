@@ -17,7 +17,7 @@ class LLMSearchByContent(AbstractCardSearcher[AbstractCard]):
         self.search_in_question = search_in_question
         self.search_in_answer = search_in_answer
 
-    def search(self, card: AbstractCard) -> bool:
+    def _search(self, card: AbstractCard) -> bool:
         if card.question is not None and card.answer is not None:
             prompt = f"""Please evaluate if the following flash card fits the search prompt.
 Question: {card.question}

@@ -7,7 +7,10 @@ from llama_index.llms.huggingface_api import HuggingFaceInferenceAPI
 from llama_index.storage.index_store.postgres import PostgresIndexStore
 from llama_index.vector_stores.postgres import PGVectorStore
 
+from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher, C
+
 Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-en-v1.5")
+
 Settings.llm = HuggingFaceInferenceAPI(
     model=os.getenv("LLM_URL"),
     task="text-generation",
@@ -81,3 +84,27 @@ class LlamaIndexExecutor:
         query_response = self.card_query_engine.query(query)
         stripped_response = nltk.sent_tokenize(query_response.response)[:2]
         return " ".join(stripped_response).strip()
+
+    def search_cards(self, query: str) -> list[tuple[str, float]]:
+        """
+        Returns cards in format
+
+        Q: <question>
+        A: <answer>
+
+        with scores.
+        """
+        query_response = self.card_query_engine.query(query)
+        fitting_cards: list[tuple[str, float]] = [(node.text, node.score) for node in query_response.source_nodes]
+        return fitting_cards
+
+
+class LlamaIndexSearcher(AbstractCardSearcher):
+    def __init__(self, prompt: str):
+        self._llama_result = LlamaIndexExecutor().search_cards(prompt)
+
+    def _search(self, card: C) -> bool:
+        for index_card, _ in self._llama_result:
+            if card.question in index_card and card.answer in index_card:
+                return True
+        return False

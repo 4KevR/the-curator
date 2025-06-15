@@ -1,3 +1,5 @@
+# TODO: THIS CLASS IS NOW UNUSED! DELETE!
+
 import math
 
 from src.backend.modules.srs.abstract_srs import AbstractCard

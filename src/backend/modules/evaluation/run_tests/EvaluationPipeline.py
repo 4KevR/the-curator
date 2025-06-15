@@ -6,8 +6,7 @@ from dataclasses import asdict, dataclass
 
 from typeguard import typechecked
 
-from src.backend.modules.ai_assistant.llm_interactor.llm_interactor import LLMInteractor
-from src.backend.modules.ai_assistant.task_executor import TaskExecutor
+from src.backend.modules.ai_assistant.state_manager import StateManager
 from src.backend.modules.asr.abstract_asr import AbstractASR
 from src.backend.modules.evaluation.load_test_data.load_test_data import (
     EvaluationTests,
@@ -18,7 +17,6 @@ from src.backend.modules.evaluation.run_tests.LLMSimilarityJudge import LLMSimil
 from src.backend.modules.evaluation.run_tests.SRSComparator import SRSComparator
 from src.backend.modules.helpers.string_util import remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
-from src.backend.modules.llm.llm_communicator import LLMCommunicator
 
 
 @dataclass(frozen=True)
@@ -26,29 +24,52 @@ class TestEvalResult:
     passed: bool
     crashed: bool
     name: str
+    audio_files_available: bool
     original_queries: list[str]
     transcribed_queries: list[str]
+    question_answer: str | None
+    task_finish_message: str | None
+    state_history: list[str]
     error_messages: list[str]
-    log_messages: list[str]
+    log_messages: list[list[tuple[str, str]]]
 
     def pretty_print(self, skip_thinking=False):
         header = f"Test {self.name} " + ("PASSED" if self.passed else ("CRASHED" if self.crashed else "FAILED")) + "."
+        header += f" Audio file available: {self.audio_files_available}"
+
         queries = "\n".join(
             f"Original:    {o}\nTranscribed: {t}\n" for (o, t) in zip(self.original_queries, self.transcribed_queries)
         )
 
-        log = []
-        for role, message in self.log_messages:
-            if skip_thinking:
-                message = remove_block(message, "think")
-                message = re.sub("\n\n+", "\n", message)
-                message = message.strip()
+        if self.question_answer is not None:
+            response = f"Question Answer:\n{self.question_answer}\n"
+        else:
+            if self.task_finish_message is not None:
+                response = f"Task Finish Message:\n{self.task_finish_message}\n"
+            else:
+                response = ""
 
+        log = []
+        for group in self.log_messages:
             log.append(
-                f"===================================== {role + ' ':>18}=====================================\n{message}\n\n"
+                f"=============================================================================================\n"
             )
+            for role, message in group:
+                if skip_thinking:
+                    message = remove_block(message, "think")
+                    message = re.sub("\n\n+", "\n", message)
+                    message = message.strip()
+
+                log.append(
+                    f"------------------------------------- {role + ' ':>18}-------------------------------------\n{message}\n\n"
+                )
 
         log_msgs = "\n".join(log)
+
+        history = "\n     -------------------------------------------------------------------------      \n".join(
+            self.state_history
+        )
+
         if len(self.error_messages) == 0:
             errors = "No errors!"
         else:
@@ -59,6 +80,10 @@ class TestEvalResult:
             f"{header}\n\n"
             f"####################################### Queries ##############################################\n"
             f"{queries}\n\n"
+            f"####################################### Response #############################################\n"
+            f"{response}\n\n"
+            f"####################################### History ##############################################\n"
+            f"{history}\n\n"
             f"####################################### Logs #################################################\n"
             f"{log_msgs}\n\n"
             f"####################################### Errors ###############################################\n"
@@ -73,29 +98,19 @@ class EvaluationPipeline:
     def __init__(
         self,
         asr: AbstractASR,
-        llm_interactor: LLMInteractor,
         task_llm: AbstractLLM,
         fuzzy_matching_llm: AbstractLLM,
         llm_judge: AbstractLLM,
         audio_recording_dir_path: str,
-        default_max_messages: int,
-        default_max_errors: int,
-        max_stream_messages_per_chunk: int,
-        max_stream_errors_per_chunk: int,
         verbose_task_execution: bool,
         print_progress: bool = False,
         log_file_path: str = None,
     ) -> None:
         self.asr = asr
-        self.llm_interactor = llm_interactor
         self.task_llm = task_llm
         self.llm_for_fuzzy_matching = fuzzy_matching_llm
         self.llm_judge = LLMSimilarityJudge(llm_judge)
         self.audio_recording_dir_path = audio_recording_dir_path
-        self.default_max_messages = default_max_messages
-        self.default_max_errors = default_max_errors
-        self.max_stream_messages_per_chunk = max_stream_messages_per_chunk
-        self.max_stream_errors_per_chunk = max_stream_errors_per_chunk
         self.verbose_task_execution = verbose_task_execution
         self.print_progress = print_progress
         self.log_file_path = log_file_path
@@ -107,42 +122,53 @@ class EvaluationPipeline:
 
     def _evaluate_test(self, test: InteractionTest | QuestionAnsweringTest) -> TestEvalResult:
         fcm = test.environment.copy()
-        llm_communicator = LLMCommunicator(self.task_llm)
-        self.llm_interactor.change_flashcard_manager(fcm)
-
-        task_executor = TaskExecutor(
-            self.llm_interactor,
-            llm_communicator,
-            self.default_max_messages,
-            self.default_max_errors,
-            self.max_stream_messages_per_chunk,
-            self.max_stream_errors_per_chunk,
-            self.verbose_task_execution,
-        )
 
         evaluation = []
         prompts = []
+        sm = StateManager(self.task_llm, fcm)
+
+        audio_files = [
+            os.path.join(self.audio_recording_dir_path, sound_file_name + ".wav")
+            for sound_file_name in test.sound_file_names
+        ]
+
+        # do all required audio files exist?
+        all_files_exist = all(os.path.exists(audio_file) for audio_file in audio_files)
+
         try:
-            audio_files = [
-                os.path.join(self.audio_recording_dir_path, sound_file_name + ".wav")
-                for sound_file_name in test.sound_file_names
-            ]
+            if all_files_exist:
+                prompts = [self.asr.transcribe_wav_file(afp) for afp in audio_files]
+            else:
+                prompts = list(test.queries)
 
-            prompts = [self.asr.transcribe_wav_file(afp) for afp in audio_files]
+            if len(prompts) != 1:  # TODO remove!!!
+                return TestEvalResult(
+                    True,
+                    False,
+                    test.name,
+                    all_files_exist,
+                    test.queries,
+                    prompts,
+                    None,
+                    None,
+                    [],
+                    ["SKIPPED"],
+                    [[("user", "SKIPPED")]],
+                )
 
-            eval_res = task_executor.execute_prompts(prompts)
+            eval_res = sm.run(prompts[0], self.verbose_task_execution)
 
             # Now find out if the test passed -> different for q_a or interaction test.
             if isinstance(test, QuestionAnsweringTest):
-                if eval_res is None:
+                if eval_res.question_answer is None:
                     evaluation = ["LLM did not return an answer to a question."]
                     passed = False
                 else:
-                    passed = self.llm_judge.judge_answer_similarity(test.expected_answer, eval_res)
+                    passed = self.llm_judge.judge_answer_similarity(test.expected_answer, eval_res.question_answer)
                     if not passed:
                         evaluation = [
                             f"LLM judge thought that answer was not close enough.\n"
-                            f"Expected: {test.expected_answer}\nActual: {eval_res}"
+                            f"Expected: {test.expected_answer}\nActual: {eval_res.question_answer}"
                         ]
             else:
                 comparator = SRSComparator(self.llm_for_fuzzy_matching, self.llm_judge)
@@ -152,11 +178,15 @@ class EvaluationPipeline:
             res = TestEvalResult(
                 passed=passed,
                 crashed=False,
+                name=test.name,
+                audio_files_available=all_files_exist,
                 error_messages=evaluation,
                 original_queries=test.queries,
                 transcribed_queries=prompts,
-                name=test.name,
-                log_messages=task_executor.log,
+                question_answer=eval_res.question_answer,
+                task_finish_message=eval_res.task_finish_message,
+                state_history=eval_res.state_history,
+                log_messages=eval_res.llm_history,
             )
             return res
         except Exception as e:
@@ -164,11 +194,15 @@ class EvaluationPipeline:
             return TestEvalResult(
                 passed=False,
                 crashed=True,
+                name=test.name,
+                audio_files_available=all_files_exist,
                 error_messages=evaluation + [error],
                 original_queries=test.queries,
                 transcribed_queries=prompts,
-                name=test.name,
-                log_messages=task_executor.log,
+                question_answer=None,
+                task_finish_message=None,
+                state_history=sm.state_history,
+                log_messages=sm.logging_llm.get_log(),
             )
 
     def _evaluate_tests(self, tests: list[InteractionTest | QuestionAnsweringTest]) -> list[TestEvalResult]:

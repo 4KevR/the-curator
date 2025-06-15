@@ -1,3 +1,5 @@
+# TODO: THIS CLASS IS NOW UNUSED! DELETE!
+
 import ast
 import inspect
 import re
@@ -333,6 +335,7 @@ To end the stream early (before all cards are processed), please call the functi
                 self._add_log_entry("error", "Too many messages. Abort execution.")
                 raise RuntimeError("Too many messages. Abort execution.")
 
+    # TODO: Many functions here are simply not needed any more. E.g.: This class will never encounter a stream. Delete.
     def _llm_function_return_type(self, function_name: str):
         """Get the return type of an @llm_command"""
         function = self.llm_commands.llm_commands.get(function_name, None)

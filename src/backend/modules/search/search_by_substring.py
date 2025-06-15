@@ -21,7 +21,7 @@ class SearchBySubstring(AbstractCardSearcher[AbstractCard]):
         self.search_in_answer = search_in_answer
         self.case_sensitive = case_sensitive
 
-    def search(self, card: AbstractCard) -> bool:
+    def _search(self, card: AbstractCard) -> bool:
         if self.search_in_question:
             search_question = card.question if self.case_sensitive else card.question.lower()
             if self.search_substring in search_question:

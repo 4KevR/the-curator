@@ -41,7 +41,7 @@ def find_substring_in_llm_response(
     false_index = response.rfind(token_for_false)
     true_index = response.rfind(token_for_true)
 
-    if false_index != -1 and true_index != -1:
+    if false_index == -1 and true_index == -1:
         raise ValueError(f"Unexpected llm response: {response!r}")
 
     return true_index > false_index
@@ -75,7 +75,7 @@ def find_substring_in_llm_response_or_null(
     false_index = response.rfind(token_for_false)
     true_index = response.rfind(token_for_true)
 
-    if false_index != -1 and true_index != -1:
+    if false_index == -1 and true_index == -1:
         return None
 
     return true_index > false_index

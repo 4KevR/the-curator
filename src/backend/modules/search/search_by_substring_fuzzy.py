@@ -31,7 +31,7 @@ class SearchBySubstringFuzzy(AbstractCardSearcher[AbstractCard]):
     def __fuzzy_search(self, text: str) -> bool:
         return rapidfuzz.fuzz.partial_ratio(self.search_substring, text) >= self.fuzzy * 100.0
 
-    def search(self, card: AbstractCard) -> bool:
+    def _search(self, card: AbstractCard) -> bool:
         if self.search_in_question:
             search_question = card.question if self.case_sensitive else card.question.lower()
             if self.__fuzzy_search(search_question):

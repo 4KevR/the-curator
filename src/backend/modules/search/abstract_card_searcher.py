@@ -13,8 +13,8 @@ class AbstractCardSearcher(ABC, Generic[C]):
     """
 
     def search_all(self, cards: list[C]) -> list[C]:
-        return [c for c in cards if self.search(c)]
+        return [c for c in cards if self._search(c)]
 
     @abstractmethod
-    def search(self, card: C) -> bool:
+    def _search(self, card: C) -> bool:
         raise NotImplementedError

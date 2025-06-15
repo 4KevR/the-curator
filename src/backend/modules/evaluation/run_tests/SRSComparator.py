@@ -9,7 +9,6 @@ class SRSComparator:
     def __init__(self, llm_for_fuzzy_matching: AbstractLLM, llm_judge=LLMSimilarityJudge):
         self.llm_for_fuzzy_matching = llm_for_fuzzy_matching
         self.llm_judge = llm_judge
-        super().__init__(llm_for_fuzzy_matching, CloudLectureTranslatorASR())
 
     def _compare_decks(self, expected: list[TestCard], actual: list[TestCard]) -> list[str]:
         """

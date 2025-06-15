@@ -1,10 +1,12 @@
+# TODO: This class is now unused. Delete!
+
 from typing import Optional
 
 from typeguard import typechecked
 
 from src.backend.modules.ai_assistant.chunked_card_stream import ChunkedCardStream
-from src.backend.modules.ai_assistant.llama_index import LlamaIndexExecutor
-from src.backend.modules.ai_assistant.llm_command_list import (
+from src.backend.modules.search.llama_index import LlamaIndexExecutor
+from src.backend.modules.ai_assistant.llm_interactor.llm_command_list import (
     LLMCommandList,
     llm_command,
 )
@@ -36,8 +38,6 @@ _commands = LLMCommandList(
 )
 
 
-# TODO: Apparantly I am using python generics wrong. I really do not understand why the type checker doesn't work here
-#   as i want him to.
 # noinspection PyTypeChecker
 @typechecked
 class LLMInteractorTest(LLMInteractor, metaclass=InheritDocstrings):

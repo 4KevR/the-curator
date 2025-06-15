@@ -1,7 +1,8 @@
+# TODO: This class is now unused. Delete!
+
 import inspect
 from typing import Callable, Optional
 
-from src.backend.modules.ai_assistant.user_state import UserState
 from src.backend.modules.helpers.string_util import replace_many
 
 
