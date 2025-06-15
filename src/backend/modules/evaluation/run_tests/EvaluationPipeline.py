@@ -92,6 +92,48 @@ class TestEvalResult:
         )
         print(s)
 
+    def to_markdown(self, skip_thinking=False) -> str:
+        print(f"DEBUG state history len {len(self.state_history)}")
+        a = f"""
+## Test {self.name} {("✅ passed" if self.passed else ("⚡ crashed" if self.crashed else "❌ failed"))}
+{'There were no audio files available.' if not self.audio_files_available else 'Audio files were available.'}
+"""
+        q = "### Queries\n" + "\n\n".join(
+            f"**`original   `**: {o} \n\n**`transcribed`**: {t}"
+            for (o, t) in zip(self.original_queries, self.transcribed_queries)
+        )
+
+        if self.question_answer is not None:
+            b = f"### Response\n`Expected:` {self.original_queries[0]}\n`Actual  :` {self.question_answer}\n"
+        elif self.task_finish_message is not None:
+            b = f"### Task Finish Message\n{self.task_finish_message}\n"
+        else:
+            b = ""
+
+        log = []
+        for group in self.log_messages:
+            log.append("\n____________________________\n")
+            for role, message in group:
+                if skip_thinking:
+                    message = remove_block(message, "think")
+                    message = re.sub("\n\n+", "\n", message)
+                    message = message.strip()
+
+                log.append(f"**{role}:**\n{message}\n\n")
+
+        c = f"### Interaction Log\n" + "\n\n".join(log)
+
+        d = f"### State History\n" + "\n\n".join(
+            f" 1. {str(it).replace("<", "").replace(">", "")}" for it in self.state_history
+        )
+
+        if len(self.error_messages) == 0:
+            e = "### Errors\nNo errors!"
+        else:
+            e = "### Errors\n" + "\n_______________\n".join("\t" + it for it in self.error_messages)
+
+        return f"{a}\n{q}\n{b}\n{c}\n{d}\n{e}\n"
+
 
 class EvaluationPipeline:
 
@@ -214,7 +256,7 @@ class EvaluationPipeline:
                     print(
                         f"Total test {nr} out of {len(tests)}"
                         f" ({100.0 * nr / len(tests):.2f}%):"
-                        f" {type(test)} {test.name}"
+                        f" {test.__class__.__name__} {test.name}"
                     )
 
                 res += [self._evaluate_test(test)]

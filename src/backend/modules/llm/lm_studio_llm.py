@@ -6,6 +6,7 @@
 from openai import OpenAI
 from overrides import overrides
 
+from src.backend.modules.helpers.string_util import remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 
 
@@ -17,14 +18,14 @@ class LMStudioLLM(AbstractLLM):
         model: str,
         default_temperature: float,
         default_max_tokens: int,
-        add_no_think: bool = False,
+        no_think: bool = False,
     ):
         """Initialize the LLM Studio client."""
         self.client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
         self.default_temperature = default_temperature
         self.default_max_tokens = default_max_tokens
         self.model = model
-        self.add_no_think = add_no_think
+        self.no_think = no_think
 
     @overrides
     def generate(
@@ -38,12 +39,13 @@ class LMStudioLLM(AbstractLLM):
         if max_tokens is None:
             max_tokens = self.default_max_tokens
 
-        if self.add_no_think:
+        if self.no_think:
+            messages = [dict(it) for it in messages]  # copy
             messages[-1]["content"] = messages[-1]["content"] + "\n\\no_think"
 
         # This works, be quiet
         # noinspection PyTypeChecker
-        return (
+        response = (
             self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
@@ -53,3 +55,8 @@ class LMStudioLLM(AbstractLLM):
             .choices[0]
             .message.content
         )
+        if not self.no_think:
+            return response
+
+        response = remove_block(response, "think")
+        return response

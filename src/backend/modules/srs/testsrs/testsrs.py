@@ -81,16 +81,11 @@ class TestCard(AbstractCard):
     fuzzymatch_answer: bool = False
 
     def __str__(self):
-        s = f"""Card {self.id.hex_id()} from the deck {self.deck}
-Question:
-{self.question}
-
-Answer:
-{self.answer}
-
-Flag: {self.flag.value}
-Card State: {self.cardState.value}"""
-        return s
+        return (
+            f"Card  from the deck {self.deck.name} with flag {self.flag.value} and state {self.cardState.value}.\n\n"
+            f"**Question**: {self.question}\n\n"
+            f"**Answer**: {self.answer}"
+        )
 
     @override
     def to_hashable(self) -> Any:
@@ -115,7 +110,7 @@ class TestDeck(AbstractDeck):
     cards: list[TestCard]
 
     def __str__(self):
-        s = f"""Deck '{self.name}' (id: {self.id.hex_id()}) containing {len(self.cards)} cards"""
+        s = f"""Deck '{self.name}' containing {len(self.cards)} cards."""
         return s
 
 

@@ -27,6 +27,9 @@ class AbstractActionState(ABC):
         """
         raise NotImplementedError
 
+    def __str__(self):
+        return self.__class__.__name__
+
 
 class StateAction(AbstractActionState):
     _prompt_template = (
@@ -151,8 +154,8 @@ The following decks are available:
 {decks}
 
 If you want to search in all decks, answer "all". If you want to search in a specific deck, answer the name of the deck.
-If you want to search in multiple, specific decks, answer a comma-separated list of deck names. Please make sure to 
-exactly match the deck names. **Do not answer anything else**!
+If you want to search in multiple, specific decks, answer a comma-separated list of deck names. If you are unsure, 
+rather include than exclude a deck. Make sure to exactly match the deck names. **Do not answer anything else**!
 """.strip()
     MAX_ATTEMPTS = 3
 
@@ -339,7 +342,12 @@ Please fill in the following template. Make sure to produce valid json.
     "fuzzy": <float here>
 }}
 
-Usually, 0.8 is a good threshold for fuzzy search. Depending on your use case, you might want to adjust this value.
+If you are unsure, use these defaults:
+  search_in_question: true
+  search_in_answer: true
+  case_sensitive: false
+  fuzzy: 0.8
+   
 Please answer only with the filled-in, valid json.
 """.strip()
     MAX_ATTEMPTS = 3
@@ -447,12 +455,13 @@ class StateVerifySearch(AbstractActionState):
         "The user gave the following input:\n\n"
         "{user_input}\n\n"
         "You decided to search for cards. Your search returned {amount_cards} cards."
-        "Here is a sample of the cards you found:\n\n"
+        " Here is a sample of the cards you found:\n\n"
         "{cards_sample}\n\n"
-        "If something went wrong, e.g. you didn't find any cards, but you expected to find some cards, you can go back"
-        " and use a different search method."
-        " If you want to continue with the cards you found, answer 'yes'. If you want to go back and use a different "
-        "search method, answer 'no'."
+        "You now have to decide if the search went okay.\n"
+        " * If the search went fine, please answer 'yes'.\n"
+        " * If the search results seem to be at least okay, please answer 'yes'.\n"
+        " * Only if something went really wrong, you should answer 'no'.\n"
+        "Please only answer 'yes' or 'no', and **nothing else**."
     )
     MAX_ATTEMPTS = 3
     SAMPLE_SIZE = 5
@@ -471,9 +480,10 @@ class StateVerifySearch(AbstractActionState):
         self.decks_to_search_in = decks_to_search_in
         self.srs = srs
         self.searcher = searcher
-        self.found_cards: list[AbstractCard] = [
+        self.all_cards: list[AbstractCard] = [
             card for deck in self.decks_to_search_in for card in srs.get_cards_in_deck(deck)
         ]
+        self.found_cards = self.searcher.search_all(self.all_cards)
 
     def act(self) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
@@ -486,7 +496,7 @@ class StateVerifySearch(AbstractActionState):
                 message = self._prompt_template.format(
                     user_input=self.user_prompt,
                     amount_cards=len(self.found_cards),
-                    cards_sample="\n".join(str(it) for it in sample),
+                    cards_sample="\n\n".join(str(it) for it in sample),
                 )
             else:
                 message = "Your answer must be either 'yes' or 'no'."
@@ -514,7 +524,7 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
         "The user gave the following input:\n\n"
         "{user_input}\n\n"
         "You decided to search for cards. Your search returned {amount_cards} cards."
-        "Here is a sample of the cards you found:\n\n"
+        " Here is a sample of the cards you found:\n\n"
         "{cards_sample}\n\n"
         "Now you have to decide what to do with the cards you found. You have the following options:\n\n"
         "## Bulk operations\n"
@@ -563,7 +573,7 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
                 message = self._prompt_template.format(
                     user_input=self.user_prompt,
                     amount_cards=len(self.found_cards),
-                    cards_sample="\n".join(str(it) for it in sample),
+                    cards_sample="\n\n".join(str(it) for it in sample),
                 )
             else:
                 message = (
@@ -582,10 +592,20 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
 
                 return StateFinishedTask(f"{len(self.found_cards)} cards deleted.")
             if response == "copy_to_deck":
+                # TODO: This got too big. Make an own state.
                 deck_name = self.llm_communicator.send_message(
-                    "What should the name of the new deck be?"
-                    "Please answer only with the name of the deck, and nothing else."
-                    "Only use letters, numbers, spaces and underscores for the name."
+                    "The cards can either be copied to an existing or new deck, depending on the user's request. "
+                    "If you are unsure, please create a new deck. If the user says to add the cards to 'the deck' and "
+                    "only one deck exists, please use that one.\n"
+                    "\n"
+                    "If you have to create a new deck, and the user provided a name, use that name. "
+                    "Else create a fitting name. Only use letters, numbers, spaces and underscores for the name."
+                    "\n\n"
+                    f"Remember, the user prompt was:\n {self.user_prompt}\n"
+                    f"Currently, the following decks exist:\n"
+                    f"{[f' * {it.name}' for it in self.srs.get_all_decks()]}"
+                    "\n\n"
+                    "Please answer only with the name of the deck, and nothing else. "
                 )
 
                 deck_created = False
