@@ -2,7 +2,7 @@
     "recommendations": [
         "ms-python.python",
         "ms-python.debugpy",
-        "charliermarsh.ruff",
+        "ms-python.black-formatter",
         "ms-python.flake8",
     ]
 }

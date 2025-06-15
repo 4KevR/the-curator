@@ -1,6 +1,7 @@
 import json
 import logging
 
+import requests
 from sseclient import SSEClient
 
 from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR
@@ -28,7 +29,7 @@ class LocalLectureTranslatorASR(CloudLectureTranslatorASR):
                         "user": "test_user",
                     }
                     logger.info(f"Sending: {transcription}")
-                    # requests.post(url="http://127.0.0.1:5000/action", json=data)
+                    requests.post(url="http://127.0.0.1:5000/action", json=data)
 
             except json.decoder.JSONDecodeError:
                 logging.debug(

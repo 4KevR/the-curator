@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 
 from src.cli.local_lecture_translator import LocalLectureTranslatorASR
 from src.cli.recording.recording_client import RecordingClient
-
-# from src.cli.tts import tts_and_play
+from src.cli.tts import tts_and_play
 
 load_dotenv(".env.local")
 
@@ -32,8 +31,7 @@ def transcribe_audio(enable_tts: bool = False):
             transcription = response.json().get("transcription", "")
             print(f"Transcription: {transcription}")
             if enable_tts and transcription:
-                pass
-                # tts_and_play(transcription)
+                tts_and_play(transcription)
     except KeyboardInterrupt:
         print("\nStopping transcription.")
 

@@ -1,15 +1,5 @@
-[tool.ruff.lint]
-select = [
-    # pycodestyle
-    "E",
-    # Pyflakes
-    "F",
-    # pyupgrade
-    "UP",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
-]
+[tool.black]
+line-length = 120
+
+[tool.flake8]
+max-line-length = 120

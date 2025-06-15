@@ -5,8 +5,9 @@
       "source.fixAll": "explicit",
       "source.organizeImports": "explicit"
     },
-    "editor.defaultFormatter": "charliermarsh.ruff"
+    "editor.defaultFormatter": "ms-python.black-formatter"
   },
+  "ruff.organizeImports": false,
   "python.testing.pytestEnabled": true,
   "files.exclude": {
     "**/__pycache__": true
