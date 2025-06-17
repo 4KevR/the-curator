@@ -15,7 +15,7 @@ class NoAudioDeviceException(Exception):
 
 
 class PortaudioStream(BaseAdapter):
-    def __init__(self, device_id: int, **kwargs) -> None:
+    def __init__(self, device_id: int = None, **kwargs) -> None:
         self.input_id: Optional[int] = device_id
         self._stream: Optional[pyaudio.Stream] = None
         self._pyaudio: Optional[pyaudio.PyAudio] = None
