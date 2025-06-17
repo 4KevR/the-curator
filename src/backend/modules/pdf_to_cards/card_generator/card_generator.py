@@ -1,5 +1,5 @@
 from src.backend.modules.llm.abstract_llm import AbstractLLM
-from src.backend.modules.pdf_to_cards.AbstractPDFReader import AbstractPDFReader
+from src.backend.modules.pdf_to_cards.abstract_pdf_reader import AbstractPDFReader
 
 
 def create_card_generation_prompt(max_cards: int, content: str) -> str:

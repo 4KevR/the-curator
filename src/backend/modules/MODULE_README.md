@@ -75,7 +75,7 @@ Provides integrations for large language models (LLMs), managing multiple provid
 Extracts text content from PDF files and generates flashcards.
 
 - **Key Components**:
-    - `AbstractPDFReader.py`: Generic interface for PDF-reading functionalities.
+    - `abstract_pdf_reader.py`: Generic interface for PDF-reading functionalities.
     - `pypdf2_reader.py`: Reads and extracts text content from PDFs using `PyPDF2`.
     - `card_generator/`: A submodule focused on generating cards from extracted text.
 

@@ -2,7 +2,7 @@ from typing import Optional
 
 import PyPDF2
 
-from src.backend.modules.pdf_to_cards.AbstractPDFReader import AbstractPDFReader
+from src.backend.modules.pdf_to_cards.abstract_pdf_reader import AbstractPDFReader
 
 
 class PyPDF2Reader(AbstractPDFReader):
