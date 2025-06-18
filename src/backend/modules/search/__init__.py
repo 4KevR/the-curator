@@ -17,6 +17,10 @@ required_vars = [
 
 check_for_environment_variables(required_vars)
 
+logger = logging.getLogger(__name__)
+
+logger.info("Initializing LlamaIndex with Hugging Face Embedding model and KIT LLM...")
+
 Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-en-v1.5")
 Settings.llm = HuggingFaceInferenceAPI(
     model=os.getenv("LLM_URL"),
@@ -32,3 +36,5 @@ if os.getenv("HUGGING_FACE_TOKEN"):
 else:
     # Add HUGGING_FACE_TOKEN to .env and request access for https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct
     logging.warning("Hugging Face Token not set. Using default tokenizer.")
+
+logger.info("LlamaIndex initialized successfully.")

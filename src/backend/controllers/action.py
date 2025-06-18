@@ -1,12 +1,22 @@
+import logging
+
 import nltk
 from flask import Blueprint, jsonify, request
 
-nltk.download("punkt_tab")
+from src.backend.modules.ai_assistant import StateManager
+from src.backend.modules.llm import KitLLM
+from src.backend.modules.srs.anki import AnkiSRS
+
+logger = logging.getLogger(__name__)
 
 action_blueprint = Blueprint("action", __name__)
 
 # Initialize adapters
-temporary_user_data: dict[str, tuple[str]] = dict()
+temporary_user_data: dict[str, str] = dict()
+anki_srs_adapters: dict[str, AnkiSRS] = dict()
+
+# LLM
+kit_llm = KitLLM(0.05, 2048)
 
 
 @action_blueprint.route("/action", methods=["POST"])
@@ -31,21 +41,22 @@ def perform_action():
         sentences = nltk.tokenize.sent_tokenize(temporary_user_data[user_name])
         complete_sentences = [sentence for sentence in sentences if sentence.endswith((".", "!", "?"))]
         if not complete_sentences:
-            print("No complete sentence found in transcription.")
+            logger.info("No complete sentence found in transcription.")
             return jsonify({"message": "Waiting for a complete sentence."}), 200
 
-        print(f"Processing transcription for user '{user_name}': {complete_sentences[0]}")
+        logger.info(f"Processing transcription for user '{user_name}': {complete_sentences[0]}")
 
         # Initialize Anki adapter with the provided user
-        # anki_adapter = AnkiSRS(user_name=user_name)
-
-        # TODO integrate new setup
+        if user_name not in anki_srs_adapters:
+            anki_srs_adapters[user_name] = AnkiSRS(user_name)
+        anki_adapter = anki_srs_adapters[user_name]
 
         # Process transcription
-        # result = action_service.process_transcription(complete_sentences[0])
-        # temporary_user_data[user_name] = temporary_user_data[user_name][len(complete_sentences[0]) :].strip()
-
-        return jsonify(""), 200
+        result = StateManager(kit_llm, anki_adapter).run(complete_sentences[0], True)
+        temporary_user_data[user_name] = temporary_user_data[user_name][len(complete_sentences[0]) :].strip()
+        logger.info(f"Result for user '{user_name}': {result.question_answer}")
+        return jsonify(result), 200
 
     except Exception as e:
+        logger.error(e)
         return jsonify({"error": str(e)}), 500
