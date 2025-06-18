@@ -143,8 +143,8 @@ class EvaluationPipeline:
         task_llm: AbstractLLM,
         fuzzy_matching_llm: AbstractLLM,
         llm_judge: AbstractLLM,
-        audio_recording_dir_path: str,
-        verbose_task_execution: bool,
+        audio_recording_dir_path: str | None = None,
+        verbose_task_execution: bool = False,
         print_progress: bool = False,
         log_file_path: str = None,
     ) -> None:
@@ -169,13 +169,17 @@ class EvaluationPipeline:
         prompts = []
         sm = StateManager(self.task_llm, fcm)
 
-        audio_files = [
-            os.path.join(self.audio_recording_dir_path, sound_file_name + ".wav")
-            for sound_file_name in test.sound_file_names
-        ]
+        if self.audio_recording_dir_path is not None:
+            audio_files = [
+                os.path.join(self.audio_recording_dir_path, sound_file_name + ".wav")
+                for sound_file_name in test.sound_file_names
+            ]
 
-        # do all required audio files exist?
-        all_files_exist = all(os.path.exists(audio_file) for audio_file in audio_files)
+            # do all required audio files exist?
+            all_files_exist = all(os.path.exists(a_f) for a_f in audio_files)
+        else:
+            audio_files = []
+            all_files_exist = False
 
         try:
             if all_files_exist:
