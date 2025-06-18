@@ -169,3 +169,6 @@ class CloudLectureTranslatorASR(AbstractASR):
             transcribed_text.append(self.text_queue.get())
 
         return " ".join(transcribed_text)
+
+    def transcribe_wav_file(self, audio_file_path: str) -> str:
+        pass
