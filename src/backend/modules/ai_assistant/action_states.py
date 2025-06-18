@@ -114,7 +114,8 @@ class StateAnswer(AbstractActionState):
 
 
 class StateTask(AbstractActionState):
-    _prompt_template = """You are an assistant of a flashcard management system. You assist a user in executing tasks. The flashcard management system consists of decks consisting of cards.
+    _prompt_template = """You are an assistant of a flashcard management system. You assist a user in executing tasks.
+The flashcard management system consists of decks consisting of cards.
 
 The user gave the following input:
 
@@ -645,11 +646,11 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
                     "Else create a fitting name. Only use letters, numbers, spaces and underscores for the name."
                     "\n\n"
                     f"Remember, the user prompt was:\n {self.user_prompt}\n"
-                    f"Currently, the following decks exist:\n"
+                    "Currently, the following decks exist:\n"
                     f"{'\n'.join([f' * {it.name}' for it in self.srs.get_all_decks()])}"
                     "\n\n"
                     "Please answer only with the name of the deck, and nothing else. "
-                )
+                )  # noqa: E999
 
                 deck_created = False
                 deck = self.srs.get_deck_by_name_or_none(deck_name)
@@ -675,20 +676,22 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
 # TODO: This state assumes that we have a TestSRS!!!!!!!!!!!!!! Fix!
 class StateStreamFoundCards(AbstractActionState):
     _prompt_template = """
-You are an assistant of a flashcard management system. You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+You are an assistant of a flashcard management system.
+You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
 
 The user gave the following input:
 
 {user_input}
 
-You decided to search for cards. You wanted me to present you every single card you found. I will now show you the cards one-by-one. You will only ever be able to see a single card. Here is the current card:
+You decided to search for cards. You wanted me to present you every single card you found.
+I will now show you the cards one-by-one. You will only ever be able to see a single card. Here is the current card:
 
 {card}
 
 You have the following options:
 
  * Doing nothing: Respond "do_nothing".
- * Delete that card: Respond "delete_card". 
+ * Delete that card: Respond "delete_card".
  * Edit that card. Respond with the following template filled out, **and nothing else**, only the filled-out json:
  {{
     "question": "<new question here>",
@@ -822,7 +825,8 @@ If no deck exists with the given name, you will receive an error and can try aga
 Valid flags are: ['none', 'red', 'orange', 'green', 'blue', 'pink', 'turquoise', 'purple']
 Valid card states are: ['new', 'learning', 'review', 'suspended', 'buried']
 
-If you want to execute no function, return an empty list []. If you want to execute one or more functions, return them inside a json array. 
+If you want to execute no function, return an empty list [].
+If you want to execute one or more functions, return them inside a json array.
 
 Please answer only with the filled-in, valid json.
 """.strip()
