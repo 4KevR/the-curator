@@ -5,9 +5,12 @@ services:
       dockerfile: src/backend/Dockerfile
     stop_signal: SIGINT
     ports:
-      - '5000:5000'
+      - '127.0.0.1:5000:5000'
     env_file:
       - .env
+      - .env.db
+    environment:
+      - IN_DOCKER=1
   vector-db:
     image: pgvector/pgvector:pg17
     container_name: pgvector-db

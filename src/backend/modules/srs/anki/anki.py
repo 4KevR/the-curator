@@ -1,3 +1,5 @@
+# isort: skip_file
+
 import logging
 import os
 import typing
@@ -5,9 +7,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-import anki.cards
-from anki.cards import CardId
 from anki.collection import Collection
+from anki.cards import Card, CardId
 from anki.consts import CardQueue, CardType
 from anki.decks import DeckId
 from anki.errors import NotFoundError
@@ -47,7 +48,7 @@ class AnkiDeck(AbstractDeck):
 class AnkiCard(AbstractCard):
     note: Note
     deck: AnkiDeck
-    raw_card: anki.cards.Card
+    raw_card: Card
 
     __type_map = {
         0: "New",  # New card
@@ -65,7 +66,7 @@ class AnkiCard(AbstractCard):
         4: "Filtered",
     }
 
-    def __init__(self, note: Note, deck: AnkiDeck, raw_card: anki.cards.Card):
+    def __init__(self, note: Note, deck: AnkiDeck, raw_card: Card):
         # If raw_card.ord == 0, then the first field is the question, the second the answer.
         # If .ord == 1, other way around.
         super().__init__(CardID(raw_card.id), question=note.fields[raw_card.ord], answer=note.fields[1 - raw_card.ord])
@@ -127,7 +128,7 @@ class AnkiTemporaryCollection(AbstractTemporaryCollection):
 @typechecked
 class NoteCreationResult:
     note: Note
-    cards: list[anki.cards.Card]
+    cards: list[Card]
 
 
 @dataclass
@@ -152,16 +153,15 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     col: Collection
     __temporary_collections: dict[TmpCollectionID, AnkiTemporaryCollection]
 
-    def __init__(self, anki_directory: str):
+    def __init__(self, anki_user: str):
         """
         Initializes a new Anki object with a backing collection at the given path.
         If it doesn't exist, it will be created.
         """
-        if anki_directory == "":
-            raise ValueError("user_name cannot be empty string.")
+        if anki_user == "":
+            raise ValueError("anki_user cannot be empty string.")
 
-        if not os.path.isabs(anki_directory):
-            anki_directory = os.path.join(_base_dir, anki_directory)
+        anki_directory = os.path.join(_base_dir, anki_user)
 
         if os.path.exists(anki_directory):
             logger.debug(f"Anki directory {anki_directory} already exists.")
@@ -507,7 +507,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     def get_note_id_by_card_id(self, card_id: int) -> int | None:
         """Given a card ID, return the Note ID it belongs to."""
         try:
-            card = self.col.get_card(anki.cards.CardId(card_id))
+            card = self.col.get_card(CardId(card_id))
             return card.nid
         except NotFoundError:
             logger.debug(f"Card ID {card_id} is invalid.")

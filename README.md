@@ -73,6 +73,9 @@ You can build and run the Flask server also in a Docker container. Use `compose.
 docker compose up -d --build
 ```
 
+> [!NOTE]
+> Due to loading the LlamaIndex setup, the startup can take some time. See the logs of the container and wait till the setup is completed.
+
 ## Additional notes
 
 ### Noteworthy:

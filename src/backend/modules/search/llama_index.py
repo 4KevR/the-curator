@@ -9,6 +9,12 @@ from llama_index.vector_stores.postgres import PGVectorStore
 from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher, C
 
 
+def _get_host() -> str:
+    if int(os.getenv("IN_DOCKER", "0")):
+        return "vector-db"
+    return "localhost"
+
+
 class LlamaIndexExecutor:
     def __init__(self):
         self.vector_store_decks = LlamaIndexPostgresLoader.get_vector_store_from_table_name("the_curator_decks")
@@ -96,7 +102,7 @@ class LlamaIndexPostgresLoader:
     def get_vector_store_from_table_name(table_name: str) -> PGVectorStore:
         return PGVectorStore.from_params(
             database=os.getenv("POSTGRES_DB"),
-            host="localhost",
+            host=_get_host(),
             password=os.getenv("POSTGRES_PASSWORD"),
             port=5432,
             user=os.getenv("POSTGRES_USER"),
@@ -114,7 +120,7 @@ class LlamaIndexPostgresLoader:
     def get_index_store_from_table_name(table_name: str) -> PostgresIndexStore:
         return PostgresIndexStore.from_params(
             database=os.getenv("POSTGRES_DB"),
-            host="localhost",
+            host=_get_host(),
             password=os.getenv("POSTGRES_PASSWORD"),
             port=5432,
             user=os.getenv("POSTGRES_USER"),
