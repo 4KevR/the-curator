@@ -959,14 +959,17 @@ Please answer only with the filled-in, valid json.
             try:
                 response = self.llm_communicator.send_message(message)
                 parsed = self._parse_commands(response)
-                if len(parsed) == 0:
-                    return StateFinishedTask("No more tasks to execute.")  # TODO command count.
+
                 for command in parsed:
                     self._execute_command(command)
-                message = (
-                    "The commands you sent were all executed successfully! "
-                    "If that was all, respond with []. If you have other commands to execute, send them."
-                )
+
+                return StateFinishedTask("No more tasks to execute.")  # TODO command count.
+                # TODO Now, there is only one iterations - all commands must be sent the first time.
+                #        Llama was absolutely unable to use [] to finish command execution.
+                # message = (
+                #     "The commands you sent were all executed successfully! "
+                #     "If that was all, respond with []. If you have other commands to execute, send them."
+                # )
             except JSONDecodeError as jde:
                 message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
             except Exception as e:  # TODO: We need a rollback-function here.
