@@ -33,9 +33,9 @@ class KitLLMReq(AbstractLLM):
         }
 
         response = requests.post(self.llm_url, json=payload)
-        result = response.json()["generated_text"]
+        result: str = response.json()["generated_text"]
 
-        result = result.replace("assistant\n\n", "")
+        result = result.lstrip().replace("assistant", "").lstrip()
         return result
 
     def get_description(self) -> str:

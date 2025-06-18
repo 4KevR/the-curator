@@ -188,8 +188,8 @@ data
 # Recordings
 asr/*/recording session*/
 
-notebooks/reports/
+# Notebooks
+/notebooks/*
+!/notebooks/templates/
 
-notebooks/test/
-/notebooks/
-
+# Misc
