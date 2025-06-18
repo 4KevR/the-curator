@@ -45,16 +45,14 @@ class LMStudioLLM(AbstractLLM):
 
         # This works, be quiet
         # noinspection PyTypeChecker
-        response = (
-            self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
-            .choices[0]
-            .message.content
+        raw_response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
         )
+
+        response = raw_response.choices[0].message.content
         if not self.no_think:
             return response
 

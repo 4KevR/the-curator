@@ -5,7 +5,12 @@ class AbstractLLM(ABC):
     """Abstract class for LLM adapters."""
 
     @abstractmethod
-    def generate(self, messages: list[dict[str, str]]) -> str:
+    def generate(
+        self,
+        messages: list[dict[str, str]],
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> str:
         """
         Generate text using the LLM in OpenAI format. Example for messages:
         [{"role": "user", "content": "What is the capital of France?"}, {"role": "assistant", "content": "Paris"}]

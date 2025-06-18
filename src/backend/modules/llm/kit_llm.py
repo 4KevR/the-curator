@@ -7,19 +7,34 @@ from src.backend.modules.llm.abstract_llm import AbstractLLM
 
 
 class KitLLM(AbstractLLM):
-    def __init__(self, temperature: float, max_tokens: int):
+    def __init__(
+        self,
+        model: str,
+        default_temperature: float,
+        default_max_tokens: int,
+    ):
+        """Initialize the LLM Studio client."""
         self.client = InferenceClient(model=os.getenv("LLM_URL"))
-        self.temperature = temperature
-        self.max_tokens = max_tokens
+        self.default_temperature = default_temperature
+        self.default_max_tokens = default_max_tokens
+        self.model = model
 
     @overrides
-    def generate(self, messages: list[dict[str, str]]) -> str:
+    def generate(
+        self,
+        messages: list[dict[str, str]],
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> str:
         prompt = self._format_messages_for_llama(messages)
+
+        if temperature is None:
+            temperature = self.default_temperature
+        if max_tokens is None:
+            max_tokens = self.default_max_tokens
+
         text_generation = self.client.text_generation(
-            prompt=prompt,
-            temperature=self.temperature,
-            max_new_tokens=self.max_tokens,
-            stop=["User:", "System:", "Assistant:"],
+            prompt=prompt, temperature=temperature, max_new_tokens=max_tokens, stop=["User:", "System:", "Assistant:"]
         )
         return text_generation
 
