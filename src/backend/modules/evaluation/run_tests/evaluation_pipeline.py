@@ -94,7 +94,6 @@ class TestEvalResult:
         print(s)
 
     def to_markdown(self, skip_thinking=False) -> str:
-        print(f"DEBUG state history len {len(self.state_history)}")
         a = f"""
 ## Test {self.name} {("✅ passed" if self.passed else ("⚡ crashed" if self.crashed else "❌ failed"))}
 {'There were no audio files available.' if not self.audio_files_available else 'Audio files were available.'}
@@ -252,13 +251,16 @@ class EvaluationPipeline:
         """This method mainly exists to make error handling easier."""
         res = []
         try:
+            last_print_len = 0
             for nr, test in enumerate(tests):
                 if self.print_progress:
-                    print(
-                        f"Total test {nr} out of {len(tests)}"
+                    s = (
+                        f"\rTotal test {nr} out of {len(tests)}"
                         f" ({100.0 * nr / len(tests):.2f}%):"
                         f" {test.__class__.__name__} {test.name}"
                     )
+                    print(s + (last_print_len - len(s)) * " ", end="")
+                    last_print_len = len(s)
 
                 res += [self._evaluate_test(test)]
 

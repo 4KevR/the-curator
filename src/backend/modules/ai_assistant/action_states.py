@@ -1,6 +1,7 @@
 import json
 from abc import ABC, abstractmethod
-from typing import Optional
+from json import JSONDecodeError
+from typing import Any, Optional
 
 import pandas as pd
 
@@ -12,7 +13,7 @@ from src.backend.modules.search.llama_index import LlamaIndexExecutor, LlamaInde
 from src.backend.modules.search.search_by_substring import SearchBySubstring
 from src.backend.modules.search.search_by_substring_fuzzy import SearchBySubstringFuzzy
 from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS
-from src.backend.modules.srs.testsrs.testsrs import CardState, Flag, TestFlashcardManager
+from src.backend.modules.srs.testsrs.testsrs import CardState, Flag, TestCard, TestFlashcardManager
 
 
 class AbstractActionState(ABC):
@@ -29,6 +30,15 @@ class AbstractActionState(ABC):
 
     def __str__(self):
         return self.__class__.__name__
+
+
+class ExceedingMaxAttemptsError(Exception):
+    """
+    Custom exception for exceeding the maximum number of attempts.
+    """
+
+    def __init__(self, state_name):
+        super().__init__(f"Exceeding maximum number of attempts in state {state_name}.")
 
 
 class StateAction(AbstractActionState):
@@ -66,7 +76,7 @@ class StateAction(AbstractActionState):
             elif resp is False:
                 return StateTask(self.user_prompt, self.llm, self.srs)
 
-        raise RuntimeError("Exceeding maximum number of attempts.")
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateQuestion(AbstractActionState):
@@ -104,13 +114,30 @@ class StateAnswer(AbstractActionState):
 
 
 class StateTask(AbstractActionState):
-    _prompt_template = (
-        "You are an assistant of a flashcard management system. You assist a user in executing tasks "
-        "(creating/modifying/deleting cards/decks etc.).\n\n"
-        "The user gave the following input:\n\n"
-        "{user_input}\n\n"
-        'To execute this prompt, do you have to **search for cards**? **Only** answer "yes" or "no", nothing else!'
-    )
+    _prompt_template = """You are an assistant of a flashcard management system. You assist a user in executing tasks. The flashcard management system consists of decks consisting of cards.
+
+The user gave the following input:
+
+{user_input}
+
+There are two categories of tasks:
+
+Category 'local' contains the following tasks:
+
+* Editing specific cards.
+* Deleting specific cards.
+
+
+Category 'global' contains the following tasks:
+
+* Adding new, empty decks.
+* Renaming decks.
+* Deleting decks.
+* Creating new cards and adding them to a deck.
+
+Is the user prompt a 'local' or 'global' task? Please **only** answer with 'local' or 'global' and **nothing else**.
+""".strip()  # TODO: I could add the option here to find impossible tasks.
+
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
@@ -130,14 +157,14 @@ class StateTask(AbstractActionState):
 
             response = remove_block(response, "think")
             response = response.replace('"', "").replace("'", "")
-            resp = find_substring_in_llm_response_or_null(response, "yes", "no", True)
+            resp = find_substring_in_llm_response_or_null(response, "local", "global", True)
 
             if resp is True:
                 return StateTaskSearchDecks(self.user_prompt, self.llm, self.srs)
             elif resp is False:
                 return StateTaskNoSearch(self.user_prompt, self.llm, self.srs)
 
-        raise RuntimeError("Exceeding maximum number of attempts.")
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateTaskSearchDecks(AbstractActionState):
@@ -199,7 +226,7 @@ If you are unsure, rather include than exclude a deck. Make sure to exactly matc
                     "Please make sure to exactly match the deck names."
                 )
 
-        raise RuntimeError("Exceeding maximum number of attempts.")
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateTaskSearch(AbstractActionState):
@@ -262,7 +289,7 @@ Please answer "exact", "fuzzy" or "content", and **nothing else**. All other det
             if response == "content":
                 return StateContentSearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs)
 
-        raise RuntimeError("Exceeding maximum number of attempts.")
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateKeywordSearch(AbstractActionState):
@@ -326,10 +353,12 @@ Please answer only with the filled-in, valid json. You may only send a single co
                 )
                 return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, searcher)
 
+            except JSONDecodeError as jde:
+                message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
             except Exception as e:
-                message = f"Your answer must be a valid json string. Exception: {e}. Please try again."
+                message = f"An exception occurred: {e}. Please try again."
 
-        raise RuntimeError("Exceeding maximum number of attempts.")
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateFuzzySearch(AbstractActionState):
@@ -404,10 +433,12 @@ Please answer only with the filled-in, valid json.
                 )
                 return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, searcher)
 
+            except JSONDecodeError as jde:
+                message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
             except Exception as e:
-                message = f"Your answer must be a valid json string. Exception: {e}. Please try again."
+                message = f"An exception occurred: {e}. Please try again."
 
-        raise RuntimeError("Exceeding maximum number of attempts.")
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateContentSearch(AbstractActionState):
@@ -452,10 +483,12 @@ Please answer only with the filled-in, valid json.
                 searcher = LlamaIndexSearcher(prompt=parsed["search_prompt"])
                 return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, searcher)
 
+            except JSONDecodeError as jde:
+                message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
             except Exception as e:
-                message = f"Your answer must be a valid json string. Exception: {e}. Please try again."
+                message = f"An exception occurred: {e}. Please try again."
 
-        raise RuntimeError("Exceeding maximum number of attempts.")
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateVerifySearch(AbstractActionState):
@@ -524,7 +557,7 @@ class StateVerifySearch(AbstractActionState):
             elif resp is False:
                 raise NotImplementedError()  # TODO! Add a *one-time-only* loopback here.
 
-        raise RuntimeError("Exceeding maximum number of attempts.")
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateTaskWorkOnFoundCards(AbstractActionState):
@@ -613,7 +646,7 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
                     "\n\n"
                     f"Remember, the user prompt was:\n {self.user_prompt}\n"
                     f"Currently, the following decks exist:\n"
-                    f"{[f' * {it.name}' for it in self.srs.get_all_decks()]}"
+                    f"{'\n'.join([f' * {it.name}' for it in self.srs.get_all_decks()])}"
                     "\n\n"
                     "Please answer only with the name of the deck, and nothing else. "
                 )
@@ -636,31 +669,40 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
                     self.user_prompt, self.llm, self.decks_to_search_in, self.srs, self.found_cards
                 )
 
-        raise RuntimeError("Exceeding maximum number of attempts.")
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 # TODO: This state assumes that we have a TestSRS!!!!!!!!!!!!!! Fix!
 class StateStreamFoundCards(AbstractActionState):
-    _prompt_template = (
-        "You are an assistant of a flashcard management system. You assist a user in executing tasks "
-        "(creating/modifying/deleting cards/decks etc.).\n\n"
-        "The user gave the following input:\n\n"
-        "{user_input}\n\n"
-        "You decided to search for cards. You wanted me to present you every single card you found. "
-        "I will now show you the cards one-by-one. You will only ever be able to see a single card. "
-        "Here is the current card.:"
-        "\n\n{card}\n\n"
-        "You have the following options:\n\n"
-        '* Edit the question: ["edit_question", "<new question here>"]\n'
-        '* Edit the answer: ["edit_answer", "<new answer here">]\n'
-        '* Edit the flag: ["edit_flag", "<new flag here">]\n'
-        '  These flag options exist: ["none", "red", "orange", "green", "blue", "pink", "turquoise", "purple"]'
-        '* Edit the card state: ["edit_card_state", "<new card state here>"]\n'
-        '  These card state options exist: ["new", "learning", "review", "suspended", "buried"]'
-        '* Delete the card: ["delete_card"]\n'
-        '* Do nothing with the card: ["do_nothing"]\n\n'
-        "Please answer only with the operation you want to perform in the given list format, and answer nothing else."
-    )
+    _prompt_template = """
+You are an assistant of a flashcard management system. You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+
+The user gave the following input:
+
+{user_input}
+
+You decided to search for cards. You wanted me to present you every single card you found. I will now show you the cards one-by-one. You will only ever be able to see a single card. Here is the current card:
+
+{card}
+
+You have the following options:
+
+ * Doing nothing: Respond "do_nothing".
+ * Delete that card: Respond "delete_card". 
+ * Edit that card. Respond with the following template filled out, **and nothing else**, only the filled-out json:
+ {{
+    "question": "<new question here>",
+    "answer": "<new answer here>",
+    "flag": "<new flag here>",
+    "state": "<new card state here>"
+ }}
+  These flag options exist: ["none", "red", "orange", "green", "blue", "pink", "turquoise", "purple"]
+  These card state options exist: ["new", "learning", "review", "suspended", "buried"]
+  If you do not wish to change some attributes, you should omit it from your response.
+
+Please answer only with the operation you want to perform in the given format, and answer nothing else!
+""".strip()
+
     MAX_ATTEMPTS_PER_CARD = 3
 
     def __init__(
@@ -678,70 +720,70 @@ class StateStreamFoundCards(AbstractActionState):
         self.srs = srs
         self.found_cards = found_cards
 
-    def act(self) -> AbstractActionState | None:
+    def _execute_command(self, response: str, card: AbstractCard):
+        response = response.strip()
 
-        for card in self.found_cards:
-            message = self._prompt_template.format(
-                user_input=self.user_prompt,
-                card=card,
+        if response == "do_nothing":
+            return
+        if response == "delete_card":
+            self.srs.delete_card(card)
+            return
+
+        # only editing or wrong input left.
+        parsed = json.loads(response.strip())  # may throw error
+
+        # verify format
+        if not isinstance(parsed, dict):
+            raise ValueError("Response must be a dict in the given format!")
+
+        if not all(isinstance(it, str) for it in list(parsed.keys()) + list(parsed.values())):
+            raise ValueError("Response must be a dict[str, str].")
+
+        valid_keys = {"question", "answer", "flag", "state"}
+        if not len(valid_keys - parsed.keys()) == 0:
+            additional_keys = ", ".join(sorted(set(parsed.keys()) - valid_keys))
+            raise ValueError(
+                f"Response may only contain the following keys: {', '.join(sorted(valid_keys))}."
+                f" Got unexpected keys: {additional_keys}."
             )
+
+        # edit card
+        if "question" in parsed and parsed["question"] != card.question:
+            self.srs.edit_card_question(card, parsed["question"])
+        if "answer" in parsed and parsed["answer"] != card.answer:
+            self.srs.edit_card_answer(card, parsed["answer"])
+
+        if not isinstance(self.srs, TestFlashcardManager) or not isinstance(card, TestCard):
+            raise NotImplementedError  # TODO unsafe! Wrong! Change!
+        # noinspection PyTypeChecker
+        srs_cast: TestFlashcardManager = self.srs  # TODO unsafe! Wrong! Change!
+        # noinspection PyTypeChecker
+        card_cast: TestCard = card  # TODO unsafe! Wrong! Change!
+
+        if "flag" in parsed and parsed["flag"] != card_cast.flag:
+            flag = Flag.from_str(parsed["flag"])
+            srs_cast.edit_card_flag(card_cast, flag)
+        if "state" in parsed and parsed["state"] != card_cast.cardState:
+            state = CardState.from_str(parsed["state"])
+            srs_cast.edit_card_state(card_cast, state)
+
+        return
+
+    def act(self) -> AbstractActionState | None:
+        for card in self.found_cards:
+            message = self._prompt_template.format(user_input=self.user_prompt, card=card)
             self.llm_communicator.start_visibility_block()
 
             for attempt in range(self.MAX_ATTEMPTS_PER_CARD):
                 response = self.llm_communicator.send_message(message)
-
                 try:
-                    parsed = json.loads(response.strip())
-                    if not isinstance(parsed, list):
-                        raise ValueError("Response must be a list")
-                    if len(parsed) not in [1, 2]:
-                        raise ValueError("Response must contain one or two elements.")
-                    if not isinstance(parsed[0], str):
-                        raise ValueError("First element must be a string.")
-
-                    command = parsed[0]
-                    valid_commands = [
-                        "edit_question",
-                        "edit_answer",
-                        "edit_flag",
-                        "edit_card_state",
-                        "delete_card",
-                        "do_nothing",
-                    ]
-                    if command not in valid_commands:
-                        raise ValueError("Response must contain exactly one of the required commands.")
-
-                    if "edit_" in command:
-                        if len(parsed) != 2 or not isinstance(parsed[1], str):
-                            raise ValueError("Editing requires a second element; it must be a string.")
-                        if command == "edit_question":
-                            self.srs.edit_card_question(card, parsed[1])
-                        elif command == "edit_answer":
-                            self.srs.edit_card_answer(card, parsed[1])
-                        elif command == "edit_flag":
-                            # noinspection PyTypeChecker
-                            srs_cast: TestFlashcardManager = self.srs  # TODO unsafe! Wrong! Change!
-                            # noinspection PyTypeChecker
-                            srs_cast.edit_card_flag(card, Flag.from_str(parsed[1]))
-                        elif command == "edit_card_state":
-                            # noinspection PyTypeChecker
-                            srs_cast: TestFlashcardManager = self.srs  # TODO unsafe! Wrong! Change!
-                            # noinspection PyTypeChecker
-                            srs_cast.edit_card_state(card, CardState.from_str(parsed[1]))
-                        else:
-                            raise ValueError(f"Command {command} unknown.")  # unreachable
-                    if len(parsed) != 1:
-                        raise ValueError("Unexpected second element in response!")
-                    if command == "delete_card":
-                        self.srs.delete_card(card)
-                    if command == "do_nothing":
-                        pass
-                    break  # one of the valid commands was used, break out of the loop
-
+                    self._execute_command(response, card)
+                except JSONDecodeError as jde:
+                    message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
                 except Exception as e:
-                    message = f"Your answer must be a valid json string. Exception: {e}. Please try again."
+                    message = f"An exception occurred: {e}. Please try again."
             else:  # only run if no break!
-                raise RuntimeError("Exceeding maximum number of attempts.")
+                raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
         return StateFinishedTask(f"{len(self.found_cards)} cards handled in a stream.")  # TODO (command counts?)
 
@@ -759,7 +801,7 @@ The following decks currently exist:
 
 {current_decks}
 
-You now have to call exactly one of the following functions:
+You now have to call zero, one or more of the following functions:
 
 * create_deck: {{"task": "create_deck", "name": "<deck name here>"}}
 Calling this function will create a new deck with the given name.
@@ -780,13 +822,9 @@ If no deck exists with the given name, you will receive an error and can try aga
 Valid flags are: ['none', 'red', 'orange', 'green', 'blue', 'pink', 'turquoise', 'purple']
 Valid card states are: ['new', 'learning', 'review', 'suspended', 'buried']
 
-* exit: {{"task": "exit"}}
-Call this function after you finished your task.
+If you want to execute no function, return an empty list []. If you want to execute one or more functions, return them inside a json array. 
 
-* abort: {{"task": "abort", "reason": "<reason here>"}}
-Call this function when you have to abort your task.
-
-Please answer only with the filled-in, valid json. You may only send a single command at a time!
+Please answer only with the filled-in, valid json.
 """.strip()
     MAX_ATTEMPTS = 10
 
@@ -796,113 +834,145 @@ Please answer only with the filled-in, valid json. You may only send a single co
         self.srs = srs
         self.user_prompt = user_prompt
 
-    def act(self) -> AbstractActionState | None:
-        # TODO: On second thought: There are only 5 functions left from the legacy code that fit here.
-        #     Way, way cleaner to re-implement them here.
-        #     On third thought there are only 4 functions left, since I will always call the list_decks() function.
+    def _parse_commands(self, response: str) -> list[dict[str, str]]:
+        """
+        Parses the commands and does all the "ex ante" checking.
+        List of dict of strings, right keys, right values.
+        Does not test anything that has to do with the srs.
+        """
+        parsed = json.loads(response.strip())
 
-        # # can use legacy classes here, even if adapted.
-        # llm_interactor = LLMInteractor(
-        #     self.srs,
-        #     self.llm, # content search is not used.
-        #     LlamaIndexExecutor()
-        # )
-        # task_executor = TaskExecutor(
-        #     llm_interactor=llm_interactor,
-        #     llm_communicator=self.llm_communicator,
-        # )
-        # task_executor.execute_prompts([self.user_prompt])
-        #
-        # return StateFinishedTask("\n".join(str(it) for it in task_executor.log))
-        deck_info = [f"{it.name}: {len(self.srs.get_cards_in_deck(it))}" for it in self.srs.get_all_decks()]
+        if not isinstance(parsed, list):
+            raise ValueError("Response must be a list in JSON format.")
+
+        for cmd_dict in parsed:
+            if not isinstance(cmd_dict, dict):
+                raise ValueError(f"Command {cmd_dict} must be a dictionary")
+
+            # check that all keys values are strings
+            if not all(isinstance(k, str) and isinstance(v, str) for k, v in cmd_dict.items()):
+                raise ValueError(f"Command {cmd_dict}: All keys and values must be strings")
+
+            # check that task is present and one of the expected tasks
+            if "task" not in cmd_dict:
+                raise ValueError(f"Command {cmd_dict}: Response must contain a task key")
+
+            valid_tasks = ["create_deck", "rename_deck", "delete_deck", "add_card"]
+            if cmd_dict["task"] not in valid_tasks:
+                raise ValueError(f"Command {cmd_dict}: Response must contain a valid task")
+
+            # check that the task is one of the expected tasks
+            if cmd_dict["task"] == "create_deck":
+                deck_name = cmd_dict["name"]
+                if not isinstance(deck_name, str):
+                    raise ValueError(f"Command {cmd_dict}: Deck name must be a string")
+
+            if cmd_dict["task"] == "rename_deck":
+                old_name = cmd_dict["old_name"]
+                new_name = cmd_dict["new_name"]
+                if not isinstance(old_name, str) or not isinstance(new_name, str):
+                    raise ValueError(f"Command {cmd_dict}: Names must be strings")
+
+            if cmd_dict["task"] == "delete_deck":
+                name = cmd_dict["name"]
+                if not isinstance(name, str):
+                    raise ValueError(f"Command {cmd_dict}: Name must be a string")
+
+            if cmd_dict["task"] == "add_card":
+                deck_name = cmd_dict["deck_name"]
+                question = cmd_dict["question"]
+                answer = cmd_dict["answer"]
+                state = cmd_dict["state"]
+                flag = cmd_dict["flag"]
+                if not isinstance(deck_name, str):
+                    raise ValueError(f"Command {cmd_dict}: Name must be a string")
+                if not isinstance(question, str):
+                    raise ValueError(f"Command {cmd_dict}: Question must be a string")
+                if not isinstance(answer, str):
+                    raise ValueError(f"Command {cmd_dict}: Answer must be a string")
+                if not isinstance(state, str):
+                    raise ValueError(f"Command {cmd_dict}: State must be a string")
+                if not isinstance(flag, str):
+                    raise ValueError(f"Command {cmd_dict}: Flag must be a string")
+                CardState.from_str(state)
+                Flag.from_str(flag)  # run to test if it throws an error
+
+        return parsed
+
+    def _execute_command(self, cmd_dict: dict[Any, Any]) -> None:
+        # check that the task is one of the expected tasks
+        if cmd_dict["task"] == "create_deck":
+            deck_name = cmd_dict["name"]
+            deck = self.srs.get_deck_by_name_or_none(deck_name)
+            if deck is not None:
+                raise ValueError("Deck already exists")
+            self.srs.add_deck(deck_name)
+            return
+
+        if cmd_dict["task"] == "rename_deck":
+            old_name = cmd_dict["old_name"]
+            new_name = cmd_dict["new_name"]
+            deck = self.srs.get_deck_by_name_or_none(old_name)
+            if deck is None:
+                raise ValueError(f"Deck {old_name} does not exist")
+            if self.srs.get_deck_by_name_or_none(new_name) is not None:
+                raise ValueError(f"New name {new_name} already exists")
+            self.srs.rename_deck(deck, new_name)
+            return
+
+        if cmd_dict["task"] == "delete_deck":
+            name = cmd_dict["name"]
+            deck = self.srs.get_deck_by_name_or_none(name)
+            if deck is None:
+                raise ValueError(f"Deck {name} does not exist")
+            self.srs.delete_deck(deck)
+            return
+
+        if cmd_dict["task"] == "add_card":
+            deck_name = cmd_dict["deck_name"]
+            question = cmd_dict["question"]
+            answer = cmd_dict["answer"]
+            state = cmd_dict["state"]
+            flag = cmd_dict["flag"]
+            state = CardState.from_str(state)
+            flag = Flag.from_str(flag)
+            deck = self.srs.get_deck_by_name_or_none(deck_name)
+            if deck is None:
+                raise ValueError(f"Deck {deck_name} does not exist")
+
+            # TODO evil
+            # noinspection PyTypeChecker
+            test_srs: TestFlashcardManager = self.srs
+            # noinspection PyTypeChecker
+            test_srs.add_full_card(deck, question, answer, flag, state)
+            return
+
+        raise AssertionError("Unreachable.")
+
+    def act(self) -> AbstractActionState | None:
+        deck_info = [
+            f'name: "{it.name}", cards: {len(self.srs.get_cards_in_deck(it))}' for it in self.srs.get_all_decks()
+        ]
+
         message = self._prompt_template.format(user_input=self.user_prompt, current_decks="\n".join(deck_info))
         for attempt in range(self.MAX_ATTEMPTS):
             try:
                 response = self.llm_communicator.send_message(message)
-                parsed = json.loads(response.strip())
-                if not isinstance(parsed, dict):
-                    raise ValueError("Response must be a dictionary")
-                # check that all keys values are strings
-                if not all(isinstance(k, str) and isinstance(v, str) for k, v in parsed.items()):
-                    raise ValueError("All keys and values must be strings")
-                # check that task is present and one of the expected tasks
-                if "task" not in parsed:
-                    raise ValueError("Response must contain a task key")
+                parsed = self._parse_commands(response)
+                if len(parsed) == 0:
+                    return StateFinishedTask("No more tasks to execute.")  # TODO command count.
+                for command in parsed:
+                    self._execute_command(command)
+                message = (
+                    "The commands you sent were all executed successfully! "
+                    "If that was all, respond with []. If you have other commands to execute, send them."
+                )
+            except JSONDecodeError as jde:
+                message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
+            except Exception as e:  # TODO: We need a rollback-function here.
+                message = f"An exception occurred during command execution: {e}. Please try again."
 
-                valid_tasks = ["create_deck", "rename_deck", "delete_deck", "add_card", "exit", "abort"]
-                if parsed["task"] not in valid_tasks:
-                    raise ValueError("Response must contain a valid task")
-
-                # check that the task is one of the expected tasks
-                if parsed["task"] == "create_deck":
-                    deck_name = parsed["name"]
-                    if not isinstance(deck_name, str):
-                        raise ValueError("Deck name must be a string")
-                    deck = self.srs.get_deck_by_name_or_none(deck_name)
-                    if deck is not None:
-                        raise ValueError("Deck already exists")
-                    self.srs.add_deck(deck_name)
-                    message = f"Deck '{deck_name}' created successfully."
-                elif parsed["task"] == "rename_deck":
-                    old_name = parsed["old_name"]
-                    new_name = parsed["new_name"]
-                    if not isinstance(old_name, str) or not isinstance(new_name, str):
-                        raise ValueError("Names must be strings")
-                    deck = self.srs.get_deck_by_name_or_none(old_name)
-                    if deck is None:
-                        raise ValueError("Deck does not exist")
-                    if self.srs.get_deck_by_name_or_none(new_name) is not None:
-                        raise ValueError("New name already exists")
-                    self.srs.rename_deck(deck, new_name)
-                    message = f"Deck {old_name} renamed to {new_name}."
-                elif parsed["task"] == "delete_deck":
-                    name = parsed["name"]
-                    if not isinstance(name, str):
-                        raise ValueError("Name must be a string")
-                    deck = self.srs.get_deck_by_name_or_none(name)
-                    if deck is None:
-                        raise ValueError("Deck does not exist")
-                    self.srs.delete_deck(deck)
-                    message = f"Deck {name} deleted."
-                elif parsed["task"] == "add_card":
-                    deck_name = parsed["deck_name"]
-                    question = parsed["question"]
-                    answer = parsed["answer"]
-                    state = parsed["state"]
-                    flag = parsed["flag"]
-                    if not isinstance(deck_name, str):
-                        raise ValueError("Name must be a string")
-                    if not isinstance(question, str):
-                        raise ValueError("Question must be a string")
-                    if not isinstance(answer, str):
-                        raise ValueError("Answer must be a string")
-                    if not isinstance(state, str):
-                        raise ValueError("State must be a string")
-                    if not isinstance(flag, str):
-                        raise ValueError("Flag must be a string")
-                    state = CardState.from_str(state)
-                    flag = Flag.from_str(flag)
-                    deck = self.srs.get_deck_by_name_or_none(deck_name)
-                    if deck is None:
-                        raise ValueError("Deck does not exist")
-
-                    # TODO evil
-                    # noinspection PyTypeChecker
-                    test_srs: TestFlashcardManager = self.srs
-                    # noinspection PyTypeChecker
-                    test_srs.add_full_card(deck, question, answer, flag, state)
-                    message = f"Card added to deck {deck_name}."
-                elif parsed["task"] == "exit":
-                    return StateFinishedTask("Task finished.")  # TODO: Command count?
-                elif parsed["task"] == "abort":
-                    reason = parsed["reason"]
-                    if not isinstance(reason, str):
-                        raise ValueError("Reason must be a string")
-                    return StateFinishedTask("Task aborted.")
-            except Exception as e:
-                message = f"Your answer must be a valid json string. Exception: {e}. Please try again."
-
-        raise RuntimeError("Exceeding maximum number of attempts.")
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateFinishedTask(AbstractActionState):

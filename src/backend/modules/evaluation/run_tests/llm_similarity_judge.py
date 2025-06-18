@@ -65,6 +65,6 @@ Answer: {actual_card.answer}
 Remember to only respond with 'true' or 'false'.
 """
         messages = [{"role": "user", "content": prompt}]
-        response = self.llm_for_fuzzy_matching.generate(messages)
+        response = self.judge_llm.generate(messages)
 
         return find_substring_in_llm_response(response, "true", "false")
