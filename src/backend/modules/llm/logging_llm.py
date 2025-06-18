@@ -28,5 +28,8 @@ class LoggingLLM(AbstractLLM):
         self._last_messages = messages_w_r
         return response
 
+    def get_description(self) -> str:
+        return "Logging " + self._llm.get_description()
+
     def get_log(self):
         return self._log

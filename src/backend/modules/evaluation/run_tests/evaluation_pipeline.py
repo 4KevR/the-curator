@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import time
 import traceback
 from dataclasses import asdict, dataclass
 
@@ -24,9 +25,14 @@ class TestEvalResult:
     passed: bool
     crashed: bool
     name: str
+    asr_name: str
+    task_llm_name: str
+    fuzzy_matching_llm_name: str
+    llm_judge_name: str
+    time_taken_s: float
     audio_files_available: bool
     original_queries: list[str]
-    transcribed_queries: list[str]
+    transcribed_queries: list[str] | None
     question_answer: str | None
     task_finish_message: str | None
     state_history: list[str]
@@ -96,12 +102,25 @@ class TestEvalResult:
     def to_markdown(self, skip_thinking=False) -> str:
         a = f"""
 ## Test {self.name} {("✅ passed" if self.passed else ("⚡ crashed" if self.crashed else "❌ failed"))}
-{'There were no audio files available.' if not self.audio_files_available else 'Audio files were available.'}
+Audio files available: {'No' if not self.audio_files_available else 'Yes'}
+
+ASR: {self.asr_name}
+
+Task LLM: {self.task_llm_name}
+
+Fuzzy Matching LLM: {self.fuzzy_matching_llm_name}
+
+LLM Judge: {self.llm_judge_name}
+
+Time taken: {self.time_taken_s:.2f} s.
 """
-        q = "### Queries\n" + "\n\n".join(
-            f"**`original   `**: {o} \n\n**`transcribed`**: {t}"
-            for (o, t) in zip(self.original_queries, self.transcribed_queries)
-        )
+        if self.transcribed_queries is not None:
+            q = "### Queries\n" + "\n\n".join(
+                f"**`original   `**: {o} \n\n**`transcribed`**: {t}"
+                for (o, t) in zip(self.original_queries, self.transcribed_queries)
+            )
+        else:
+            q = "### Queries\n" + "\n\n".join(f"**`original   `**: {o}" for o in self.original_queries)
 
         if self.question_answer is not None:
             b = f"### Response\n`Expected:` {self.original_queries[0]}\n`Actual  :` {self.question_answer}\n"
@@ -163,6 +182,8 @@ class EvaluationPipeline:
             os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
     def _evaluate_test(self, test: InteractionTest | QuestionAnsweringTest) -> TestEvalResult:
+        start_time = time.time()
+
         fcm = test.environment.copy()
 
         evaluation = []
@@ -189,17 +210,22 @@ class EvaluationPipeline:
 
             if len(prompts) != 1:  # TODO remove!!!
                 return TestEvalResult(
-                    True,
-                    False,
-                    test.name,
-                    all_files_exist,
-                    test.queries,
-                    prompts,
-                    None,
-                    None,
-                    [],
-                    ["SKIPPED"],
-                    [[("user", "SKIPPED")]],
+                    passed=True,
+                    crashed=False,
+                    asr_name=self.asr.get_description(),
+                    task_llm_name=self.task_llm.get_description(),
+                    fuzzy_matching_llm_name=self.llm_for_fuzzy_matching.get_description(),
+                    llm_judge_name=self.llm_judge.judge_llm.get_description(),
+                    time_taken_s=time.time() - start_time,
+                    name=test.name,
+                    audio_files_available=all_files_exist,
+                    error_messages=test.queries,
+                    original_queries=prompts,
+                    transcribed_queries=None,
+                    question_answer=None,
+                    task_finish_message=None,
+                    state_history=["SKIPPED"],
+                    log_messages=[[("user", "SKIPPED")]],
                 )
 
             eval_res = sm.run(prompts[0], self.verbose_task_execution)
@@ -224,11 +250,16 @@ class EvaluationPipeline:
             res = TestEvalResult(
                 passed=passed,
                 crashed=False,
+                asr_name=self.asr.get_description(),
+                task_llm_name=self.task_llm.get_description(),
+                fuzzy_matching_llm_name=self.llm_for_fuzzy_matching.get_description(),
+                llm_judge_name=self.llm_judge.judge_llm.get_description(),
+                time_taken_s=time.time() - start_time,
                 name=test.name,
                 audio_files_available=all_files_exist,
                 error_messages=evaluation,
                 original_queries=test.queries,
-                transcribed_queries=prompts,
+                transcribed_queries=prompts if all_files_exist else None,
                 question_answer=eval_res.question_answer,
                 task_finish_message=eval_res.task_finish_message,
                 state_history=eval_res.state_history,
@@ -240,11 +271,16 @@ class EvaluationPipeline:
             return TestEvalResult(
                 passed=False,
                 crashed=True,
+                asr_name=self.asr.get_description(),
+                task_llm_name=self.task_llm.get_description(),
+                fuzzy_matching_llm_name=self.llm_for_fuzzy_matching.get_description(),
+                llm_judge_name=self.llm_judge.judge_llm.get_description(),
+                time_taken_s=time.time() - start_time,
                 name=test.name,
                 audio_files_available=all_files_exist,
                 error_messages=evaluation + [error],
                 original_queries=test.queries,
-                transcribed_queries=prompts,
+                transcribed_queries=prompts if all_files_exist else None,
                 question_answer=None,
                 task_finish_message=None,
                 state_history=sm.state_history,

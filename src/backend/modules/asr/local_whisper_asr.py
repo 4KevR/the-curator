@@ -29,6 +29,7 @@ def _create_pipeline(model_name: str, only_cpu: bool = False) -> Pipeline:
 
 class LocalWhisperASR(AbstractASR):
     def __init__(self, model: str, only_cpu: bool = False):
+        self.model_name = model
         self.pipeline = _create_pipeline(model, only_cpu)
 
     def transcribe(self, audio_chunk: str, duration: int) -> str:
@@ -36,3 +37,6 @@ class LocalWhisperASR(AbstractASR):
 
     def transcribe_wav_file(self, audio_file_path: str) -> str:
         return self.pipeline(audio_file_path)["text"]
+
+    def get_description(self) -> str:
+        return f"Local ASR {self.model_name}"

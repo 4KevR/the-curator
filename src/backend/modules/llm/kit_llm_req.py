@@ -37,3 +37,9 @@ class KitLLMReq(AbstractLLM):
 
         result = result.replace("assistant\n\n", "")
         return result
+
+    def get_description(self) -> str:
+        return (
+            f"KIT Request meta-llama-3.1-8b-instruct with default temperature {self.default_temperature} and "
+            f"max tokens {self.default_max_tokens}"
+        )

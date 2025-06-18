@@ -13,3 +13,7 @@ class AbstractASR(ABC):
     @abstractmethod
     def transcribe_wav_file(self, audio_file_path: str) -> str:
         """Transcribe audio file in .wav format to text."""
+
+    @abstractmethod
+    def get_description(self) -> str:
+        """Get a description of the ASR."""

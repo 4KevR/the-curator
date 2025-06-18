@@ -16,3 +16,7 @@ class AbstractLLM(ABC):
         [{"role": "user", "content": "What is the capital of France?"}, {"role": "assistant", "content": "Paris"}]
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def get_description(self) -> str:
+        """Get a description of the LLM."""

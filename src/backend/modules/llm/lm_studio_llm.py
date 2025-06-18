@@ -58,3 +58,9 @@ class LMStudioLLM(AbstractLLM):
 
         response = remove_block(response, "think")
         return response
+
+    def get_description(self) -> str:
+        return (
+            f"LMStudio {self.model} with default temperature {self.default_temperature} and "
+            f'max tokens {self.default_max_tokens}{" with thinking disabled" if self.no_think else ""}'
+        )

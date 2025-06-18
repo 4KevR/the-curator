@@ -172,3 +172,6 @@ class CloudLectureTranslatorASR(AbstractASR):
 
     def transcribe_wav_file(self, audio_file_path: str) -> str:
         pass
+
+    def get_description(self) -> str:
+        return "Cloud lecture translator"

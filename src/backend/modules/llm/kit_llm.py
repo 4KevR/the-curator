@@ -47,3 +47,9 @@ class KitLLM(AbstractLLM):
             formatted_messages.append(f"{role}: {content}")
         prompt = "\n".join(formatted_messages) + "\nAssistant:"
         return prompt
+
+    def get_description(self) -> str:
+        return (
+            f"KIT HuggingFace {self.model} with default temperature {self.default_temperature} and "
+            f"max tokens {self.default_max_tokens}"
+        )
