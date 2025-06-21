@@ -92,7 +92,7 @@ log_file_path = os.path.join(base_path, f"data/logs/{now} evaluation_log.json")
 print(f"Log file path will be '{log_file_path}'")
 
 eval_pipeline = EvaluationPipeline(
-    asr=LocalWhisperASR("openai/whisper-medium"),
+    asr=asr,
     task_llm=task_llm,
     fuzzy_matching_llm=comparison_llm,
     llm_judge=comparison_llm,

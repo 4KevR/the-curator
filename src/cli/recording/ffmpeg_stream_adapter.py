@@ -34,14 +34,14 @@ class FfmpegStream(BaseAdapter):
         if self._process is None:
             self.start_time = time.time()
             self.seconds_returned = 0
-            self.chunk_size = 2 * 960 if self.speed != -1.0 else 167 * 2 * 960
+            self.chunk_size = 8000 if self.speed != -1.0 else 320000
 
             args: list[str] = [
                 "ffmpeg",
                 # be less verbose (but still show stats)
                 "-hide_banner",
                 "-loglevel",
-                "warning",  # "-stats",
+                "quiet",  # "-stats",
             ]
             if len(self.pre_opt) > 0:
                 args += self.pre_opt
@@ -83,12 +83,12 @@ class FfmpegStream(BaseAdapter):
             sleep = self.seconds_returned - (time.time() - self.start_time)
             if sleep > 0:
                 time.sleep(sleep)
-                if self.chunk_size > 2 * 960:
-                    self.chunk_size -= 2 * 960
+                if self.chunk_size > 1000:
+                    self.chunk_size -= 1000
             else:
                 if sleep < -5:
                     print("WARNING: Network is to slow. " "Having at least 5 seconds of delay!")
-                self.chunk_size += 2 * 960
+                self.chunk_size += 1000
         chunk = cast(bytes, stream.read(self.chunk_size))
         if self._process is not None and self._process.poll() is not None:
             if self.repeat_input and len(chunk) == 0:
