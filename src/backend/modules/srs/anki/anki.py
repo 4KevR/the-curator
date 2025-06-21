@@ -1,5 +1,3 @@
-# isort: skip_file
-
 import logging
 import os
 import typing
@@ -7,8 +5,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from anki.collection import Collection
 from anki.cards import Card, CardId
+from anki.collection import Collection
 from anki.consts import CardQueue, CardType
 from anki.decks import DeckId
 from anki.errors import NotFoundError
@@ -24,8 +22,10 @@ from src.backend.modules.srs.abstract_srs import (
     AbstractDeck,
     AbstractSRS,
     AbstractTemporaryCollection,
-    CardID,
-    DeckID,
+)
+from src.backend.modules.srs.abstract_srs import CardID as LocalCardID
+from src.backend.modules.srs.abstract_srs import DeckID as LocalDeckID
+from src.backend.modules.srs.abstract_srs import (
     TmpCollectionID,
 )
 
@@ -34,9 +34,6 @@ logger = logging.getLogger(__name__)
 # General directory for storing Anki collections
 # base_dir\user_name\collection.anki2
 _base_dir = os.getenv("ANKI_COLLECTION_PATH", "data/anki_collection")
-
-
-# TODO: Still changes from the abstract srs that are missing here!!!
 
 
 @typechecked
@@ -58,18 +55,20 @@ class AnkiCard(AbstractCard):
     }
 
     __queue_map = {
-        -1: "Suspended",  # Not participating in review
-        0: "Preview",  # Preview
-        1: "New",  # New cards waiting for first learning
-        2: "Learning",  # In the learning queue
-        3: "Review",  # In the review queue
-        4: "Filtered",
+        -1: "Suspended",  # Manually suspended; excluded from scheduling
+        0: "Preview",  # In preview mode (typically via filtered decks)
+        1: "New",  # New card, not yet learned
+        2: "Learning",  # In learning phase with steps
+        3: "Review",  # Due for review based on interval
+        4: "Filtered",  # In a filtered deck; temporary scheduling
     }
 
     def __init__(self, note: Note, deck: AnkiDeck, raw_card: Card):
         # If raw_card.ord == 0, then the first field is the question, the second the answer.
         # If .ord == 1, other way around.
-        super().__init__(CardID(raw_card.id), question=note.fields[raw_card.ord], answer=note.fields[1 - raw_card.ord])
+        super().__init__(
+            LocalCardID(raw_card.id), question=note.fields[raw_card.ord], answer=note.fields[1 - raw_card.ord]
+        )
         self.note = note
         self.deck = deck
         self.raw_card = raw_card
@@ -96,7 +95,7 @@ class AnkiCard(AbstractCard):
 @typechecked
 class AnkiTemporaryCollection(AbstractTemporaryCollection):
     _anki: "AnkiSRS"
-    _cards: set[CardID]
+    _cards: set[LocalCardID]
 
     def __init__(self, anki_srs: "AnkiSRS", tmp_collection_id: TmpCollectionID, description: str):
         super().__init__(tmp_collection_id, description)
@@ -106,22 +105,16 @@ class AnkiTemporaryCollection(AbstractTemporaryCollection):
     def add_card(self, card: AnkiCard) -> None:
         self._cards.add(card.id)
 
-    def add_card_by_id(self, card_id: CardID) -> None:
-        self._cards.add(card_id)
-
     def get_cards(self) -> list[AnkiCard]:
         return [self._anki.get_card(card_id) for card_id in self._cards]
 
-    def __contains__(self, item: CardID | AnkiCard) -> bool:
+    def __contains__(self, item: LocalCardID | AnkiCard) -> bool:
         if isinstance(item, AnkiCard):
             return item.id in self._cards
         return item in self._cards
 
     def remove_card(self, card: AnkiCard) -> None:
         self._cards.remove(card.id)
-
-    def remove_card_by_id(self, card_id: CardID) -> None:
-        self._cards.remove(card_id)
 
 
 @dataclass
@@ -141,12 +134,19 @@ class CardsDueToday:
     total: int
 
 
+class NoteType(Enum):
+    BASIC = "Basic"
+    BASIC_REVERSED = "Basic (and reversed card)"
+    # BASIC_OPTIONAL_REVERSED = "Basic (optional reversed card)"
+    # BASIC_TYPE_IN_ANSWER = "Basic (type in the answer)"
+    # CLOZE = "Cloze"
+    # IMAGE_OCCLUSION = "Image Occlusion"
+
+
 class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     """
     Implements an AbstractSRS for Anki.
-
     The following additional methods are implemented:
-    TODO
     """
 
     dir: str
@@ -155,8 +155,10 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
 
     def __init__(self, anki_user: str):
         """
-        Initializes a new Anki object with a backing collection at the given path.
-        If it doesn't exist, it will be created.
+        Initialize an Anki instance with a user-specific data directory.
+
+        If the directory for the given user does not exist, it will be created.
+        A new or existing Anki collection (collection.anki2) will be loaded from this path.
         """
         if anki_user == "":
             raise ValueError("anki_user cannot be empty string.")
@@ -168,11 +170,12 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         else:
             logger.debug(f"Creating new anki directory {anki_directory}.")
             os.makedirs(anki_directory)
+
         self.dir = anki_directory
         collection_path = os.path.join(self.dir, "collection.anki2")
         logger.debug(f"Collection path: {os.path.abspath(collection_path)}")
         self.col = Collection(collection_path)
-        self.__temporary_collections = {}
+        self.__temporary_collections = {}  # TODO?
 
     # Decks
     @override
@@ -186,7 +189,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         deck_id = self.col.decks.id(deck_name)
         logger.debug(f"Deck '{deck_name}' is added.")
 
-        return AnkiDeck(DeckID(deck_id), deck_name)
+        return AnkiDeck(LocalDeckID(deck_id), deck_name)
 
     @override
     def deck_exists(self, deck: AnkiDeck) -> bool:
@@ -194,6 +197,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         return deck is not None
 
     def _verify_deck_exists(self, deck: AnkiDeck) -> None:
+        """Raises ValueError if the deck does not exist."""
         if not self.deck_exists(deck):
             raise ValueError(f"Deck '{deck.name}' does not exist.")
 
@@ -202,14 +206,14 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         deck_dict = self.col.decks.by_name(deck_name)
         if deck_dict is None:
             return None
-        return AnkiDeck(DeckID(deck_dict["id"]), deck_dict["name"])
+        return AnkiDeck(LocalDeckID(deck_dict["id"]), deck_dict["name"])
 
     @override
-    def get_deck_or_none(self, deck_id: DeckID) -> AnkiDeck | None:
+    def get_deck_by_id_or_none(self, deck_id: LocalDeckID) -> AnkiDeck | None:
         deck_dict = self.col.decks.get(DeckId(deck_id.numeric_id))
         if deck_dict is None:
             return None
-        return AnkiDeck(DeckID(deck_dict["id"]), deck_dict["name"])
+        return AnkiDeck(LocalDeckID(deck_dict["id"]), deck_dict["name"])
 
     @override
     def get_all_decks(self) -> list[AnkiDeck]:
@@ -227,24 +231,13 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         self._verify_deck_exists(deck)
         self.col.decks.remove([deck.id.numeric_id])
 
-    # Card
+    # Cards
     @override
     def add_card(self, deck: AnkiDeck, question: str, answer: str) -> AnkiCard:
-        new = self.add_note(deck, question, answer, model_name="Basic")
+        new = self.add_note(deck, question, answer)
+        assert len(new.cards) == 1  # TODO: Now only "Basic" model is supported
 
         return AnkiCard(new.note, deck, new.cards[0])
-
-    @override
-    def get_card_or_none(self, card_id: CardID) -> AnkiCard | None:
-        try:
-            card = self.col.get_card(CardId(card_id.numeric_id))
-            raw_deck = self.col.decks.get(card.did)
-            deck = AnkiDeck(DeckID(raw_deck["id"]), raw_deck["name"])
-            note = self.col.get_note(card.nid)
-
-            return AnkiCard(note, deck, card)
-        except NotFoundError:
-            return None
 
     @override
     def card_exists(self, card: AnkiCard) -> bool:
@@ -256,44 +249,60 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
             raise ValueError(f"Card '{card.id}' does not exist.")
 
     @override
-    # @allowed_in_which_state?
-    def get_deck_of_card(self, card: AnkiCard) -> AnkiDeck | None:
-        self._verify_card_exists(card)
-        return self.col.decks.get(card.raw_card.did)
+    def get_card_or_none(self, card_id: LocalCardID) -> AnkiCard | None:
+        try:
+            card = self.col.get_card(CardId(card_id.numeric_id))
+            deck_dict = self.col.decks.get(card.did)
+
+            deck = AnkiDeck(LocalDeckID(deck_dict["id"]), deck_dict["name"])
+            note = self.col.get_note(card.nid)
+
+            return AnkiCard(note, deck, card)
+
+        except NotFoundError:
+            return None
 
     @override
-    # @allowed_in_which_state?
+    def get_deck_of_card(self, card: AnkiCard) -> AnkiDeck:
+        self._verify_card_exists(card)
+        deck_dict = self.col.decks.get(card.raw_card.did)
+        return AnkiDeck(LocalDeckID(deck_dict["id"]), deck_dict["name"])
+
+    @override
     def change_deck_of_card(self, card: AnkiCard, new_deck: AnkiDeck) -> AnkiCard:
         self._verify_card_exists(card)
         self._verify_deck_exists(new_deck)
 
-        new_id = new_deck.id.numeric_id
+        new_did = new_deck.id.numeric_id
         raw_card = card.raw_card
-        raw_card.did = new_id if new_id else 1
+        raw_card.did = new_did if new_did else 1
         self.col.update_card(raw_card)
-        return AnkiCard(card.note, new_deck, card.raw_card)
+        return AnkiCard(card.note, new_deck, card.raw_card)  # TODO false?
 
     @override
     def get_cards_in_deck(self, deck: AnkiDeck) -> list[AnkiCard]:
         self._verify_deck_exists(deck)
         card_ids = self.col.find_cards(f"deck:{deck.name}")
-        return [self.get_card(CardID(card_id)) for card_id in card_ids]
 
+        return [self.get_card_or_none(LocalCardID(card_id)) for card_id in card_ids]
+
+    @override
     def edit_card_question(self, card: AnkiCard, new_question: str) -> AnkiCard:
         self._verify_card_exists(card)
         self.edit_note(card.note.id, question=new_question)
-        return self.get_card(card.id)  # updated card element
+        return self.get_card_or_none(card.id)
 
+    @override
     def edit_card_answer(self, card: AnkiCard, new_answer: str) -> AnkiCard:
         self._verify_card_exists(card)
         self.edit_note(card.note.id, answer=new_answer)
-        return self.get_card(card.id)  # updated card element
+        return self.get_card_or_none(card.id)
 
+    @override
     def copy_card_to(self, card: AnkiCard, deck: AnkiDeck) -> AnkiCard:
         self._verify_card_exists(card)
         self._verify_deck_exists(deck)
 
-        # TODO: not exactly sure what to do here. Best idea:
         new_card = self.add_card(deck, card.question, card.answer)
         return new_card
 
@@ -303,9 +312,9 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         self.delete_cards_by_ids([card.id.numeric_id])  # returns the amount of cards deleted
 
     def delete_cards_by_ids(self, card_ids: list[int]) -> int:
-        """Delete the specified cards.
-        If the card is the last card from a note,
-        this note will also be automatically deleted.
+        """
+        Delete the specified cards.
+        If the card is the last card from a note, this note will also be automatically deleted.
 
         :param card_ids: List of card IDs to delete
         :return: Number of cards deleted
@@ -325,73 +334,9 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         logger.debug(f"Delete Cards: {deleted_cards}. " + f"Automatically deleted notes: {deleted_notes}")
         return len(deleted_cards)
 
-    # noinspection DuplicatedCode
-    @staticmethod
-    def __create_id(existing_ids: set[int]):
-        attempt = 0
-        while True:
-            attempt += 1
-            random_bytes = os.urandom(4)
-            random_int = int.from_bytes(random_bytes, byteorder="big")
-            if random_int not in existing_ids:
-                return random_int
-            if attempt >= 100:
-                raise RuntimeError(f"{attempt} attempts of generating a new, unique id failed.")
-
-    @override
-    def create_temporary_collection(self, description: str, cards: list[AnkiCard]) -> AnkiTemporaryCollection:
-        for card in cards:
-            self._verify_card_exists(card)  # fail before creating anything
-
-        id_nr = self.__create_id({it.numeric_id for it in self.__temporary_collections})
-        tmp_collection = AnkiTemporaryCollection(self, TmpCollectionID(id_nr), description)
-
-        for card in cards:
-            tmp_collection.add_card(card)
-
-        return tmp_collection
-
-    @override
-    def get_temporary_collections(self) -> list[AnkiTemporaryCollection]:
-        return list(self.__temporary_collections.values())
-
-    def _verify_tmp_collection_exists(self, tmp_collection: AnkiTemporaryCollection) -> None:
-        if tmp_collection.id not in self.__temporary_collections:
-            raise ValueError(f"Temporary collection '{tmp_collection.id}' does not exist.")
-
-    @override
-    def get_temporary_collection_or_none(self, tmp_collection_id: TmpCollectionID) -> AnkiTemporaryCollection | None:
-        return self.__temporary_collections.get(tmp_collection_id, None)
-
-    @override
-    def delete_temporary_collection(self, tmp_collection: AnkiTemporaryCollection):
-        self.__temporary_collections.pop(tmp_collection.id)
-
-    @override
-    def add_cards_to_temporary_collection(
-        self, tmp_collection: AnkiTemporaryCollection, cards: typing.Collection[AnkiCard]
-    ):
-        self._verify_tmp_collection_exists(tmp_collection)
-        for card in cards:  # fail before changing anything
-            self._verify_card_exists(card)
-
-        for card in cards:
-            tmp_collection.add_card(card)
-
-    @override
-    def remove_cards_from_temporary_collection(
-        self, tmp_collection: AnkiTemporaryCollection, cards: typing.Collection[AnkiCard]
-    ):
-        self._verify_tmp_collection_exists(tmp_collection)
-        for card in cards:  # fail before changing anything
-            self._verify_card_exists(card)
-
-        for card in cards:
-            tmp_collection.remove_card(card)
-
-    ####################################################################################################################
-    # ################ ANKI-Specific Functions #########################################################################
-    ####################################################################################################################
+    # ###########################################################
+    # ################# ANKI-Specific Functions #################
+    # ###########################################################
 
     def export_deck_to_apkg(self, deck: AnkiDeck, path: str = None) -> None:
         """Export the specified deck to a .apkg file.
@@ -420,14 +365,6 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         logger.debug(f"Deck is imported from {path}.")
 
     # Note
-    class NoteType(Enum):
-        BASIC = "Basic"
-        BASIC_REVERSED = "Basic (and reversed card)"
-        BASIC_OPTIONAL_REVERSED = "Basic (optional reversed card)"
-        BASIC_TYPE_IN_ANSWER = "Basic (type in the answer)"
-        CLOZE = "Cloze"
-        IMAGE_OCCLUSION = "Image Occlusion"
-
     @typechecked
     def add_note(
         self, deck: AnkiDeck, front: str, back: str, model_name: "AnkiSRS.NoteType" = NoteType.BASIC
@@ -445,7 +382,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         self._verify_deck_exists(deck)
 
         # Set NoteType
-        model = self.col.models.by_name(model_name.value)
+        model = self.col.models.by_name(model_name.value)  # TODO ?
         if model is None:
             raise ValueError(f"Cannot find NoteType: {model_name.value}.")
 
@@ -460,7 +397,8 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         self.col.add_note(note, DeckId(deck.id.numeric_id))
         logger.debug(f"Note {note.id} is added.")
         cards = note.cards()
-        logger.debug(f"Automatically added Cards: {cards}")
+        card_ids = [card.id for card in cards]
+        logger.debug(f"Automatically added Cards: {card_ids}")
 
         return NoteCreationResult(note=note, cards=cards)
 
@@ -480,10 +418,10 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
                     # Note might already be deleted or invalid
                     logger.debug(f"Note ID {note_id} is invalid: {e}")
 
-            self.col.remove_notes([NoteId(it) for it in note_ids])
+            self.col.remove_notes(note_ids)
 
     def list_all_notes(self) -> list[int]:
-        """List all notes in collection."""
+        """List all notes in anki.collection."""
         note_ids = self.col.find_notes("")  # The empty string matches all notes
         return [it.real for it in note_ids]
 
@@ -491,7 +429,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         """List all Notes for cards in the specified Deck,
         returning a list of (note_id, front, back)."""
         deck = self.get_deck_by_name_or_none(deck_name)
-        if not deck:
+        if deck is None:
             return []
 
         card_ids = self.col.find_cards(f"deck:{deck_name}")
@@ -525,48 +463,11 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
 
         self.col.update_note(note)
 
-    # TODO: Do we need any of these functions?
     def list_card_ids_from_note(self, note_id: int) -> list[int]:
         """List all card IDs from the specified note."""
         note = self.col.get_note(NoteId(note_id))
         card_ids = [card.id for card in note.cards()]
         return card_ids
-
-    def set_type(self, card_id: int, type_code: int) -> None:
-        """
-        0: "New", # New card
-        1: "Learn", # Learning
-        2: "Review", # Review
-        3: "Relearn" # Relearn, once mastered but forgotten
-        """
-        assert type_code in [0, 1, 2, 3]
-        card = self.col.get_card(CardId(card_id))
-        card.type = CardType(type_code)
-        self.col.update_card(card)
-
-    def set_queue(self, card_id: int, queue_code: int) -> None:
-        """
-        -1: "Suspended", # Not participating in review
-        0: "Preview", # Preview
-        1: "New", # New cards waiting for first learning
-        2: "Learning", # In the learning queue
-        3: "Review", # In the review queue
-        4: "Filtered"
-        """
-        assert queue_code in [-1, 0, 1, 2, 3, 4]
-        card = self.col.get_card(CardId(card_id))
-        card.queue = CardQueue(queue_code)
-        self.col.update_card(card)
-
-    def set_due(self, card_id: int, due: int) -> None:
-        card = self.col.get_card(CardId(card_id))
-        card.due = due
-        self.col.update_card(card)
-
-    def set_interval(self, card_id: int, ivl: int) -> None:
-        card = self.col.get_card(CardId(card_id))
-        card.ivl = ivl
-        self.col.update_card(card)
 
     def set_memory_grade(self, card_id: int, ease: str) -> None:
         """
@@ -589,24 +490,18 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         card.answer = grade_map[ease]
         self.col.update_card(card)
 
-    def set_review_stats(self, card_id: int, reps: int = None, lapses: int = None, left: int = None) -> None:
-        """
-        :reps: total number of reviews
-        :lapses: number of abandonments (forgetting)
-        :left: number of remaining study times for the day
+    def set_flag(self, card_id: int, flag: str | int) -> None:
+        """Set flag:
+        "none": 0,
+        "red": 1,
+        "orange": 2,
+        "green": 3,
+        "blue": 4,
+        "pink": 5,
+        "cyan": 6,
+        "purple": 7,
         """
         card = self.col.get_card(CardId(card_id))
-        if reps is not None:
-            card.reps = reps
-        if lapses is not None:
-            card.lapses = lapses
-        if left is not None:
-            card.left = left
-        self.col.update_card(card)
-
-    def set_flag(self, card_id: int, flag: str | int) -> None:
-        """Set flag:"""
-        card = self.get_card(CardID(card_id))
 
         flag_map = {
             "none": 0,
@@ -629,8 +524,7 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
     # noinspection SqlNoDataSourceInspection
     def activate_preview_cards(self, deck_name: str) -> None:
         """
-        Activate all new cards in queue=0 (Preview)
-        of the specified deck to queue=1 (New),
+        Activate all new cards in queue=0 (Preview) of the specified deck to queue=1 (New),
         so that it can enter the normal learning process.
         """
         self.col.db.execute(
@@ -675,26 +569,149 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         )
 
     # # TODO fix this
-    # def learning_process(self):
-    #
-    #     self.activate_preview_cards(self.user_context.current_deck.name)
-    #
-    #     cards = self.col.db.list(
-    #         "SELECT id FROM cards WHERE did = ? AND queue IN (1, 2, 3)",
-    #         self.get_deck_by_name(self.user_context.current_deck.name).id.numeric_id,
-    #     )
-    #
-    #     for card_id in cards:
-    #         # card = self.col.get_card(card_id)
-    #
-    #         # TODO
-    #         # set self.user_context.current_card
-    #         # get question and answer
-    #         ...
-    #
-    #         # 1.tts
-    #         # 2.wait user response
-    #         # 3.llm judge
-    #         # 4.set memory grade
-    #         # 5.ask user if he wants to set flag
-    #         # 6.set flag if needed
+    def learning_process(self):
+
+        self.activate_preview_cards(self.user_context.current_deck.name)
+
+        cards = self.col.db.list(
+            "SELECT id FROM cards WHERE did = ? AND queue IN (1, 2, 3)",
+            self.get_deck_by_name(self.user_context.current_deck.name).id.numeric_id,
+        )
+
+        for card_id in cards:
+            # card = self.col.get_card(card_id)
+
+            # set self.user_context.current_card
+            # get question and answer
+            ...
+
+            # 1.tts
+            # 2.wait user response
+            # 3.llm judge
+            # 4.set memory grade
+            # 5.ask user if he wants to set flag
+            # 6.set flag if needed
+
+    # We did not use the following five functions.
+    def set_type(self, card_id: int, type_code: int) -> None:
+        """
+        0: "New", # New card
+        1: "Learn", # Learning
+        2: "Review", # Review
+        3: "Relearn" # Relearn, once mastered but forgotten
+        """
+        assert type_code in [0, 1, 2, 3]
+        card = self.col.get_card(CardId(card_id))
+        card.type = CardType(type_code)
+        self.col.update_card(card)
+
+    def set_queue(self, card_id: int, queue_code: int) -> None:
+        """
+        We ignored "BURIED": -3 -2.
+
+        -1: "Suspended",  # Manually suspended; excluded from scheduling
+        0: "Preview",    # In preview mode (typically via filtered decks)
+        1: "New",        # New card, not yet learned
+        2: "Learning",   # In learning phase with steps
+        3: "Review",     # Due for review based on interval
+        4: "Filtered",   # In a filtered deck; temporary scheduling
+        """
+        assert queue_code in [-1, 0, 1, 2, 3, 4]
+        card = self.col.get_card(CardId(card_id))
+        card.queue = CardQueue(queue_code)
+        self.col.update_card(card)
+
+    def set_due(self, card_id: int, due: int) -> None:
+        """Set the due date (in days) for a specific card."""
+        card = self.col.get_card(CardId(card_id))
+        card.due = due
+        self.col.update_card(card)
+
+    def set_interval(self, card_id: int, ivl: int) -> None:
+        """Set the review interval (in days) for a specific card."""
+        card = self.col.get_card(CardId(card_id))
+        card.ivl = ivl
+        self.col.update_card(card)
+
+    def set_review_stats(self, card_id: int, reps: int = None, lapses: int = None, left: int = None) -> None:
+        """
+        :reps: total number of reviews
+        :lapses: number of abandonments (forgetting)
+        :left: number of remaining study times for the day
+        """
+        card = self.col.get_card(CardId(card_id))
+        if reps is not None:
+            card.reps = reps
+        if lapses is not None:
+            card.lapses = lapses
+        if left is not None:
+            card.left = left
+        self.col.update_card(card)
+
+    # ###########################################################
+    # ################# Temporary Collection ####################
+    # ###########################################################
+
+    # noinspection DuplicatedCode
+    @staticmethod
+    def __create_id(existing_ids: set[int]):
+        attempt = 0
+        while True:
+            attempt += 1
+            random_bytes = os.urandom(4)
+            random_int = int.from_bytes(random_bytes, byteorder="big")
+            if random_int not in existing_ids:
+                return random_int
+            if attempt >= 100:
+                raise RuntimeError(f"{attempt} attempts of generating a new, unique id failed.")
+
+    @override
+    def create_temporary_collection(self, description: str, cards: list[AnkiCard]) -> AnkiTemporaryCollection:
+        for card in cards:
+            self._verify_card_exists(card)  # fail before creating anything
+
+        id_nr = self.__create_id({it.numeric_id for it in self.__temporary_collections})
+        tmp_collection = AnkiTemporaryCollection(self, TmpCollectionID(id_nr), description)
+
+        for card in cards:
+            tmp_collection.add_card(card)
+
+        return tmp_collection
+
+    @override
+    def get_temporary_collections(self) -> list[AnkiTemporaryCollection]:
+        return list(self.__temporary_collections.values())
+
+    def _verify_tmp_collection_exists(self, tmp_collection: AnkiTemporaryCollection) -> None:
+        if tmp_collection.id not in self.__temporary_collections:
+            raise ValueError(f"Temporary collection '{tmp_collection.id.hex_id()}' does not exist.")
+
+    @override
+    def get_temporary_collection_or_none(self, tmp_collection_id: TmpCollectionID) -> AnkiTemporaryCollection | None:
+        return self.__temporary_collections.get(tmp_collection_id, None)
+
+    @override
+    def delete_temporary_collection(self, tmp_collection: AnkiTemporaryCollection):
+        self.__temporary_collections.pop(tmp_collection.id)
+
+    @override
+    def add_cards_to_temporary_collection(
+        self, tmp_collection: AnkiTemporaryCollection, cards: typing.Collection[AnkiCard]
+    ):
+        self._verify_tmp_collection_exists(tmp_collection)
+        for card in cards:  # fail before changing anything
+            self._verify_card_exists(card)
+
+        for card in cards:
+            tmp_collection.add_card(card)
+
+    @override
+    def remove_cards_from_temporary_collection(
+        self, tmp_collection: AnkiTemporaryCollection, cards: typing.Collection[AnkiCard]
+    ):
+        self._verify_tmp_collection_exists(tmp_collection)
+        for card in cards:  # fail before changing anything
+            self._verify_card_exists(card)
+
+        for card in cards:
+            tmp_collection.remove_card(card)

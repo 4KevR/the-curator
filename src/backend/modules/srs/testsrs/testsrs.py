@@ -439,7 +439,6 @@ class TestFlashcardManager(AbstractSRS[TestTemporaryCollection, TestCard, TestDe
     def __str__(self):
         if len(self.get_all_decks()) == 0:
             return "Empty Flashcard Manager."
-        return (
-            "Flashcard Manager with the following decks:"
-            f"\n{'\n'.join(['* ' + str(deck) for deck in self.get_all_decks()])}\n"
-        )
+        else:
+            deck_str = "\n".join(["* " + str(deck) for deck in self.get_all_decks()])
+            return f"Flashcard Manager with the following decks:\n{deck_str}\n"

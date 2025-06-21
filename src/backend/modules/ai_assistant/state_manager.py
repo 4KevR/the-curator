@@ -40,11 +40,12 @@ class StateManager:
 
             next_state = self._current_state.act()
             if next_state is None:
-                # now we know that we are in on of the end states.
+                # now we know that we are in one of the end states.
                 # Only end states are: StateFinishedTask and StateAnswer.
                 answer = self._current_state.answer if isinstance(self._current_state, StateAnswer) else None
                 task_msg = self._current_state.message if isinstance(self._current_state, StateFinishedTask) else None
 
                 return EvaluationResult(task_msg, answer, self.state_history, self.logging_llm.get_log())
+
             self._current_state = next_state
             self.state_history.append(str(self._current_state))
