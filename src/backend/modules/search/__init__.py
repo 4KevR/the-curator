@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 logger.info("Initializing LlamaIndex with Hugging Face Embedding model and KIT LLM...")
 
-Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-en-v1.5")
+Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-en-v1.5", cache_folder="./model_cache")
 Settings.llm = HuggingFaceInferenceAPI(
     model=os.getenv("LLM_URL"),
     task="text-generation",
@@ -31,7 +31,7 @@ Settings.llm = HuggingFaceInferenceAPI(
 if os.getenv("HUGGING_FACE_TOKEN"):
     logging.info("Using Hugging Face Tokenizer for Llama-3.1-8B-Instruct")
     Settings.tokenizer = AutoTokenizer.from_pretrained(
-        "meta-llama/Llama-3.1-8B-Instruct", token=os.getenv("HUGGING_FACE_TOKEN")
+        "meta-llama/Llama-3.1-8B-Instruct", token=os.getenv("HUGGING_FACE_TOKEN"), cache_dir="./model_cache"
     )
 else:
     # Add HUGGING_FACE_TOKEN to .env and request access for https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct
