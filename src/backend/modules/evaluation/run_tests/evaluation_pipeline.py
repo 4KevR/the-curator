@@ -53,7 +53,7 @@ class EvaluationPipeline:
 
         evaluation = []
         prompts = []
-        sm = StateManager(self.task_llm, fcm)
+        sm = StateManager(self.task_llm, fcm, test.llama_index_executor)
 
         if self.audio_recording_dir_path is not None:
             audio_files = [

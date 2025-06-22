@@ -52,11 +52,12 @@ class StateAction(AbstractActionState):
     )
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
+    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, llama_index_executor: LlamaIndexExecutor):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
         self.srs = srs
+        self.llama_index_executor = llama_index_executor
 
     def act(self) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
@@ -72,7 +73,7 @@ class StateAction(AbstractActionState):
             resp = find_substring_in_llm_response_or_null(response, "question", "task", True)
 
             if resp is True:
-                return StateQuestion(self.user_prompt, self.llm)
+                return StateQuestion(self.user_prompt, self.llm, self.llama_index_executor)
             elif resp is False:
                 return StateTask(self.user_prompt, self.llm, self.srs)
 
@@ -91,12 +92,13 @@ class StateQuestion(AbstractActionState):
         "Answer with a single, short sentence, without any additional information."
     )
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM):
+    def __init__(self, user_prompt: str, llm: AbstractLLM, llama_index_executor: LlamaIndexExecutor):
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
+        self.llama_index_executor = llama_index_executor
 
     def act(self) -> AbstractActionState | None:
-        fitting_nodes = LlamaIndexExecutor().search_cards(self.user_prompt)
+        fitting_nodes = self.llama_index_executor.search_cards(self.user_prompt)
         fitting_nodes = sorted(fitting_nodes, key=lambda x: x[1], reverse=True)[:5]
         fitting_nodes = "\n".join(fn[0] for fn in fitting_nodes)
 

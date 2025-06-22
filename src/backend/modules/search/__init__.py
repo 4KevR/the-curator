@@ -8,6 +8,8 @@ from transformers import AutoTokenizer
 
 from src.backend.modules.helpers import check_for_environment_variables
 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 required_vars = [
     "LLM_URL",
     "POSTGRES_DB",

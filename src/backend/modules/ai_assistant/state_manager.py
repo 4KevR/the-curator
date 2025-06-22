@@ -8,6 +8,7 @@ from src.backend.modules.ai_assistant.action_states import (
 )
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.llm.logging_llm import LoggingLLM
+from src.backend.modules.search.llama_index import LlamaIndexExecutor
 from src.backend.modules.srs.abstract_srs import AbstractSRS
 
 
@@ -23,16 +24,17 @@ class StateManager:
 
     _current_state: AbstractActionState | None
 
-    def __init__(self, task_llm: AbstractLLM, srs: AbstractSRS):
+    def __init__(self, task_llm: AbstractLLM, srs: AbstractSRS, llama_index_executor: LlamaIndexExecutor):
         self.logging_llm = LoggingLLM(task_llm)
         self._current_state = None
         self.state_history: list[str] = []
         self.state_history.append(str(self._current_state))
         self.srs = srs
+        self.llama_index_executor = llama_index_executor
 
     def run(self, user_prompt: str, log_states: bool = False) -> EvaluationResult:
 
-        self._current_state = StateAction(user_prompt, self.logging_llm, self.srs)
+        self._current_state = StateAction(user_prompt, self.logging_llm, self.srs, self.llama_index_executor)
 
         while True:
             if log_states:
