@@ -1,6 +1,5 @@
 import logging
 import os
-import typing
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
@@ -17,23 +16,21 @@ from anki.notes import Note, NoteId
 from overrides import override
 from typeguard import typechecked
 
-from src.backend.modules.srs.abstract_srs import (
-    AbstractCard,
-    AbstractDeck,
-    AbstractSRS,
-    AbstractTemporaryCollection,
-)
+from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS, AbstractTemporaryCollection
 from src.backend.modules.srs.abstract_srs import CardID as LocalCardID
 from src.backend.modules.srs.abstract_srs import DeckID as LocalDeckID
-from src.backend.modules.srs.abstract_srs import (
-    TmpCollectionID,
-)
 
 logger = logging.getLogger(__name__)
 
 # General directory for storing Anki collections
 # base_dir\user_name\collection.anki2
 _base_dir = os.getenv("ANKI_COLLECTION_PATH", "data/anki_collection")
+
+
+@typechecked
+class AnkiDummyTemporaryCollection(AbstractTemporaryCollection):
+    # Temporary collections are not necessary any more
+    pass
 
 
 @typechecked
@@ -83,38 +80,14 @@ class AnkiCard(AbstractCard):
 
     @override
     def to_hashable(self) -> Any:
-        return self.question, self.answer, self.raw_card.type, self.raw_card.flags, self.raw_card.queue
+        # This function is not used but is retained.
+        return self.question, self.answer, self.raw_card.type, self.raw_card.queue, self.raw_card.flags
 
     def __str__(self) -> str:
         return (
             f"AnkiCard(id={self.id}, question={self.question}, answer={self.answer}, deck={self.deck.name}, "
             f"note={self.note}, raw_card={self.raw_card}, type={self.type}, queue={self.queue})"
         )
-
-
-@typechecked
-class AnkiTemporaryCollection(AbstractTemporaryCollection):
-    _anki: "AnkiSRS"
-    _cards: set[LocalCardID]
-
-    def __init__(self, anki_srs: "AnkiSRS", tmp_collection_id: TmpCollectionID, description: str):
-        super().__init__(tmp_collection_id, description)
-        self._cards = set()
-        self._anki = anki_srs
-
-    def add_card(self, card: AnkiCard) -> None:
-        self._cards.add(card.id)
-
-    def get_cards(self) -> list[AnkiCard]:
-        return [self._anki.get_card(card_id) for card_id in self._cards]
-
-    def __contains__(self, item: LocalCardID | AnkiCard) -> bool:
-        if isinstance(item, AnkiCard):
-            return item.id in self._cards
-        return item in self._cards
-
-    def remove_card(self, card: AnkiCard) -> None:
-        self._cards.remove(card.id)
 
 
 @dataclass
@@ -143,7 +116,7 @@ class NoteType(Enum):
     # IMAGE_OCCLUSION = "Image Occlusion"
 
 
-class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
+class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
     """
     Implements an AbstractSRS for Anki.
     The following additional methods are implemented:
@@ -151,7 +124,6 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
 
     dir: str
     col: Collection
-    __temporary_collections: dict[TmpCollectionID, AnkiTemporaryCollection]
 
     def __init__(self, anki_user: str):
         """
@@ -647,71 +619,3 @@ class AnkiSRS(AbstractSRS[AnkiTemporaryCollection, AnkiCard, AnkiDeck]):
         if left is not None:
             card.left = left
         self.col.update_card(card)
-
-    # ###########################################################
-    # ################# Temporary Collection ####################
-    # ###########################################################
-
-    # noinspection DuplicatedCode
-    @staticmethod
-    def __create_id(existing_ids: set[int]):
-        attempt = 0
-        while True:
-            attempt += 1
-            random_bytes = os.urandom(4)
-            random_int = int.from_bytes(random_bytes, byteorder="big")
-            if random_int not in existing_ids:
-                return random_int
-            if attempt >= 100:
-                raise RuntimeError(f"{attempt} attempts of generating a new, unique id failed.")
-
-    @override
-    def create_temporary_collection(self, description: str, cards: list[AnkiCard]) -> AnkiTemporaryCollection:
-        for card in cards:
-            self._verify_card_exists(card)  # fail before creating anything
-
-        id_nr = self.__create_id({it.numeric_id for it in self.__temporary_collections})
-        tmp_collection = AnkiTemporaryCollection(self, TmpCollectionID(id_nr), description)
-
-        for card in cards:
-            tmp_collection.add_card(card)
-
-        return tmp_collection
-
-    @override
-    def get_temporary_collections(self) -> list[AnkiTemporaryCollection]:
-        return list(self.__temporary_collections.values())
-
-    def _verify_tmp_collection_exists(self, tmp_collection: AnkiTemporaryCollection) -> None:
-        if tmp_collection.id not in self.__temporary_collections:
-            raise ValueError(f"Temporary collection '{tmp_collection.id.hex_id()}' does not exist.")
-
-    @override
-    def get_temporary_collection_or_none(self, tmp_collection_id: TmpCollectionID) -> AnkiTemporaryCollection | None:
-        return self.__temporary_collections.get(tmp_collection_id, None)
-
-    @override
-    def delete_temporary_collection(self, tmp_collection: AnkiTemporaryCollection):
-        self.__temporary_collections.pop(tmp_collection.id)
-
-    @override
-    def add_cards_to_temporary_collection(
-        self, tmp_collection: AnkiTemporaryCollection, cards: typing.Collection[AnkiCard]
-    ):
-        self._verify_tmp_collection_exists(tmp_collection)
-        for card in cards:  # fail before changing anything
-            self._verify_card_exists(card)
-
-        for card in cards:
-            tmp_collection.add_card(card)
-
-    @override
-    def remove_cards_from_temporary_collection(
-        self, tmp_collection: AnkiTemporaryCollection, cards: typing.Collection[AnkiCard]
-    ):
-        self._verify_tmp_collection_exists(tmp_collection)
-        for card in cards:  # fail before changing anything
-            self._verify_card_exists(card)
-
-        for card in cards:
-            tmp_collection.remove_card(card)

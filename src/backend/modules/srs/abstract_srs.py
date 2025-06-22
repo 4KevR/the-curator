@@ -1,7 +1,6 @@
-import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, ClassVar, Collection, Generic, TypeVar
+from typing import Any, Collection, Generic, TypeVar
 
 from typeguard import typechecked
 
@@ -13,91 +12,49 @@ TTmpCol = TypeVar("TTmpCol", bound="AbstractTemporaryCollection")  # Must be a s
 @typechecked
 @dataclass(frozen=True)
 class DeckID:
-    """Represents a deck identifier that can be stored as both integer and hexadecimal format.
-
-    The deck ID is stored internally as a 32-bit integer but can be represented as an 8-digit
-    hexadecimal string prefixed with 'deck_'. For example:
-    - Integer format: 65535
-    - Hex format: deck_0000ffff
-
-    The hex string format supports an optional underscore separator after the first 4 digits,
-    e.g., 'deck_0000_ffff'.
-    """
+    """Simple deck identifier based on an integer."""
 
     numeric_id: int
-    __DECK_ID_REGEX: ClassVar[re.Pattern] = re.compile(r"^deck_[0-9a-fA-F]{4}_?[0-9a-fA-F]{4}$")
 
-    def hex_id(self):
-        """Returns a hex string of the deck id (32 bits, 8 hex digits)."""
-        return f"deck_{self.numeric_id:08x}"
+    def __int__(self) -> int:
+        """Returns the integer value of the deck ID."""
+        return self.numeric_id
 
-    @staticmethod
-    def from_hex_string(hex_str: str):
-        """Returns a DeckID from a hex string."""
-        if not DeckID.__DECK_ID_REGEX.match(hex_str):
-            raise ValueError(f"Invalid deck ID format: {hex_str}")
-        hex_nr = hex_str[5:].replace("_", "")
-        return DeckID(int(hex_nr, 16))
+    def __str__(self) -> str:
+        """Returns a string representation of the deck ID."""
+        return f"DeckID_{self.numeric_id}"
 
 
 @typechecked
 @dataclass(frozen=True)
 class CardID:
-    """Represents a card identifier that can be stored as both integer and hexadecimal format.
-
-    The card ID is stored internally as a 32-bit integer but can be represented as an 8-digit
-    hexadecimal string prefixed with 'card_'. For example:
-    - Integer format: 65535
-    - Hex format: card_0000ffff
-
-    The hex string format supports an optional underscore separator after the first 4 digits,
-    e.g., 'card_0000_ffff'.
-    """
+    """Simple card identifier based on an integer."""
 
     numeric_id: int
-    __CARD_ID_REGEX: ClassVar[re.Pattern] = re.compile(r"^card_[0-9a-fA-F]{4}_?[0-9a-fA-F]{4}$")
 
-    def hex_id(self):
-        """Returns a hex string of the card id (32 bits, 8 hex digits)."""
-        return f"card_{self.numeric_id:08x}"
+    def __int__(self) -> int:
+        """Returns the integer value of the card ID."""
+        return self.numeric_id
 
-    @staticmethod
-    def from_hex_string(hex_str: str):
-        """Returns a CardID from a hex string."""
-        if not CardID.__CARD_ID_REGEX.match(hex_str):
-            raise ValueError(f"Invalid card ID format: {hex_str}")
-        hex_nr = hex_str[5:].replace("_", "")
-        return CardID(int(hex_nr, 16))
+    def __str__(self) -> str:
+        """Returns a string representation of the card ID."""
+        return f"CardID_{self.numeric_id}"
 
 
 @typechecked
 @dataclass(frozen=True)
 class TmpCollectionID:
-    """Represents a temporary collection identifier that can be stored as both integer and hexadecimal format.
-
-    The tmp collection ID is stored internally as a 32-bit integer but can be represented as an 8-digit
-    hexadecimal string prefixed with 'tmp_collection_'. For example:
-    - Integer format: 65535
-    - Hex format: tmp_collection_0000ffff
-
-    The hex string format supports an optional underscore separator after the first 4 digits,
-    e.g., 'tmp_collection_0000_ffff'.
-    """
+    """Simple temporary collection identifier based on an integer."""
 
     numeric_id: int
-    __TMP_COLLECTION_ID_REGEX: ClassVar[re.Pattern] = re.compile(r"^tmp_collection_[0-9a-fA-F]{4}_?[0-9a-fA-F]{4}$")
 
-    def hex_id(self):
-        """Returns a hex string of the deck id (32 bits, 8 hex digits)."""
-        return f"tmp_collection_{self.numeric_id:08x}"
+    def __int__(self) -> int:
+        """Returns the integer value of the temporary collection ID."""
+        return self.numeric_id
 
-    @staticmethod
-    def from_hex_string(hex_str: str):
-        """Returns a DeckID from a hex string."""
-        if not TmpCollectionID.__TMP_COLLECTION_ID_REGEX.match(hex_str):
-            raise ValueError(f"Invalid temporary collection ID format: {hex_str}")
-        hex_nr = hex_str[len("tmp_collection_") :].replace("_", "")
-        return TmpCollectionID(int(hex_nr, 16))
+    def __str__(self) -> str:
+        """Returns a string representation of the temporary collection ID."""
+        return f"TmpCol_{self.numeric_id}"
 
 
 class AbstractDeck(ABC):
@@ -255,13 +212,13 @@ class AbstractSRS(Generic[TTmpCol, TCard, TDeck], ABC):
         Raises a ValueError if the card is not present in any deck.
         """
 
-    # Temporary Collections
-    @abstractmethod
+    # ###########################################################
+    # ################# Temporary Collections ###################
+    # ###########################################################
     def create_temporary_collection(self, description: str, cards: list[TCard]) -> TTmpCol:
         """Create a new temporary collection with the given description and cards. Cards may be empty."""
         raise NotImplementedError
 
-    @abstractmethod
     def get_temporary_collections(self) -> list[TTmpCol]:
         """Retrieve all temporary collections."""
         raise NotImplementedError
@@ -273,20 +230,16 @@ class AbstractSRS(Generic[TTmpCol, TCard, TDeck], ABC):
             raise ValueError(f"Temporary collection with id {tmp_collection_id} does not exist.")
         return tmp_col
 
-    @abstractmethod
     def get_temporary_collection_or_none(self, tmp_collection_id: TmpCollectionID) -> TTmpCol | None:
         """Retrieve a temporary collection by its ID. Returns None if the temporary collection does not exist."""
         raise NotImplementedError
 
-    @abstractmethod
     def delete_temporary_collection(self, tmp_collection: TTmpCol) -> None:
         """Delete a temporary collection. Raises a ValueError if the temporary collection does not exist."""
         raise NotImplementedError
 
-    @abstractmethod
     def add_cards_to_temporary_collection(self, tmp_collection: TTmpCol, cards: Collection[TCard]) -> None:
         raise NotImplementedError
 
-    @abstractmethod
     def remove_cards_from_temporary_collection(self, tmp_collection: TTmpCol, cards: Collection[TCard]) -> None:
         raise NotImplementedError

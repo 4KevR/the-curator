@@ -141,7 +141,7 @@ class TestTemporaryCollection(AbstractTemporaryCollection):
     cards: list[TestCard]
 
     def __str__(self):
-        s = f"""Temporary Collection (id: {self.id.hex_id()}) containing {len(self.cards)} cards."""
+        s = f"""Temporary Collection (id: {str(self.id)}) containing {len(self.cards)} cards."""
         if self.description.strip():
             s += "\nDescription: " + self.description
         return s

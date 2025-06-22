@@ -10,7 +10,7 @@ class KitLLMReq(AbstractLLM):
         default_temperature: float,
         default_max_tokens: int,
     ):
-        """Initialize the LLM Studio client."""
+        """Initialize the KitLLM client."""
         self.llm_url = llm_url
         self.default_temperature = default_temperature
         self.default_max_tokens = default_max_tokens
