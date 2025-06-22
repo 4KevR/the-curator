@@ -6,6 +6,7 @@ from typeguard import typechecked
 
 from src.backend.modules.evaluation.load_test_data.import_data_classes import _Test_Data, _Test_ExpectedResult
 from src.backend.modules.helpers.string_util import replace_many
+from src.backend.modules.search.llama_index import LlamaIndexExecutor, LlamaIndexTestManager
 from src.backend.modules.srs.testsrs.testsrs import CardState, Flag, TestDeck, TestFlashcardManager
 
 # ####################################################################################################################
@@ -30,6 +31,7 @@ class InteractionTest:
     parameters: dict[str, str]
     expected_result: TestFlashcardManager
     sound_file_names: list[str]
+    llama_index_executor: LlamaIndexExecutor
 
 
 @dataclass(frozen=True)
@@ -42,6 +44,7 @@ class QuestionAnsweringTest:
     queries: list[str]
     expected_answer: str
     sound_file_names: list[str]
+    llama_index_executor: LlamaIndexExecutor
 
 
 @dataclass(frozen=True)
@@ -190,6 +193,7 @@ def _parse_tests(
     test_data: _Test_Data,
     known_decks: dict[str, TestDeck],
     known_environments: dict[str, TestFlashcardManager],
+    llama_index_test_manager: LlamaIndexTestManager,
 ) -> tuple[list[InteractionTest], list[QuestionAnsweringTest]]:
     """
     Parses the interaction tests ("tests" in json) and question answering tests ("question_answering" in json)
@@ -204,6 +208,7 @@ def _parse_tests(
             expected_result=_expected_result_to_fcm(test.expected_result, parsed_prompt.parameters, known_decks),
             parameters=parsed_prompt.parameters,
             sound_file_names=[test.name + audio_file_suffix for audio_file_suffix in parsed_prompt.audio_file_suffixes],
+            llama_index_executor=llama_index_test_manager.llama_index_executors[test.environment],
         )
         for test in test_data.tests
         for parsed_prompt in _get_prompt_with_parameters(test.queries, (test.params or {}))
@@ -224,6 +229,7 @@ def _parse_tests(
                             queries=[prompt_template],
                             expected_answer=test.expected_answer,
                             sound_file_names=[test.name + f"_{prompt_id}"],
+                            llama_index_executor=llama_index_test_manager.llama_index_executors[test.environment],
                         )
                     )
             else:  # multi-step
@@ -246,6 +252,7 @@ def _parse_tests(
                         queries=queries,
                         expected_answer=test.expected_answer,
                         sound_file_names=audio_file_names,
+                        llama_index_executor=llama_index_test_manager.llama_index_executors[test.environment],
                     )
                 )
 
@@ -254,7 +261,7 @@ def _parse_tests(
 
 def _parse_test_environments(
     data: _Test_Data,
-) -> tuple[TestFlashcardManager, dict[str, TestFlashcardManager], dict[str, TestDeck]]:
+) -> tuple[TestFlashcardManager, dict[str, TestFlashcardManager], dict[str, TestDeck], LlamaIndexTestManager]:
     """
     Parses the
      * test decks ("test_decks") into a master flashcard manager
@@ -302,7 +309,10 @@ def _parse_test_environments(
 
         dummy_fcm.freeze()
 
-    return test_fcm, environments, key_to_srs_deck
+    # Setup LlamaIndex for the test environments
+    llama_index_test_manager = LlamaIndexTestManager(environments)
+
+    return test_fcm, environments, key_to_srs_deck, llama_index_test_manager
 
 
 def load_test_data(path: str) -> EvaluationTests:
@@ -314,8 +324,10 @@ def load_test_data(path: str) -> EvaluationTests:
     json_path = pathlib.Path(path)
     data = _Test_Data.model_validate_json(json_path.read_text(encoding="utf-8"))
 
-    (flashcard_manager, known_environments, known_decks) = _parse_test_environments(data)
+    (flashcard_manager, known_environments, known_decks, llama_index_test_manager) = _parse_test_environments(data)
 
-    interaction_tests, question_answering_tests = _parse_tests(data, known_decks, known_environments)
+    interaction_tests, question_answering_tests = _parse_tests(
+        data, known_decks, known_environments, llama_index_test_manager
+    )
 
     return EvaluationTests(flashcard_manager, interaction_tests, question_answering_tests)
