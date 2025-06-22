@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request
 
 from src.backend.modules.ai_assistant import StateManager
 from src.backend.modules.llm import KitLLM
-from src.backend.modules.srs.anki import AnkiSRS
+from src.backend.modules.srs.anki_module import AnkiSRS
 
 logger = logging.getLogger(__name__)
 

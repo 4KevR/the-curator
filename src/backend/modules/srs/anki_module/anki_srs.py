@@ -1,11 +1,13 @@
+# isort: skip_file
+
 import logging
 import os
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from anki.collection import Collection  # Must be placed at the top, or circular import will occur.
 from anki.cards import Card, CardId
-from anki.collection import Collection
 from anki.consts import CardQueue, CardType
 from anki.decks import DeckId
 from anki.errors import NotFoundError
@@ -147,11 +149,11 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
         collection_path = os.path.join(self.dir, "collection.anki2")
         logger.debug(f"Collection path: {os.path.abspath(collection_path)}")
         self.col = Collection(collection_path)
-        self.__temporary_collections = {}  # TODO?
 
     # Decks
     @override
     def add_deck(self, deck_name: str) -> AnkiDeck:
+        logger.debug(f"Trying to add deck: '{deck_name}'")
         if deck_name == "":
             raise ValueError("deck_name cannot be empty string.")
 
@@ -175,15 +177,19 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
 
     @override
     def get_deck_by_name_or_none(self, deck_name: str) -> AnkiDeck | None:
+        logger.debug(f"Looking up deck by name: '{deck_name}'...")
         deck_dict = self.col.decks.by_name(deck_name)
         if deck_dict is None:
+            logger.debug(f"Deck '{deck_name}' not found.")
             return None
         return AnkiDeck(LocalDeckID(deck_dict["id"]), deck_dict["name"])
 
     @override
     def get_deck_by_id_or_none(self, deck_id: LocalDeckID) -> AnkiDeck | None:
+        logger.debug(f"Looking up deck by ID: {deck_id.numeric_id}...")
         deck_dict = self.col.decks.get(DeckId(deck_id.numeric_id))
         if deck_dict is None:
+            logger.debug(f"Deck with ID {deck_id.numeric_id} not found.")
             return None
         return AnkiDeck(LocalDeckID(deck_dict["id"]), deck_dict["name"])
 
@@ -196,16 +202,22 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
     @override
     def rename_deck(self, deck: AnkiDeck, new_name: str) -> None:
         self._verify_deck_exists(deck)
+        logger.debug(f"Rename deck '{deck.name}' (ID={deck.id.numeric_id}) to '{new_name}'")
         self.col.decks.rename(deck.id.numeric_id, new_name)
 
     @override
     def delete_deck(self, deck: AnkiDeck) -> None:
         self._verify_deck_exists(deck)
+        if deck.name == "Default":
+            logger.debug("Can NOT delete 'Default' deck!")
+            return
+        logger.debug(f"Delete deck '{deck.name}' (ID={deck.id.numeric_id})")
         self.col.decks.remove([deck.id.numeric_id])
 
     # Cards
     @override
     def add_card(self, deck: AnkiDeck, question: str, answer: str) -> AnkiCard:
+        logger.debug(f"Adding card to deck '{deck.name}'...")
         new = self.add_note(deck, question, answer)
         assert len(new.cards) == 1  # TODO: Now only "Basic" model is supported
 
@@ -223,6 +235,7 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
     @override
     def get_card_or_none(self, card_id: LocalCardID) -> AnkiCard | None:
         try:
+            logger.debug(f"Looking up card ID {card_id.numeric_id}...")
             card = self.col.get_card(CardId(card_id.numeric_id))
             deck_dict = self.col.decks.get(card.did)
 
@@ -232,6 +245,7 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
             return AnkiCard(note, deck, card)
 
         except NotFoundError:
+            logger.debug(f"Card with ID {card_id.numeric_id} not found.")
             return None
 
     @override
@@ -249,12 +263,15 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
         raw_card = card.raw_card
         raw_card.did = new_did if new_did else 1
         self.col.update_card(raw_card)
-        return AnkiCard(card.note, new_deck, card.raw_card)  # TODO false?
+        logger.debug(f"Change deck of card ID={card.id.numeric_id} from '{card.deck.name}' to '{new_deck.name}'.")
+
+        return AnkiCard(card.note, new_deck, card.raw_card)
 
     @override
     def get_cards_in_deck(self, deck: AnkiDeck) -> list[AnkiCard]:
         self._verify_deck_exists(deck)
         card_ids = self.col.find_cards(f"deck:{deck.name}")
+        logger.debug(f"Retrieved {len(card_ids)} cards from deck '{deck.name}'.")
 
         return [self.get_card_or_none(LocalCardID(card_id)) for card_id in card_ids]
 
@@ -274,8 +291,9 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
     def copy_card_to(self, card: AnkiCard, deck: AnkiDeck) -> AnkiCard:
         self._verify_card_exists(card)
         self._verify_deck_exists(deck)
-
+        logger.debug(f"Copying card ID={card.id.numeric_id} from deck '{card.deck.name}' to deck '{deck.name}'...")
         new_card = self.add_card(deck, card.question, card.answer)
+
         return new_card
 
     @override
@@ -339,7 +357,7 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
     # Note
     @typechecked
     def add_note(
-        self, deck: AnkiDeck, front: str, back: str, model_name: "AnkiSRS.NoteType" = NoteType.BASIC
+        self, deck: AnkiDeck, front: str, back: str, model_name: NoteType = NoteType.BASIC
     ) -> NoteCreationResult:
         """
         Create a Note with the specified NoteType (model).
@@ -354,7 +372,7 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
         self._verify_deck_exists(deck)
 
         # Set NoteType
-        model = self.col.models.by_name(model_name.value)  # TODO ?
+        model = self.col.models.by_name(model_name.value)
         if model is None:
             raise ValueError(f"Cannot find NoteType: {model_name.value}.")
 
@@ -427,11 +445,14 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
         """Edit the question and answer pair.
         When you change a note, all cards will change accordingly."""
         note = self.col.get_note(NoteId(note_id))
+        logger.debug(f"Editing note ID={note_id}...'")
 
         if question.strip():
             note.fields[0] = question  # The first field → front (question)
+            logger.debug(f"New note_question: {question}")
         if answer.strip():
             note.fields[1] = answer  # The second field → back (answer)
+            logger.debug(f"New note_answer: {answer}")
 
         self.col.update_note(note)
 
@@ -460,6 +481,7 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
 
         card = self.col.get_card(CardId(card_id))
         card.answer = grade_map[ease]
+        logger.debug(f"Set CardID_{card.id} memory grade: {ease}")
         self.col.update_card(card)
 
     def set_flag(self, card_id: int, flag: str | int) -> None:
@@ -488,10 +510,17 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
         if isinstance(flag, str):
             if flag not in flag_map:
                 raise ValueError(f"Invalid flag: {flag}")
-            card.flags = flag_map[flag]
+            flag_name = flag
+            flag = flag_map[flag]
+
         else:
-            card.flags = flag
-        self.col.update_card(card.raw_card)
+            if flag < 0 or flag > 7:
+                raise ValueError(f"Invalid numeric flag: {flag} (must be between 0 and 7)")
+            flag_name = next(k for k, v in flag_map.items() if v == flag)
+
+        card.flags = flag
+        logger.debug(f"Set flag_{flag}_{flag_name} on card ID={card_id}.")
+        self.col.update_card(card)
 
     # noinspection SqlNoDataSourceInspection
     def activate_preview_cards(self, deck_name: str) -> None:
@@ -564,7 +593,9 @@ class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
             # 5.ask user if he wants to set flag
             # 6.set flag if needed
 
-    # We did not use the following five functions.
+    # ###########################################################
+    # ######### Following functions are not used ################
+    # ###########################################################
     def set_type(self, card_id: int, type_code: int) -> None:
         """
         0: "New", # New card
