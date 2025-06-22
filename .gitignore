@@ -192,4 +192,7 @@ asr/*/recording session*/
 /notebooks/*
 !/notebooks/templates/
 
+# Model cache
+/model_cache
+
 # Misc

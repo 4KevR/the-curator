@@ -13,9 +13,9 @@ def _create_pipeline(model_name: str, only_cpu: bool = False) -> Pipeline:
     logger.info(f"Using device {device}.")
     torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
-    model = AutoModelForSpeechSeq2Seq.from_pretrained(model_name, torch_dtype=torch_dtype)
+    model = AutoModelForSpeechSeq2Seq.from_pretrained(model_name, torch_dtype=torch_dtype, cache_dir="./model_cache")
     model.to(device)
-    processor = AutoProcessor.from_pretrained(model_name)
+    processor = AutoProcessor.from_pretrained(model_name, cache_dir="./model_cache")
 
     return pipeline(
         "automatic-speech-recognition",

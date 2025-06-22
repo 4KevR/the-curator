@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -11,6 +12,7 @@ import requests
 from sseclient import SSEClient
 
 from src.backend.modules.asr.abstract_asr import AbstractASR
+from src.cli.recording.ffmpeg_stream_adapter import FfmpegStream
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +75,11 @@ class CloudLectureTranslatorASR(AbstractASR):
                 logging.debug(f"Status: {res.status_code}, Text: {res.text}")
                 logging.debug("ERROR in requesting default graph for ASR")
             sys.exit(1)
-        self.session_id, self.stream_id = res.text.split()
+        try:
+            self.session_id, self.stream_id = res.text.split()
+        except ValueError:
+            logging.warning("Not authorized - update token")
+            sys.exit(1)
 
         logging.debug("Setting properties")
         graph = json.loads(
@@ -157,21 +163,60 @@ class CloudLectureTranslatorASR(AbstractASR):
                 )
                 continue
 
-    def transcribe(self, audio_chunk: str, duration: int) -> str:
-        chunk_size = 10000
+    def _read_from_queue(self) -> str:
+        """Read transcribed text from the queue."""
         transcribed_text = []
+        while not self.text_queue.empty():
+            transcribed_text.append(self.text_queue.get())
+        return " ".join(transcribed_text)
+
+    def _empty_queue(self) -> None:
+        """Empty the text queue."""
+        while not self.text_queue.empty():
+            self.text_queue.get()
+        logger.debug("Text queue emptied.")
+
+    def _send_white_noise(self, rate: int = 32000) -> None:
+        """Send white noise to the server to signal the end of transcription."""
+        for _ in range(10):
+            white_noise = b"\x00" * 10000
+            encoded_noise = base64.b64encode(white_noise).decode("ascii")
+            duration = len(white_noise) / rate
+            self._send_audio(encoded_noise, duration)
+
+    def transcribe(self, audio_chunk: str, duration: int) -> str:
+        """Transcribe a chunk of audio data."""
+        self._empty_queue()
+        chunk_size = 10000
         for i in range(0, len(audio_chunk), chunk_size):
             chunk = audio_chunk[i : i + chunk_size]
             self._send_audio(chunk, duration)
-        # Collect transcribed text from the queue
+        self._send_white_noise()
         time.sleep(5)
-        while not self.text_queue.empty():
-            transcribed_text.append(self.text_queue.get())
-
-        return " ".join(transcribed_text)
+        return self._read_from_queue()
 
     def transcribe_wav_file(self, audio_file_path: str) -> str:
-        pass
+        """Transcribe a WAV file."""
+        self._empty_queue()
+        recording_client = FfmpegStream(
+            pre_input=None,
+            post_input=None,
+            volume=1.0,
+            repeat_input=False,
+            ffmpeg_speed=1.0,
+        )
+        recording_client.set_input(audio_file_path)
+        while True:
+            chunk = recording_client.read()
+            if not chunk:
+                break
+            chunk_to_send = base64.b64encode(chunk).decode("ascii")
+            duration = len(chunk) / recording_client.chunk_size
+            self._send_audio(chunk_to_send, duration)
+        # Send white noise - Lecture Translator responds better with it
+        self._send_white_noise(recording_client.chunk_size)
+        time.sleep(5)
+        return self._read_from_queue()
 
     def get_description(self) -> str:
         return "Cloud lecture translator"
