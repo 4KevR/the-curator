@@ -699,8 +699,10 @@ You have the following options:
  * Edit that card. Respond with the following template filled out, **and nothing else**, only the filled-out json:
  {{
     "question": "<new question here>",
-    "answer": "<new answer here>"
+    "answer": "<new answer here>",
+    "flag": "<new flag here>"
  }}
+  These flag options exist: ["none", "red", "orange", "green", "blue", "pink", "cyan", "purple"]
   If you do not wish to change a field, you should omit the key from the JSON response.
 
 Please answer only with the operation you want to perform in the given format, and answer nothing else!
@@ -739,7 +741,7 @@ Please answer only with the operation you want to perform in the given format, a
         ):
             raise ValueError("Response must be a dict[str, str].")
 
-        valid_keys = {"question", "answer"}
+        valid_keys = {"question", "answer", "flag"}
         unexpected_keys = set(parsed.keys()) - valid_keys
         if unexpected_keys:
             raise ValueError(
@@ -751,7 +753,21 @@ Please answer only with the operation you want to perform in the given format, a
         if "question" in parsed and parsed["question"] != card.question:
             card = self.srs.edit_card_question(card, parsed["question"])  # must return card
         if "answer" in parsed and parsed["answer"] != card.answer:
-            self.srs.edit_card_answer(card, parsed["answer"])
+            card = self.srs.edit_card_answer(card, parsed["answer"])
+        if "flag" in parsed:
+            flag_map = {
+                "none": 0,
+                "red": 1,
+                "orange": 2,
+                "green": 3,
+                "blue": 4,
+                "pink": 5,
+                "cyan": 6,
+                "purple": 7,
+            }
+            new_flag = flag_map.get(parsed["flag"].lower(), 0)
+            if new_flag != card.raw_card.flags:
+                self.srs.set_flag(card.id.numeric_id, new_flag)
 
         return
 
