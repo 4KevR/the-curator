@@ -47,19 +47,16 @@ from zoneinfo import ZoneInfo  # noqa E402
 import pandas as pd  # noqa E402
 from dotenv import load_dotenv  # noqa E402
 
+# test that the current working dir is "the-curator"
+if os.path.basename(os.path.abspath(".")) != "the-curator":
+    raise RuntimeError("This script must be run from the 'the-curator' directory.")
+
 # must happen before project imports!
-if os.path.exists("../../.env.db") and os.path.exists("../../.env"):
-    base_path = "../../"
-elif os.path.exists("../.env.db") and os.path.exists("../.env"):
-    base_path = "../"
-elif os.path.exists(".env") and os.path.exists(".env.db"):
-    base_path = "./"
-else:
+if not (os.path.exists(".env") and os.path.exists(".env.db")):
     raise FileNotFoundError("No .env or .env.db found.")
 
-sys.path.append(os.path.abspath(base_path))
-load_dotenv(f"{base_path}.env")
-load_dotenv(f"{base_path}.env.db")
+load_dotenv(".env")
+load_dotenv(".env.db")
 
 logging.basicConfig(level=logging.WARN)
 
@@ -98,7 +95,7 @@ else:
 
 
 now = datetime.now(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d %H:%M:%S %z")
-log_file_path = os.path.join(base_path, f"data/logs/{now} evaluation_log.json")
+log_file_path = f"data/logs/{now} evaluation_log.json"
 print(f"Log file path will be '{log_file_path}'")
 
 eval_pipeline = EvaluationPipeline(
@@ -117,7 +114,7 @@ print(f"Startup took {time.time() - script_start_time:.2f} seconds.\n")
 # =============================  STARTUP FINISHED  =================================================================
 
 
-tests = load_test_data(base_path + "tests/data/tests.json")
+tests = load_test_data("tests/data/tests.json")
 
 # get interaction tests
 interaction_tests = tests.interaction[:]
