@@ -2,7 +2,7 @@ import subprocess
 import time
 from typing import Any, Optional, cast
 
-from src.cli.recording.input_stream_adapter import BaseAdapter
+from src.backend.modules.recording.input_stream_adapter import BaseAdapter
 
 
 class FfmpegStream(BaseAdapter):
@@ -11,6 +11,9 @@ class FfmpegStream(BaseAdapter):
         Requires named parameter pre_input and post_output,
         volume, repeat_input
         """
+        self.chunk_size = None
+        self.seconds_returned = None
+        self.start_time = None
         if "pre_input" not in kwargs or kwargs["pre_input"] is None:
             kwargs["pre_input"] = ""
         if "post_input" not in kwargs or kwargs["post_input"] is None:

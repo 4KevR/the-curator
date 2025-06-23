@@ -4,8 +4,8 @@ import base64
 import requests
 from dotenv import load_dotenv
 
+from src.backend.modules.recording.recording_client import RecordingClient
 from src.cli.local_lecture_translator import LocalLectureTranslatorASR
-from src.cli.recording.recording_client import RecordingClient
 from src.cli.tts import tts_and_play
 
 load_dotenv(".env.local")

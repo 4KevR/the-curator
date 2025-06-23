@@ -12,7 +12,7 @@ from src.backend.modules.search.abstract_card_searcher import AbstractCardSearch
 from src.backend.modules.search.llama_index import LlamaIndexExecutor, LlamaIndexSearcher
 from src.backend.modules.search.search_by_substring import SearchBySubstring
 from src.backend.modules.search.search_by_substring_fuzzy import SearchBySubstringFuzzy
-from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS
+from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS, CardState, Flag
 
 
 class AbstractActionState(ABC):
@@ -201,10 +201,7 @@ If you are unsure, rather include than exclude a deck. Make sure to exactly matc
     def act(self) -> AbstractActionState | None:
 
         message = self._prompt_template.format(
-            # user_input=self.user_prompt, decks=[str(it) for it in self.srs.get_all_decks()]
-            # TODO: I thought it was a bug because we did't define how 'str' works, now llm can get all deck names
-            user_input=self.user_prompt,
-            decks=[it for it in self.possible_deck_names],
+            user_input=self.user_prompt, decks=[str(it) for it in self.srs.get_all_decks()]
         )
 
         for attempt in range(self.MAX_ATTEMPTS):
@@ -262,9 +259,9 @@ The search is *not* limited to exact wording, but searches for cards with fittin
 If you have an exact keyword to look for, you should use exact search.
 If you have a word to search for, but it can be slightly different (e.g. plural form, etc.) use fuzzy search.
 In all remaining cases, use content-based search.
-Additional search details will be specified later.
+In all remaining cases, use content-based search.
 
-Please answer "exact", "fuzzy" or "content", and **nothing else**.
+Please answer "exact", "fuzzy" or "content", and **nothing else**. All other details will be determined later.
 """.strip()
     MAX_ATTEMPTS = 3
 
@@ -636,7 +633,8 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
             response = response.lower().strip()
 
             if response == "delete_all":
-                self.srs.delete_cards_by_ids([card.id.numeric_id for card in self.found_cards])
+                for card in self.found_cards:
+                    self.srs.delete_card(card)
 
                 return StateFinishedTask(f"{len(self.found_cards)} cards deleted.")
 
@@ -673,7 +671,9 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
                     return StateFinishedTask(f"{len(self.found_cards)} cards copied to existing deck {deck_name}.")
 
             if response == "stream_cards":
-                return StateStreamFoundCards(self.user_prompt, self.llm, self.srs, self.found_cards)
+                return StateStreamFoundCards(
+                    self.user_prompt, self.llm, self.decks_to_search_in, self.srs, self.found_cards
+                )
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
@@ -700,10 +700,12 @@ You have the following options:
  {{
     "question": "<new question here>",
     "answer": "<new answer here>",
-    "flag": "<new flag here>"
+    "flag": "<new flag here>",
+    "state": "<new card state here>"
  }}
-  These flag options exist: ["none", "red", "orange", "green", "blue", "pink", "cyan", "purple"]
-  If you do not wish to change a field, you should omit the key from the JSON response.
+  These flag options exist: ["none", "red", "orange", "green", "blue", "pink", "turquoise", "purple"]
+  These card state options exist: ["new", "learning", "review", "suspended", "buried"]
+  If you do not wish to change some attributes, you should omit it from your response.
 
 Please answer only with the operation you want to perform in the given format, and answer nothing else!
 """.strip()
@@ -714,12 +716,14 @@ Please answer only with the operation you want to perform in the given format, a
         self,
         user_prompt: str,
         llm: AbstractLLM,
+        decks_to_search_in: list[AbstractDeck],
         srs: AbstractSRS,
         found_cards: list[AbstractCard],
     ):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
+        self.decks_to_search_in = decks_to_search_in
         self.srs = srs
         self.found_cards = found_cards
 
@@ -736,38 +740,31 @@ Please answer only with the operation you want to perform in the given format, a
         parsed = json.loads(response.strip())  # may throw error
 
         # verify format
-        if not isinstance(parsed, dict) or not all(
-            isinstance(k, str) and isinstance(v, str) for k, v in parsed.items()
-        ):
+        if not isinstance(parsed, dict):
+            raise ValueError("Response must be a dict in the given format!")
+
+        if not all(isinstance(it, str) for it in list(parsed.keys()) + list(parsed.values())):
             raise ValueError("Response must be a dict[str, str].")
 
-        valid_keys = {"question", "answer", "flag"}
-        unexpected_keys = set(parsed.keys()) - valid_keys
-        if unexpected_keys:
+        valid_keys = {"question", "answer", "flag", "state"}
+        if not len(valid_keys - parsed.keys()) == 0:
+            additional_keys = ", ".join(sorted(set(parsed.keys()) - valid_keys))
             raise ValueError(
-                f"Response may only contain the following keys: {', '.join(sorted(valid_keys))}. "
-                f"Got unexpected keys: {', '.join(sorted(unexpected_keys))}."
+                f"Response may only contain the following keys: {', '.join(sorted(valid_keys))}."
+                f" Got unexpected keys: {additional_keys}."
             )
 
         # edit card
         if "question" in parsed and parsed["question"] != card.question:
-            card = self.srs.edit_card_question(card, parsed["question"])  # must return card
+            self.srs.edit_card_question(card, parsed["question"])
         if "answer" in parsed and parsed["answer"] != card.answer:
-            card = self.srs.edit_card_answer(card, parsed["answer"])
-        if "flag" in parsed:
-            flag_map = {
-                "none": 0,
-                "red": 1,
-                "orange": 2,
-                "green": 3,
-                "blue": 4,
-                "pink": 5,
-                "cyan": 6,
-                "purple": 7,
-            }
-            new_flag = flag_map.get(parsed["flag"].lower(), 0)
-            if new_flag != card.raw_card.flags:
-                self.srs.set_flag(card.id.numeric_id, new_flag)
+            self.srs.edit_card_answer(card, parsed["answer"])
+        if "flag" in parsed and parsed["flag"] != card.flag:
+            flag = Flag.from_str(parsed["flag"])
+            self.srs.edit_card_flag(card, flag)
+        if "state" in parsed and parsed["state"] != card.state:
+            state = CardState.from_str(parsed["state"])
+            self.srs.edit_card_state(card, state)
 
         return
 
@@ -819,10 +816,11 @@ Calling this function will delete the deck with the given name.
 If no deck exists with the given name, you will receive an error and can try again.
 
 * add_card: {{"task": "add_card", "deck_name": "<deck name here>", "question": "<question here>",
-"answer": "<answer here>"}}
+"answer": "<answer here>", "state": "<card state here>", "flag": "<flag here>"}}
 Calling this function will add a new card to the deck with the given name.
 If no deck exists with the given name, you will receive an error and can try again.
-
+Valid flags are: ['none', 'red', 'orange', 'green', 'blue', 'pink', 'turquoise', 'purple']
+Valid card states are: ['new', 'learning', 'review', 'suspended', 'buried']
 
 If you want to execute no function, return an empty list [].
 If you want to execute one or more functions, return them inside a json array.
@@ -865,22 +863,40 @@ Please answer only with the filled-in, valid json.
                 raise ValueError(f"Command {cmd_dict}: Response must contain a valid task")
 
             # check that the task is one of the expected tasks
-            if cmd_dict["task"] == "create_deck":
-                if "name" not in cmd_dict:
-                    raise ValueError(f"Command {cmd_dict}: Missing 'name' key for create_deck.")
+            if cmd_dict.get("task", None) == "create_deck":
+                deck_name = cmd_dict.get("name", None)
+                if not isinstance(deck_name, str):
+                    raise ValueError(f"Command {cmd_dict}: Deck name must be a string")
 
-            if cmd_dict["task"] == "rename_deck":
-                if "old_name" not in cmd_dict or "new_name" not in cmd_dict:
-                    raise ValueError(f"Command {cmd_dict}: Missing 'old_name' or 'new_name' for rename_deck.")
+            if cmd_dict.get("task", None) == "rename_deck":
+                old_name = cmd_dict.get("old_name", None)
+                new_name = cmd_dict.get("new_name", None)
+                if not isinstance(old_name, str) or not isinstance(new_name, str):
+                    raise ValueError(f"Command {cmd_dict}: Names must be strings")
 
-            if cmd_dict["task"] == "delete_deck":
-                if "name" not in cmd_dict:
-                    raise ValueError(f"Command {cmd_dict}: Missing 'name' key for delete_deck.")
+            if cmd_dict.get("task", None) == "delete_deck":
+                name = cmd_dict.get("name", None)
+                if not isinstance(name, str):
+                    raise ValueError(f"Command {cmd_dict}: Name must be a string")
 
-            if cmd_dict["task"] == "add_card":
-                required_keys = {"deck_name", "question", "answer"}
-                if not required_keys.issubset(cmd_dict):
-                    raise ValueError(f"Command {cmd_dict}: Missing one or more required keys for add_card.")
+            if cmd_dict.get("task", None) == "add_card":
+                deck_name = cmd_dict.get("deck_name", None)
+                question = cmd_dict.get("question", None)
+                answer = cmd_dict.get("answer", None)
+                state = cmd_dict.get("state", None)
+                flag = cmd_dict.get("flag", None)
+                if not isinstance(deck_name, str):
+                    raise ValueError(f"Command {cmd_dict}: Name must be a string")
+                if not isinstance(question, str):
+                    raise ValueError(f"Command {cmd_dict}: Question must be a string")
+                if not isinstance(answer, str):
+                    raise ValueError(f"Command {cmd_dict}: Answer must be a string")
+                if not isinstance(state, str):
+                    raise ValueError(f"Command {cmd_dict}: State must be a string")
+                if not isinstance(flag, str):
+                    raise ValueError(f"Command {cmd_dict}: Flag must be a string")
+                CardState.from_str(state)
+                Flag.from_str(flag)  # run to test if it throws an error
 
         return parsed
 
@@ -917,19 +933,22 @@ Please answer only with the filled-in, valid json.
             deck_name = cmd_dict["deck_name"]
             question = cmd_dict["question"]
             answer = cmd_dict["answer"]
+            state = cmd_dict["state"]
+            flag = cmd_dict["flag"]
+            state = CardState.from_str(state)
+            flag = Flag.from_str(flag)
             deck = self.srs.get_deck_by_name_or_none(deck_name)
             if deck is None:
                 raise ValueError(f"Deck {deck_name} does not exist")
 
-            self.srs.add_card(deck, question, answer)
+            self.srs.add_card(deck, question, answer, flag, state)
             return
 
         raise AssertionError("Unreachable.")
 
     def act(self) -> AbstractActionState | None:
         deck_info = [
-            f'name: "{it.name}", number_of_cards: {len(self.srs.get_cards_in_deck(it))}'
-            for it in self.srs.get_all_decks()
+            f'name: "{it.name}", cards: {len(self.srs.get_cards_in_deck(it))}' for it in self.srs.get_all_decks()
         ]
 
         message = self._prompt_template.format(user_input=self.user_prompt, current_decks="\n".join(deck_info))

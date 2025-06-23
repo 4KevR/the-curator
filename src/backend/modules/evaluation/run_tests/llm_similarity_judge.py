@@ -39,7 +39,7 @@ Remember to only respond with 'true' or 'false'.
         If expected_card.fuzzymatch_answer is false, uses hard matching on answer.
         """
         required = [
-            expected_card.cardState == actual_card.cardState,
+            expected_card.state == actual_card.state,
             expected_card.flag == actual_card.flag,
             expected_card.fuzzymatch_question or expected_card.question == actual_card.question,
             expected_card.fuzzymatch_answer or expected_card.answer == actual_card.answer,

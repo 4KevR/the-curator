@@ -12,7 +12,7 @@ import requests
 from sseclient import SSEClient
 
 from src.backend.modules.asr.abstract_asr import AbstractASR
-from src.cli.recording.ffmpeg_stream_adapter import FfmpegStream
+from src.backend.modules.recording.ffmpeg_stream_adapter import FfmpegStream
 
 logger = logging.getLogger(__name__)
 

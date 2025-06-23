@@ -16,7 +16,7 @@ temporary_user_data: dict[str, str] = dict()
 anki_srs_adapters: dict[str, AnkiSRS] = dict()
 
 # LLM
-kit_llm = KitLLM(0.05, 2048)
+kit_llm = KitLLM("meta-llama-3.1-8b-instruct", 0.05, 2048)
 
 
 @action_blueprint.route("/action", methods=["POST"])

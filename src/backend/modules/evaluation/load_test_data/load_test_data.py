@@ -169,7 +169,7 @@ def _expected_result_to_fcm(
                     question=replace_many(card.question, parameter_replacements),
                     answer=replace_many(card.answer, parameter_replacements),
                     flag=card.flag,
-                    card_state=card.cardState,
+                    card_state=card.state,
                     # No fuzzy matching here.
                 )
         else:
@@ -304,7 +304,7 @@ def _parse_test_environments(
                     question=card.question,
                     answer=card.answer,
                     flag=card.flag,
-                    card_state=card.cardState,
+                    card_state=card.state,
                 )
 
         dummy_fcm.freeze()

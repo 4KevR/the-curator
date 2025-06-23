@@ -18,7 +18,7 @@ from anki.notes import Note, NoteId
 from overrides import override
 from typeguard import typechecked
 
-from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS, AbstractTemporaryCollection
+from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS, CardState, Flag
 from src.backend.modules.srs.abstract_srs import CardID as LocalCardID
 from src.backend.modules.srs.abstract_srs import DeckID as LocalDeckID
 
@@ -27,12 +27,6 @@ logger = logging.getLogger(__name__)
 # General directory for storing Anki collections
 # base_dir\user_name\collection.anki2
 _base_dir = os.getenv("ANKI_COLLECTION_PATH", "data/anki_collection")
-
-
-@typechecked
-class AnkiDummyTemporaryCollection(AbstractTemporaryCollection):
-    # Temporary collections are not necessary any more
-    pass
 
 
 @typechecked
@@ -66,7 +60,11 @@ class AnkiCard(AbstractCard):
         # If raw_card.ord == 0, then the first field is the question, the second the answer.
         # If .ord == 1, other way around.
         super().__init__(
-            LocalCardID(raw_card.id), question=note.fields[raw_card.ord], answer=note.fields[1 - raw_card.ord]
+            LocalCardID(raw_card.id),
+            question=note.fields[raw_card.ord],
+            answer=note.fields[1 - raw_card.ord],
+            state=CardState.BURIED,  # TODO
+            flag=Flag.ORANGE,  # TODO
         )
         self.note = note
         self.deck = deck
@@ -118,7 +116,7 @@ class NoteType(Enum):
     # IMAGE_OCCLUSION = "Image Occlusion"
 
 
-class AnkiSRS(AbstractSRS[AnkiDummyTemporaryCollection, AnkiCard, AnkiDeck]):
+class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
     """
     Implements an AbstractSRS for Anki.
     The following additional methods are implemented:

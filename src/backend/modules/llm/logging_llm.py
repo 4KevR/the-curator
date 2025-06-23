@@ -7,9 +7,14 @@ class LoggingLLM(AbstractLLM):
         self._log: list[list[tuple[str, str]]] = []
         self._last_messages: list[tuple[str, str]] = []
 
-    def generate(self, messages: list[dict[str, str]]) -> str:
+    def generate(
+        self,
+        messages: list[dict[str, str]],
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> str:
         # llm proxy
-        response = self._llm.generate(messages)
+        response = self._llm.generate(messages, temperature, max_tokens)
 
         messages_w_r = messages + [{"role": "assistant", "content": response}]
 
