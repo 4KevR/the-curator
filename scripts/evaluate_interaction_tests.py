@@ -6,8 +6,15 @@
 # random state for the test shuffling. Use None to disable shuffling (not recommended, may lead to autocorrelation)
 random_state: int | None = 2308421
 
-# if you only want to run a subset of the tests, set this.
-subset_tests: slice | None = None  # slice(3, 15)
+# You can specify a subset of the tests to run if you want to.
+# If not None, tests are only included if any of their queries contains any of the filter substrings.
+query_filter: set[str] | None = None  # {"* Replace all ment"}
+
+# If not None, only the given slice of the tests are used. Applied after shuffling.
+subset_indexes: slice | None = None  # slice(0, 4)
+
+# number of times to run each test.
+iterations: int = 1
 
 # options: 'local_llama', 'kit_llama', 'local_qwen8', 'local_qwen14'
 llms_to_use: str = "local_llama"
@@ -16,10 +23,13 @@ llms_to_use: str = "local_llama"
 audio_file_path: str | None = "./data/recording_data/fabian"
 
 # options: 'local_whisper_medium', 'lecture_translator'
-asrs_to_use: str = "local_whisper_medium"
+asr_to_use: str = "local_whisper_medium"
 
 default_temperature: float = 0.05
 default_max_tokens: int = 2048
+
+# If dry run: Only output the final test sample, do not actually run tests. No log file created.
+dry_run: bool = False
 
 # ==================================================================================================================
 
@@ -79,12 +89,12 @@ elif llms_to_use == "local_qwen14":
 else:
     raise ValueError(f"Unknown llm_to_use: {llms_to_use}")
 
-if asrs_to_use == "local_whisper_medium":
+if asr_to_use == "local_whisper_medium":
     asr = LocalWhisperASR("openai/whisper-medium")
-elif asrs_to_use == "lecture_translator":
+elif asr_to_use == "lecture_translator":
     asr = CloudLectureTranslatorASR()
 else:
-    raise ValueError(f"Unknown asr_to_use: {asrs_to_use}")
+    raise ValueError(f"Unknown asr_to_use: {asr_to_use}")
 
 
 now = datetime.now(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d %H:%M:%S %z")
@@ -109,17 +119,37 @@ print(f"Startup took {time.time() - script_start_time:.2f} seconds.\n")
 
 tests = load_test_data(base_path + "tests/data/tests.json")
 
+# get interaction tests
+interaction_tests = tests.interaction[:]
+
+# filter if wanted
+if query_filter is not None:
+    interaction_tests = [it for it in interaction_tests if any(s in q for s in query_filter for q in it.queries)]
+
+# shuffle if wanted
 if random_state is not None:
-    interaction_tests_shuffled = pd.Series(tests.interaction).sample(frac=1.0, random_state=random_state).tolist()
-    if subset_tests is not None:
-        interaction_tests_sample = interaction_tests_shuffled[subset_tests]
-    else:
-        interaction_tests_sample = interaction_tests_shuffled[:]
-else:
-    interaction_tests_sample = tests.interaction[:]
+    interaction_tests = pd.Series(interaction_tests).sample(frac=1.0, random_state=random_state).tolist()
+
+# get slice if wanted
+if subset_indexes is not None:
+    interaction_tests = interaction_tests[subset_indexes]
+
+# run test multiple times if wanted
+if iterations > 1:
+    interaction_tests = iterations * interaction_tests
+
+print(f"Tests loaded after: {time.time() - script_start_time:.2f} seconds.\n")
+
+# test dry run
+if dry_run:
+    print("Dry run: Only output the final test list, do not actually run tests.")
+    print("--------------------------------------------------------------------")
+    print("\n\n".join(str(it) for it in interaction_tests))
+    print("--------------------------------------------------------------------")
+    exit(0)
 
 # here the tests are run:
-I_RES = eval_pipeline.evaluate_individual_tests(interaction_tests_sample)
+I_RES = eval_pipeline.evaluate_individual_tests(interaction_tests)
 
 print("\nAll tests executed.\n")
 
