@@ -195,4 +195,7 @@ asr/*/recording session*/
 # Model cache
 /model_cache
 
+# user copies of scripts
+scripts/*copy.py
+
 # Misc
