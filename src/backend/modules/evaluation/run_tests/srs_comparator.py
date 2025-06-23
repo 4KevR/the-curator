@@ -45,7 +45,7 @@ class SRSComparator:
         # If enabled, use levenshtein distance to match cards
         if levenshtein_distance is not None or levenshtein_factor is not None:
 
-            def tolerance_function(l: TestCard, r: TestCard) -> bool:  # noqa E741
+            def tolerance_function(l: TestCard, r: TestCard) -> bool:
                 if l.state != r.state or l.flag != r.flag:
                     return False
 

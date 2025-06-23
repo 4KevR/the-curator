@@ -51,7 +51,7 @@ The user gave the following prompt:
 If you think the user wants you to **interact** with the flashcard system (e.g. creating, modifying, or deleting cards or decks), please answer "task".
 If the user wants you to answer a question about the content of the flashcards, please answer "question".
 Do not answer anything else.
-"""  # noqa E741
+"""
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, llama_index_executor: LlamaIndexExecutor):
@@ -190,7 +190,7 @@ If you want to search in all decks, answer "all". If you want to search in a spe
 If you want to search in multiple, specific decks, answer a comma-separated list of deck names.
 If you are unsure, rather include than exclude a deck. Make sure to exactly match the deck names.
 **Do not answer anything else**!
-""".strip()  # noqa E501
+""".strip()
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
@@ -256,7 +256,7 @@ Please decide now how you want to search for cards. Your options are:
 If you have exact keywords to look for, you should use exact search. If you have one or more words/phrases to search for, but you cannot be sure that all fitting cards contain the keywords/phrases exactly (e.g. plural form, quotation marks, etc.), use fuzzy search. If you want to search for a topic, use content-based search.
 
 Please answer "exact", "fuzzy" or "content", and **nothing else**. All other details will be determined later.
-""".strip()  # noqa E501
+""".strip()
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
@@ -313,7 +313,7 @@ If you are unsure, use these defaults:
   case_sensitive: false
 
 Please answer only with an json array [...] of filled-in, valid json object as described above.
-""".strip()  # noqa E501
+""".strip()
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
@@ -396,7 +396,7 @@ If you are unsure, use these defaults:
   fuzzy: 0.8
 
 Please answer only with an json array [...] of filled-in, valid json object as described above.
-""".strip()  # noqa E501
+""".strip()
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
@@ -473,7 +473,7 @@ Please fill in the following template. Make sure to produce valid json.
 }}
 
 Please answer only with the filled-in, valid json.
-""".strip()  # noqa E501
+""".strip()
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
@@ -592,7 +592,7 @@ You decided to search for cards, and found {amount_cards} fitting cards. Nothing
 
 Please answer only with the operation you want to perform, and nothing else. Again, the operations are:
 delete_all, copy_to_deck, stream_cards
-""".strip()  # noqa E501
+""".strip()
     MAX_ATTEMPTS = 3
     SAMPLE_SIZE = 3
 
@@ -703,13 +703,13 @@ You can choose one of the following actions:
     "answer": "<new answer here>",
     "flag": "<new flag here>",
     "state": "<new card state here>"
-  }} 
+  }}
   Do not forget to include the quotation marks around the strings to create valid json!
   These flag options exist: ["none", "red", "orange", "green", "blue", "pink", "turquoise", "purple"]
   These card state options exist: ["new", "learning", "review", "suspended", "buried"]
 
 Please answer only with the operation you want to perform in the given format, and answer nothing else!
-""".strip()  # noqa E501
+""".strip()
     # Lesson learned: You cannot tell llama-8b to just respond a json object to edit the card; it always says
     # "edit_card" before, even if not instructed to do so.
 
@@ -839,7 +839,7 @@ If you want to execute no function, return an empty list [].
 If you want to execute one or more functions, return them inside a json array.
 
 Please answer only with the filled-in, valid json.
-""".strip()  # noqa E501
+""".strip()
     MAX_ATTEMPTS = 10
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
