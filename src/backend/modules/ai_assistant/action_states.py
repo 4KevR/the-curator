@@ -777,7 +777,7 @@ Please answer only with the operation you want to perform in the given format, a
                 response = self.llm_communicator.send_message(message)
                 try:
                     self._execute_command(response, card)
-                    break
+                    break  # if the command executed successfully
                 except JSONDecodeError as jde:
                     message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
                 except Exception as e:
@@ -835,7 +835,8 @@ Please answer only with the filled-in, valid json.
         self.srs = srs
         self.user_prompt = user_prompt
 
-    def _parse_commands(self, response: str) -> list[dict[str, str]]:
+    @staticmethod
+    def _parse_commands(response: str) -> list[dict[str, str]]:
         """
         Parses the commands and does all the "ex ante" checking.
         List of dict of strings, right keys, right values.

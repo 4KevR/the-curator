@@ -13,7 +13,7 @@ subset_tests: slice | None = None  # slice(3, 15)
 llms_to_use: str = "local_llama"
 
 # Where are the audio files? If asr should be skipped (only using text prompts), set to None.
-audio_file_path: str | None = "../data/recording_data/fabian"
+audio_file_path: str | None = "./data/recording_data/fabian"
 
 # options: 'local_whisper_medium', 'lecture_translator'
 asrs_to_use: str = "local_whisper_medium"
@@ -66,16 +66,16 @@ from src.backend.modules.llm.lm_studio_llm import LMStudioLLM  # noqa E402
 
 if llms_to_use == "local_llama":
     task_llm = LMStudioLLM("meta-llama-3.1-8b-instruct", default_temperature, default_max_tokens)
-    comparison_llm = LMStudioLLM("meta-llama-3.1-8b-instruct", default_temperature, default_max_tokens)
+    comparison_llm = LMStudioLLM("meta-llama-3.1-8b-instruct", 0.0, 10)
 elif llms_to_use == "kit_llama":
     task_llm = KitLLMReq(os.getenv("LLM_URL"), default_temperature, default_max_tokens)
-    comparison_llm = KitLLMReq(os.getenv("LLM_URL"), default_temperature, default_max_tokens)
+    comparison_llm = KitLLMReq(os.getenv("LLM_URL"), 0.0, 10)
 elif llms_to_use == "local_qwen8":
     task_llm = LMStudioLLM("qwen3-8b", default_temperature, default_max_tokens, no_think=True)
-    comparison_llm = LMStudioLLM("qwen3-8b", default_temperature, default_max_tokens, no_think=True)
+    comparison_llm = LMStudioLLM("qwen3-8b", 0.0, 20, no_think=True)  # needs more tokens for empty thinking block.
 elif llms_to_use == "local_qwen14":
     task_llm = LMStudioLLM("qwen3-14b", default_temperature, default_max_tokens, no_think=True)
-    comparison_llm = LMStudioLLM("qwen3-14b", default_temperature, default_max_tokens, no_think=True)
+    comparison_llm = LMStudioLLM("qwen3-14b", 0.0, 20, no_think=True)
 else:
     raise ValueError(f"Unknown llm_to_use: {llms_to_use}")
 

@@ -22,7 +22,7 @@ class SearchBySubstringFuzzy(AbstractCardSearcher[AbstractCard]):
     ):
         if not (fuzzy is None or 0.0 <= fuzzy <= 1.0):
             raise ValueError("If fuzzy is set, it must be between 0 and 1.")
-        self.search_substring = search_substring if not case_sensitive else search_substring.lower()
+        self.search_substring = search_substring if case_sensitive else search_substring.lower()
         self.search_in_question = search_in_question
         self.search_in_answer = search_in_answer
         self.case_sensitive = case_sensitive
