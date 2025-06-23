@@ -187,7 +187,7 @@ If you want to search in all decks, answer "all". If you want to search in a spe
 If you want to search in multiple, specific decks, answer a comma-separated list of deck names.
 If you are unsure, rather include than exclude a deck. Make sure to exactly match the deck names.
 **Do not answer anything else**!
-""".strip()
+""".strip()  # noqa E501
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
@@ -243,26 +243,17 @@ The user gave the following input:
 You already decided that you have to search for cards.
 Please decide now how you want to search for cards. Your options are:
 
-* Search for keyword (exact): You give me a keyword and I will search for all cards that contain this keyword.
-You will be able to specify whether you want to search in the question or the answer or both. You can also decide
-whether the search should be case sensitive or not.
+* Search for keyword (exact): You give me one or multiple keywords and I will search for all cards that contain at least one of these keywords. You will be able to specify whether you want to search in the question or the answer or both. You can also decide whether the search should be case sensitive or not.
 
-* Search for keyword (fuzzy search): You give me a keyword and I will search for all cards that contain this keyword, or
-contain a 'similar' substring.
-You will be able to specify whether you want to search in the question or the answer or both.
-You can also decide whether the search should be case sensitive or not.
+* Search for keyword (fuzzy search): You give me one or multiple keywords and I will search for all cards that contain at least one of these keywords, or contain a 'similar' substring. You will be able to specify whether you want to search in the question or the answer or both. You can also decide whether the search should be case sensitive or not.
 
-* Search cards with fitting content: You give me a search prompt and I will search for cards that fit the search prompt.
-The search is *not* limited to exact wording, but searches for cards with fitting content.
+* Search cards with fitting content: You give me a search prompt and I will search for cards that fit the search prompt. The search is *not* limited to exact wording, but searches for cards with fitting content.
 
 
-If you have an exact keyword to look for, you should use exact search.
-If you have a word to search for, but it can be slightly different (e.g. plural form, etc.) use fuzzy search.
-In all remaining cases, use content-based search.
-In all remaining cases, use content-based search.
+If you have exact keywords to look for, you should use exact search. If you have one or more words/phrases to search for, but you cannot be sure that all fitting cards contain the keywords/phrases exactly (e.g. plural form, quotation marks, etc.), use fuzzy search. If you want to search for a topic, use content-based search.
 
 Please answer "exact", "fuzzy" or "content", and **nothing else**. All other details will be determined later.
-""".strip()
+""".strip()  # noqa E501
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
@@ -304,7 +295,7 @@ The user gave the following input:
 
 {user_input}
 
-You already decided that you have to search for cards, and that you want to use keyword search.
+You already decided that you have to search for cards, and that you want to use keyword search. You may search for one or more keywords.
 Please fill in the following template. Make sure to produce valid json.
 {{
     "search_substring": "<search_substring_here>",
@@ -313,8 +304,13 @@ Please fill in the following template. Make sure to produce valid json.
     "case_sensitive": <bool here>
 }}
 
-Please answer only with the filled-in, valid json. You may only send a single command at a time!
-""".strip()
+If you are unsure, use these defaults:
+  search_in_question: true
+  search_in_answer: true
+  case_sensitive: false
+
+Please answer only with an json array [...] of filled-in, valid json object as described above.
+""".strip()  # noqa E501
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
@@ -329,32 +325,39 @@ Please answer only with the filled-in, valid json. You may only send a single co
         for attempt in range(self.MAX_ATTEMPTS):
             try:
                 response = self.llm_communicator.send_message(message)
-                parsed = json.loads(response.strip())
-                if not isinstance(parsed, dict):
-                    raise ValueError("Response must be a dictionary")
-                if set(parsed.keys()) != {
-                    "search_substring",
-                    "search_in_question",
-                    "search_in_answer",
-                    "case_sensitive",
-                }:
-                    raise ValueError("Response must contain exactly the required keys")
-                if not isinstance(parsed["search_substring"], str):
-                    raise ValueError("search_substring must be a string")
-                if not isinstance(parsed["search_in_question"], bool):
-                    raise ValueError("search_in_question must be a boolean")
-                if not isinstance(parsed["search_in_answer"], bool):
-                    raise ValueError("search_in_answer must be a boolean")
-                if not isinstance(parsed["case_sensitive"], bool):
-                    raise ValueError("case_sensitive must be a boolean")
+                parsed_list = json.loads(response.strip())
+                if not isinstance(parsed_list, list):
+                    raise ValueError("Response must be a list.")
 
-                searcher = SearchBySubstring(
-                    search_substring=parsed["search_substring"],
-                    search_in_question=parsed["search_in_question"],
-                    search_in_answer=parsed["search_in_answer"],
-                    case_sensitive=parsed["case_sensitive"],
-                )
-                return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, searcher)
+                searchers = []
+                for parsed in parsed_list:
+                    if not isinstance(parsed, dict):
+                        raise ValueError("Response must be a dictionary")
+                    if set(parsed.keys()) != {
+                        "search_substring",
+                        "search_in_question",
+                        "search_in_answer",
+                        "case_sensitive",
+                    }:
+                        raise ValueError("Response must contain exactly the required keys")
+                    if not isinstance(parsed["search_substring"], str):
+                        raise ValueError("search_substring must be a string")
+                    if not isinstance(parsed["search_in_question"], bool):
+                        raise ValueError("search_in_question must be a boolean")
+                    if not isinstance(parsed["search_in_answer"], bool):
+                        raise ValueError("search_in_answer must be a boolean")
+                    if not isinstance(parsed["case_sensitive"], bool):
+                        raise ValueError("case_sensitive must be a boolean")
+
+                    searcher = SearchBySubstring(
+                        search_substring=parsed["search_substring"],
+                        search_in_question=parsed["search_in_question"],
+                        search_in_answer=parsed["search_in_answer"],
+                        case_sensitive=parsed["case_sensitive"],
+                    )
+                    searchers.append(searcher)
+
+                return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, searchers)
 
             except JSONDecodeError as jde:
                 message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
@@ -373,7 +376,7 @@ The user gave the following input:
 
 {user_input}
 
-You already decided that you have to search for cards, and that you want to use fuzzy keyword search.
+You already decided that you have to search for cards, and that you want to use fuzzy keyword search. You may search for one or more keywords.
 Please fill in the following template. Make sure to produce valid json.
 {{
     "search_substring": "<search_substring_here>",
@@ -389,8 +392,8 @@ If you are unsure, use these defaults:
   case_sensitive: false
   fuzzy: 0.8
 
-Please answer only with the filled-in, valid json.
-""".strip()
+Please answer only with an json array [...] of filled-in, valid json object as described above.
+""".strip()  # noqa E501
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
@@ -405,36 +408,43 @@ Please answer only with the filled-in, valid json.
         for attempt in range(self.MAX_ATTEMPTS):
             try:
                 response = self.llm_communicator.send_message(message)
-                parsed = json.loads(response.strip())
-                if not isinstance(parsed, dict):
-                    raise ValueError("Response must be a dictionary")
-                if set(parsed.keys()) != {
-                    "search_substring",
-                    "search_in_question",
-                    "search_in_answer",
-                    "case_sensitive",
-                    "fuzzy",
-                }:
-                    raise ValueError("Response must contain exactly the required keys")
-                if not isinstance(parsed["search_substring"], str):
-                    raise ValueError("search_substring must be a string")
-                if not isinstance(parsed["search_in_question"], bool):
-                    raise ValueError("search_in_question must be a boolean")
-                if not isinstance(parsed["search_in_answer"], bool):
-                    raise ValueError("search_in_answer must be a boolean")
-                if not isinstance(parsed["case_sensitive"], bool):
-                    raise ValueError("case_sensitive must be a boolean")
-                if not isinstance(parsed["fuzzy"], float):
-                    raise ValueError("fuzzy must be a float")
+                parsed_list = json.loads(response.strip())
+                if not isinstance(parsed_list, list):
+                    raise ValueError("Response must be a list.")
 
-                searcher = SearchBySubstringFuzzy(
-                    search_substring=parsed["search_substring"],
-                    search_in_question=parsed["search_in_question"],
-                    search_in_answer=parsed["search_in_answer"],
-                    case_sensitive=parsed["case_sensitive"],
-                    fuzzy=parsed["fuzzy"],
-                )
-                return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, searcher)
+                searchers = []
+                for parsed in parsed_list:
+                    if not isinstance(parsed, dict):
+                        raise ValueError("Response must be a dictionary")
+                    if set(parsed.keys()) != {
+                        "search_substring",
+                        "search_in_question",
+                        "search_in_answer",
+                        "case_sensitive",
+                        "fuzzy",
+                    }:
+                        raise ValueError("Response must contain exactly the required keys")
+                    if not isinstance(parsed["search_substring"], str):
+                        raise ValueError("search_substring must be a string")
+                    if not isinstance(parsed["search_in_question"], bool):
+                        raise ValueError("search_in_question must be a boolean")
+                    if not isinstance(parsed["search_in_answer"], bool):
+                        raise ValueError("search_in_answer must be a boolean")
+                    if not isinstance(parsed["case_sensitive"], bool):
+                        raise ValueError("case_sensitive must be a boolean")
+                    if not isinstance(parsed["fuzzy"], float):
+                        raise ValueError("fuzzy must be a float")
+
+                    searcher = SearchBySubstringFuzzy(
+                        search_substring=parsed["search_substring"],
+                        search_in_question=parsed["search_in_question"],
+                        search_in_answer=parsed["search_in_answer"],
+                        case_sensitive=parsed["case_sensitive"],
+                        fuzzy=parsed["fuzzy"],
+                    )
+                    searchers.append(searcher)
+
+                return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, searchers)
 
             except JSONDecodeError as jde:
                 message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
@@ -460,7 +470,7 @@ Please fill in the following template. Make sure to produce valid json.
 }}
 
 Please answer only with the filled-in, valid json.
-""".strip()
+""".strip()  # noqa E501
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
@@ -484,7 +494,7 @@ Please answer only with the filled-in, valid json.
                     raise ValueError("search_prompt must be a string")
 
                 searcher = LlamaIndexSearcher(prompt=parsed["search_prompt"])
-                return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, searcher)
+                return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, [searcher])
 
             except JSONDecodeError as jde:
                 message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
@@ -518,18 +528,18 @@ class StateVerifySearch(AbstractActionState):
         llm: AbstractLLM,
         decks_to_search_in: list[AbstractDeck],
         srs: AbstractSRS,
-        searcher: AbstractCardSearcher,
+        searchers: list[AbstractCardSearcher],
     ):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
         self.decks_to_search_in = decks_to_search_in
         self.srs = srs
-        self.searcher = searcher
+        self.searchers = searchers
         self.all_cards: list[AbstractCard] = [
             card for deck in self.decks_to_search_in for card in self.srs.get_cards_in_deck(deck)
         ]
-        self.found_cards = self.searcher.search_all(self.all_cards)
+        self.found_cards = AbstractCardSearcher.union_search_all(searchers, self.all_cards)
 
     def act(self) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
@@ -564,32 +574,22 @@ class StateVerifySearch(AbstractActionState):
 
 
 class StateTaskWorkOnFoundCards(AbstractActionState):
-    _prompt_template = (
-        "You are an assistant of a flashcard management system. You assist a user in executing tasks "
-        "(creating/modifying/deleting cards/decks etc.).\n\n"
-        "The user gave the following input:\n\n"
-        "{user_input}\n\n"
-        "You decided to search for cards. Your search returned {amount_cards} cards."
-        " Here is a sample of the cards you found:\n\n"
-        "{cards_sample}\n\n"
-        "Now you have to decide what to do with the cards you found. You have the following options:\n\n"
-        "## Bulk operations\n"
-        "* You can delete all cards you found from the system. ('delete_all')\n"
-        "* Copy_to_deck: You can copy all cards you found to a new deck. You will be asked to specify the name of "
-        "the new deck. ('copy_to_deck')\n"
-        "\n"
-        "## Per-Card operations\n"
-        "The following operations will present you every single card and allow you to decide what to do with it.\n"
-        "They are more costly than bulk operations, only use them if necessary.\n\n"
-        "* You can edit card details (question, answer, other information the card has).\n"
-        "* You can delete individual cards.\n"
-        "* You can do nothing with some cards.\n"
-        "\n"
-        "If you want to be presented every single card, answer 'stream_cards'."
-        "\n\n\n"
-        "Please answer only with the operation you want to perform, and nothing else. Again, the operations are:\n"
-        "delete_all, copy_to_deck, stream_cards"
-    )
+    _prompt_template = """
+You are an assistant of a flashcard management system. You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+
+The user gave the following input:
+
+{user_input}
+
+You decided to search for cards, and found {amount_cards} fitting cards. Nothing has been done with these cards yet. Now you have to decide what to do with the cards you found. You have the following options:
+
+* You can delete all cards you found from the system. ('delete_all')
+* You can copy all cards you found to a new deck, but keep them unchanged. You will be asked to specify the name of the new deck. ('copy_to_deck')
+* You can be presented every single card and you can decide individually what to do with each card (options are editing the card, deleting the card, or doing nothing with the card). ('stream_cards')
+
+Please answer only with the operation you want to perform, and nothing else. Again, the operations are:
+delete_all, copy_to_deck, stream_cards
+""".strip()  # noqa E501
     MAX_ATTEMPTS = 3
     SAMPLE_SIZE = 3
 
@@ -611,15 +611,9 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
     def act(self) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
             if attempt == 0:
-                if len(self.found_cards) <= self.SAMPLE_SIZE:
-                    sample = self.found_cards
-                else:
-                    sample = pd.Series(self.found_cards).sample(self.SAMPLE_SIZE).to_list()
-
                 message = self._prompt_template.format(
                     user_input=self.user_prompt,
                     amount_cards=len(self.found_cards),
-                    cards_sample="\n\n".join(str(it) for it in sample),
                 )
             else:
                 message = (
@@ -680,35 +674,41 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
 
 class StateStreamFoundCards(AbstractActionState):
     _prompt_template = """
-You are an assistant of a flashcard management system.
-You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+You are an assistant of a flashcard management system. It is your job to execute the task given by the user on the given card.
 
-The user gave the following input:
+## Task
+Your task is:
 
-{user_input}
+{user_task}
 
-You decided to search for cards. You wanted me to present you every single card you found.
-I will now show you the cards one-by-one. You will only ever be able to see a single card. Here is the current card:
+## Card
+The given card is:
 
-{card}
+*Question*: {question}
+*Answer*: {answer}
+*State*: {state}
+*Flag*: {flag}
 
-You have the following options:
+## Action
+You can choose one of the following actions:
 
- * Doing nothing: Respond "do_nothing".
- * Delete that card: Respond "delete_card".
- * Edit that card. Respond with the following template filled out, **and nothing else**, only the filled-out json:
- {{
+* Do nothing with this card: Respond "do_nothing".
+* Delete this card: Respond "delete_card".
+* Edit this card. Respond with "edit_card" and the following, filled-out template:
+  {{
     "question": "<new question here>",
     "answer": "<new answer here>",
     "flag": "<new flag here>",
     "state": "<new card state here>"
- }}
+  }} 
+  Do not forget to include the quotation marks around the strings to create valid json!
   These flag options exist: ["none", "red", "orange", "green", "blue", "pink", "turquoise", "purple"]
   These card state options exist: ["new", "learning", "review", "suspended", "buried"]
-  If you do not wish to change some attributes, you should omit it from your response.
 
 Please answer only with the operation you want to perform in the given format, and answer nothing else!
-""".strip()
+""".strip()  # noqa E501
+    # Lesson learned: You cannot tell llama-8b to just respond a json object to edit the card; it always says
+    # "edit_card" before, even if not instructed to do so.
 
     MAX_ATTEMPTS_PER_CARD = 3
 
@@ -737,6 +737,8 @@ Please answer only with the operation you want to perform in the given format, a
             return
 
         # only editing or wrong input left.
+        # Yes, this removes any combination of these letters. Doesnt matter.
+        response = response.lstrip(" \nedit_card")
         parsed = json.loads(response.strip())  # may throw error
 
         # verify format
@@ -770,7 +772,15 @@ Please answer only with the operation you want to perform in the given format, a
 
     def act(self) -> AbstractActionState | None:
         for card in self.found_cards:
-            message = self._prompt_template.format(user_input=self.user_prompt, card=card)
+            message = self._prompt_template.format(
+                user_task=self.user_prompt,
+                question=card.question,
+                answer=card.answer,
+                flag=card.flag,
+                state=card.state,
+            )
+            response = self.llm_communicator.send_message(message)
+            self._execute_command(response, card)
             self.llm_communicator.start_visibility_block()
 
             for attempt in range(self.MAX_ATTEMPTS_PER_CARD):
@@ -826,7 +836,7 @@ If you want to execute no function, return an empty list [].
 If you want to execute one or more functions, return them inside a json array.
 
 Please answer only with the filled-in, valid json.
-""".strip()
+""".strip()  # noqa E501
     MAX_ATTEMPTS = 10
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):

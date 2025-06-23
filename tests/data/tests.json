@@ -2218,8 +2218,8 @@
       "environment": "java_10",
       "queries": [
         [
-          "In the java_10 deck, replace all mentions of 'methods' by 'function'. Also, the deck is about java, so please remove all mentions of 'in Java' etc.'",
-          "In the java_10 deck, please execute the following two tasks:\n* Replace all mentions of 'methods' by 'function'.\n* Remove all mentions of 'in Java' etc.\n\nThanks!"
+          "In the java_10 deck, replace all mentions of 'method' by 'function'. Also, the deck is about java, so please remove all mentions of 'in Java' etc.'",
+          "In the java_10 deck, please execute the following two tasks:\n* Replace all mentions of 'method' by 'function'.\n* Remove all mentions of 'in Java' etc.\n\nThanks!"
         ]
       ],
       "expected_result": {
@@ -2234,7 +2234,7 @@
                 "cardState": "New"
               },
               {
-                "question": "How do you declare a variable",
+                "question": "How do you declare a variable?",
                 "answer": "Specify type, then variable name, e.g. int x;",
                 "flag": "None",
                 "cardState": "New"
