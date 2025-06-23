@@ -41,14 +41,17 @@ class ExceedingMaxAttemptsError(Exception):
 
 
 class StateAction(AbstractActionState):
-    _prompt_template = (
-        "You are an assistant of a flashcard management system. You assist a user in either executing a task"
-        " (creating/modifying/deleting cards/decks etc.) or in answering questions about the content of the flashcards."
-        " If the user asks you to find cards without stating a question to be answered, respond with task.\n\n"
-        "The user gave the following input:\n\n{user_input}\n\n"
-        'If the user wants to execute a task, please answer "task". If the user wants to answer a question, answer'
-        ' "question". Do not answer anything else.'
-    )
+    _prompt_template = """
+You are an assistant of a flashcard management system. You assist a user in interacting with the system (creating/modifying/deleting cards/decks etc.) and in answering questions about the content of the flashcards.
+
+The user gave the following prompt:
+
+{user_input}
+
+If you think the user wants you to **interact** with the flashcard system (e.g. creating, modifying, or deleting cards or decks), please answer "task".
+If the user wants you to answer a question about the content of the flashcards, please answer "question".
+Do not answer anything else.
+"""  # noqa E741
     MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, llama_index_executor: LlamaIndexExecutor):

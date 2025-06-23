@@ -27,6 +27,8 @@ class EvaluationPipeline:
         task_llm: AbstractLLM,
         fuzzy_matching_llm: AbstractLLM,
         llm_judge: AbstractLLM,
+        max_levenshtein_distance: int | None = None,
+        max_levenshtein_ratio: float | None = None,
         audio_recording_dir_path: str | None = None,
         verbose_task_execution: bool = False,
         print_progress: bool = False,
@@ -36,6 +38,8 @@ class EvaluationPipeline:
         self.task_llm = task_llm
         self.llm_for_fuzzy_matching = fuzzy_matching_llm
         self.llm_judge = LLMSimilarityJudge(llm_judge)
+        self.max_levenshtein_distance = max_levenshtein_distance
+        self.max_levenshtein_ratio = max_levenshtein_ratio
         self.audio_recording_dir_path = audio_recording_dir_path
         self.verbose_task_execution = verbose_task_execution
         self.print_progress = print_progress
@@ -81,6 +85,8 @@ class EvaluationPipeline:
                     task_llm_name=self.task_llm.get_description(),
                     fuzzy_matching_llm_name=self.llm_for_fuzzy_matching.get_description(),
                     llm_judge_name=self.llm_judge.judge_llm.get_description(),
+                    max_levenshtein_distance=self.max_levenshtein_distance,
+                    max_levenshtein_factor=self.max_levenshtein_ratio,
                     time_taken_s=time.time() - start_time,
                     name=test.name,
                     audio_files_available=all_files_exist,
@@ -109,7 +115,9 @@ class EvaluationPipeline:
                         ]
             else:
                 comparator = SRSComparator(self.llm_for_fuzzy_matching, self.llm_judge)
-                evaluation = comparator.compare_srs(test.expected_result, fcm)
+                evaluation = comparator.compare_srs(
+                    test.expected_result, fcm, self.max_levenshtein_distance, self.max_levenshtein_ratio
+                )
                 passed = len(evaluation) == 0
 
             res = TestEvalResult(
@@ -119,6 +127,8 @@ class EvaluationPipeline:
                 task_llm_name=self.task_llm.get_description(),
                 fuzzy_matching_llm_name=self.llm_for_fuzzy_matching.get_description(),
                 llm_judge_name=self.llm_judge.judge_llm.get_description(),
+                max_levenshtein_distance=self.max_levenshtein_distance,
+                max_levenshtein_factor=self.max_levenshtein_ratio,
                 time_taken_s=time.time() - start_time,
                 name=test.name,
                 audio_files_available=all_files_exist,
@@ -140,6 +150,8 @@ class EvaluationPipeline:
                 task_llm_name=self.task_llm.get_description(),
                 fuzzy_matching_llm_name=self.llm_for_fuzzy_matching.get_description(),
                 llm_judge_name=self.llm_judge.judge_llm.get_description(),
+                max_levenshtein_distance=self.max_levenshtein_distance,
+                max_levenshtein_factor=self.max_levenshtein_ratio,
                 time_taken_s=time.time() - start_time,
                 name=test.name,
                 audio_files_available=all_files_exist,

@@ -92,3 +92,84 @@ def match_by_equals(
     only_right = [r for r_idx, r in enumerate(right) if not right_matched[r_idx]]
 
     return matches, only_left, only_right
+
+
+def match_by_tolerance(left: list[LEFT], right: list[RIGHT], tolerance_function: Callable[[LEFT, RIGHT], bool]):
+    """
+    Matches left and right entries by tolerance relation (equality relation that is not necessarily transitive).
+
+    Example:
+        left = ["Banana", "Apple", "Orange"]
+        right = ["Banan", "Bananas", "Banana", "Apfel"]
+        tolerance_function = lambda l, r: l[0:2] == r[0:2]
+
+        returns
+        ```
+        [(["Banana"], ["Banan", "Bananas", "Banana"]), (["Apple"], ["Apfel"])], ["Orange"], []
+        ```
+
+    """
+
+    # get all right ids that fit a left id and get all left ids that fit a given right id
+    left_to_right = {l_key: [] for l_key, l in enumerate(left)}
+    right_to_left = {r_key: [] for r_key, r in enumerate(right)}
+
+    for l_key, l in enumerate(left):
+        for r_key, r in enumerate(right):
+            if tolerance_function(l, r):
+                left_to_right[l_key].append(r_key)
+                right_to_left[r_key].append(l_key)
+
+    # match
+    matches: list[tuple[list[LEFT], list[RIGHT]]] = []
+    remaining_l_key = set(range(len(left)))
+    remaining_r_key = set(range(len(right)))
+
+    while len(remaining_l_key) > 0:
+        l_keys_in_match = set()
+        r_keys_in_match = set()
+
+        l_key_queue = {next(iter(remaining_l_key))}
+        r_key_queue = set()
+
+        while len(l_key_queue) > 0 or len(r_key_queue) > 0:
+            if len(l_key_queue) > 0:
+                l_key = l_key_queue.pop()
+                l_keys_in_match.add(l_key)
+                remaining_l_key.remove(l_key)
+
+                for r_key in left_to_right[l_key]:
+                    if r_key in remaining_r_key:
+                        r_key_queue.add(r_key)
+
+            if len(r_key_queue) > 0:
+                r_key = r_key_queue.pop()
+                r_keys_in_match.add(r_key)
+                remaining_r_key.remove(r_key)
+
+                for l_key in right_to_left[r_key]:
+                    if l_key in remaining_l_key:
+                        l_key_queue.add(l_key)
+
+        matches.append(([left[it] for it in sorted(l_keys_in_match)], [right[it] for it in sorted(r_keys_in_match)]))
+
+    # no l_keys remaining. Remaining r_keys have no match
+    for r_key in remaining_r_key:
+        matches.append(([], [right[r_key]]))
+
+    # find and separate empty matches
+    true_matches: list[tuple[list[LEFT], list[RIGHT]]] = []
+    only_left: list[LEFT] = []
+    only_right: list[RIGHT] = []
+
+    for left, right in matches:
+        if len(left) == 0:
+            assert len(right) == 1
+            only_right.append(right[0])
+        elif len(right) == 0:
+            assert len(left) == 1
+            only_left.append(left[0])
+        else:
+            true_matches.append((left, right))
+
+    return true_matches, only_left, only_right

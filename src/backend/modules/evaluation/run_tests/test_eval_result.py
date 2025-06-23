@@ -13,6 +13,8 @@ class TestEvalResult:
     task_llm_name: str
     fuzzy_matching_llm_name: str
     llm_judge_name: str
+    max_levenshtein_distance: int | None
+    max_levenshtein_factor: float | None
     time_taken_s: float
     audio_files_available: bool
     original_queries: list[str]
@@ -84,7 +86,7 @@ class TestEvalResult:
         print(s)
 
     def to_markdown(self, skip_thinking=False) -> str:
-        a = f"""
+        header = f"""
 ## Test {self.name} {("✅ passed" if self.passed else ("⚡ crashed" if self.crashed else "❌ failed"))}
 Audio files available: {'No' if not self.audio_files_available else 'Yes'}
 
@@ -99,19 +101,19 @@ LLM Judge: {self.llm_judge_name}
 Time taken: {self.time_taken_s:.2f} s.
 """
         if self.transcribed_queries is not None:
-            q = "### Queries\n" + "\n\n".join(
+            queries = "### Queries\n" + "\n\n".join(
                 f"**`original   `**: {o} \n\n**`transcribed`**: {t}"
                 for (o, t) in zip(self.original_queries, self.transcribed_queries)
             )
         else:
-            q = "### Queries\n" + "\n\n".join(f"**`original   `**: {o}" for o in self.original_queries)
+            queries = "### Queries\n" + "\n\n".join(f"**`original   `**: {o}" for o in self.original_queries)
 
         if self.question_answer is not None:
-            b = f"### Response\n`Expected:` {self.original_queries[0]}\n`Actual  :` {self.question_answer}\n"
+            response = f"### Response\n{self.question_answer}\n"
         elif self.task_finish_message is not None:
-            b = f"### Task Finish Message\n{self.task_finish_message}\n"
+            response = f"### Task Finish Message\n{self.task_finish_message}\n"
         else:
-            b = ""
+            response = ""
 
         log = []
         for group in self.log_messages:
@@ -124,15 +126,15 @@ Time taken: {self.time_taken_s:.2f} s.
 
                 log.append(f"**{role}:**\n{message}\n\n")
 
-        c = "### Interaction Log\n" + "\n\n".join(log)
+        interaction_log = "### Interaction Log\n" + "\n\n".join(log)
 
-        d = "### State History\n" + "\n\n".join(
+        history = "### State History\n" + "\n\n".join(
             f" 1. {str(it).replace('<', '').replace('>', '')}" for it in self.state_history
         )
 
         if len(self.error_messages) == 0:
-            e = "### Errors\nNo errors!"
+            errors = "### Errors\nNo errors!"
         else:
-            e = "### Errors\n" + "\n_______________\n".join("\t" + it for it in self.error_messages)
+            errors = "### Errors\n" + "\n_______________\n".join("\t" + it for it in self.error_messages)
 
-        return f"{a}\n{q}\n{b}\n{c}\n{d}\n{e}\n"
+        return f"{header}\n{queries}\n{response}\n{errors}\n{history}\n{interaction_log}\n"
