@@ -26,8 +26,7 @@ Actual answer:
 
 Remember to only respond with 'true' or 'false'.
 """
-        messages = [{"role": "user", "content": prompt}]
-        response = self.judge_llm.generate(messages)
+        response = self.judge_llm.generate_single(prompt)
 
         return find_substring_in_llm_response(response, "true", "false")
 
@@ -64,7 +63,6 @@ Answer: {actual_card.answer}
 
 Remember to only respond with 'true' or 'false'.
 """
-        messages = [{"role": "user", "content": prompt}]
-        response = self.judge_llm.generate(messages)
+        response = self.judge_llm.generate_single(prompt)
 
         return find_substring_in_llm_response(response, "true", "false")

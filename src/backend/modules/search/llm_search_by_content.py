@@ -40,8 +40,5 @@ Please return true if it fits, and else false."""
         else:
             raise ValueError("At least one of question or answer must be specified.")
 
-        messages = [
-            {"role": "user", "content": prompt},
-        ]
-        response = self.llm.generate(messages).lower()
+        response = self.llm.generate_single(prompt).lower()
         return find_substring_in_llm_response(response, "true", "false")
