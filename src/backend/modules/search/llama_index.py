@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from enum import Enum
 
 import nltk
@@ -67,7 +68,10 @@ class LlamaIndexExecutor:
     """
 
     def __init__(self, store_name: str | None = None):
-        prefixed_user_name = f"_{store_name}" if store_name else ""
+        def sanitize_name(name: str) -> str:
+            return re.sub(r"[^a-zA-Z0-9]", "_", name)
+
+        prefixed_user_name = f"_{sanitize_name(store_name)}" if store_name else ""
         deck_table_name = f"decks{prefixed_user_name}"
         self.vector_store_decks = LlamaIndexPostgresLoader.get_vector_store_from_table_name(deck_table_name)
         card_table_name = f"cards{prefixed_user_name}"
