@@ -10,6 +10,9 @@ random_state: int | None = 2308421
 # If not None, tests are only included if any of their queries contains any of the filter substrings.
 query_filter: set[str] | None = None  # {"* Replace all ment"}
 
+# Filter tests by name. Must be the exact name.
+name_filter: set[str] | None = None  # {"add_card"}
+
 # If not None, only the given slice of the tests are used. Applied after shuffling.
 subset_indexes: slice | None = None  # slice(0, 4)
 
@@ -24,6 +27,13 @@ audio_file_path: str | None = "./data/recording_data/fabian"
 
 # options: 'local_whisper_medium', 'lecture_translator'
 asr_to_use: str = "local_whisper_medium"
+
+# levenshtein distance settings for question/answer matching
+# distance: distance between two questions/answers to be considered similar.
+# ratio: distance / max(s1, s2). 1 means completely different strings, 0 means exact match.
+# If both are set, both thresholds need to be met. If both are not set, only hard matching is used.
+max_levenshtein_distance: int | None = 8
+max_levenshtein_ratio: float | None = 0.201  # more than 1/5
 
 default_temperature: float = 0.05
 default_max_tokens: int = 2048
@@ -103,6 +113,8 @@ eval_pipeline = EvaluationPipeline(
     task_llm=task_llm,
     fuzzy_matching_llm=comparison_llm,
     llm_judge=comparison_llm,
+    max_levenshtein_distance=max_levenshtein_distance,
+    max_levenshtein_ratio=max_levenshtein_ratio,
     audio_recording_dir_path=audio_file_path,
     verbose_task_execution=False,
     print_progress=True,
@@ -120,6 +132,9 @@ tests = load_test_data("tests/data/tests.json")
 interaction_tests = tests.interaction[:]
 
 # filter if wanted
+if name_filter is not None:
+    interaction_tests = [it for it in interaction_tests if it.name in name_filter]
+
 if query_filter is not None:
     interaction_tests = [it for it in interaction_tests if any(s in q for s in query_filter for q in it.queries)]
 
