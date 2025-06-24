@@ -166,7 +166,7 @@ Is the user prompt a 'local' or 'global' task? Please **only** answer with 'loca
         # TODO: Maybe even own state? Update: Definitely add own state that only fixes the task.
         # currently only quotation marks. They cant be transcribed anyways.
 
-        return raw_task.replace('"', "").replace("'", "")
+        return raw_task  # .replace('"', "").replace("'", "")
 
     def act(self) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
