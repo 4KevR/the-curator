@@ -199,4 +199,7 @@ asr/*/recording session*/
 # user copies of scripts
 scripts/*copy.py
 
+# Temporary files
+/tmp/
+
 # Misc

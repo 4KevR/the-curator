@@ -897,23 +897,24 @@ Please answer only with the filled-in, valid json.
                 raise ValueError(f"Command {cmd_dict}: Response must contain a valid task")
 
             # check that the task is one of the expected tasks
-            if cmd_dict.get("task", None) == "create_deck":
+            task_str = cmd_dict.get("task", None)
+            if task_str == "create_deck":
                 deck_name = cmd_dict.get("name", None)
                 if not isinstance(deck_name, str):
                     raise ValueError(f"Command {cmd_dict}: Deck name must be a string")
 
-            if cmd_dict.get("task", None) == "rename_deck":
+            if task_str == "rename_deck":
                 old_name = cmd_dict.get("old_name", None)
                 new_name = cmd_dict.get("new_name", None)
                 if not isinstance(old_name, str) or not isinstance(new_name, str):
                     raise ValueError(f"Command {cmd_dict}: Names must be strings")
 
-            if cmd_dict.get("task", None) == "delete_deck":
+            if task_str == "delete_deck":
                 name = cmd_dict.get("name", None)
                 if not isinstance(name, str):
                     raise ValueError(f"Command {cmd_dict}: Name must be a string")
 
-            if cmd_dict.get("task", None) == "add_card":
+            if task_str == "add_card":
                 deck_name = cmd_dict.get("deck_name", None)
                 question = cmd_dict.get("question", None)
                 answer = cmd_dict.get("answer", None)
@@ -1013,7 +1014,7 @@ Please answer only with the filled-in, valid json.
                         for deck_name in sorted(deck_names, key=lambda x: Levenshtein.distance(x, mde.deck_name))[:2]
                     )
                     message = (
-                        "The deck empty deck does not exist. The following existing decks have similar names:\n\n"
+                        f"The deck {mde.deck_name} does not exist. The following existing decks have similar names:\n\n"
                         f"{similar_deck_names}"
                         "\n\nIf one of this names roughly matches the name the user gave you, please just assume there "
                         "was an audio-to-text error and just use this deck name! Please try again."

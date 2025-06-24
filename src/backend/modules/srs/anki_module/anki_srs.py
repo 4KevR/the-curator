@@ -8,7 +8,22 @@ from typing import Any
 
 from anki.collection import Collection  # Must be placed at the top, or circular import will occur.
 from anki.cards import Card, CardId
-from anki.consts import CardQueue, CardType
+from anki.consts import (
+    CardQueue,
+    CardType,
+    QUEUE_TYPE_MANUALLY_BURIED,
+    QUEUE_TYPE_NEW,
+    QUEUE_TYPE_LRN,
+    QUEUE_TYPE_DAY_LEARN_RELEARN,
+    QUEUE_TYPE_REV,
+    QUEUE_TYPE_SUSPENDED,
+    CARD_TYPE_NEW,
+    CARD_TYPE_LRN,
+    CARD_TYPE_REV,
+    CARD_TYPE_RELEARNING,
+    QUEUE_TYPE_SIBLING_BURIED,
+    QUEUE_TYPE_PREVIEW,
+)
 from anki.decks import DeckId
 from anki.errors import NotFoundError
 from anki.exporting import AnkiPackageExporter
@@ -40,21 +55,85 @@ class AnkiCard(AbstractCard):
     deck: AnkiDeck
     raw_card: Card
 
-    __type_map = {
-        0: "New",  # New card
-        1: "Learn",  # Learning
-        2: "Review",  # Review
-        3: "Relearn",  # Relearn, once mastered but forgotten
+    __type_map = {  # map is exhaustive
+        CardState.NEW: CARD_TYPE_NEW,
+        CardState.LEARNING: CARD_TYPE_LRN,
+        CardState.REVIEW: CARD_TYPE_REV,
+        CardState.BURIED: CARD_TYPE_NEW,  # should do it
+        CardState.SUSPENDED: CARD_TYPE_NEW,  # should do it
+    }
+
+    __type_map_rev = {  # map is exhaustive; there are no other internal card types.
+        CARD_TYPE_NEW: CardState.NEW,
+        CARD_TYPE_LRN: CardState.LEARNING,
+        CARD_TYPE_REV: CardState.REVIEW,
+        CARD_TYPE_RELEARNING: CardState.REVIEW,
     }
 
     __queue_map = {
-        -1: "Suspended",  # Manually suspended; excluded from scheduling
-        0: "Preview",  # In preview mode (typically via filtered decks)
-        1: "New",  # New card, not yet learned
-        2: "Learning",  # In learning phase with steps
-        3: "Review",  # Due for review based on interval
-        4: "Filtered",  # In a filtered deck; temporary scheduling
+        CardState.BURIED: QUEUE_TYPE_MANUALLY_BURIED,
+        CardState.SUSPENDED: QUEUE_TYPE_SUSPENDED,
+        CardState.NEW: QUEUE_TYPE_NEW,
+        CardState.LEARNING: QUEUE_TYPE_LRN,
+        CardState.REVIEW: QUEUE_TYPE_REV,
     }
+
+    __queue_map_rev = {  # map is exhaustive; there are no other internal queue types.
+        QUEUE_TYPE_MANUALLY_BURIED: CardState.BURIED,
+        QUEUE_TYPE_SIBLING_BURIED: CardState.BURIED,
+        QUEUE_TYPE_SUSPENDED: CardState.SUSPENDED,
+        QUEUE_TYPE_NEW: CardState.NEW,
+        QUEUE_TYPE_LRN: CardState.LEARNING,
+        QUEUE_TYPE_REV: CardState.REVIEW,
+        QUEUE_TYPE_DAY_LEARN_RELEARN: CardState.REVIEW,
+        QUEUE_TYPE_PREVIEW: CardState.NEW,  # should be fine
+    }
+
+    __flag_map = {  # exhaustive; these are all flags that exist
+        Flag.NONE: 0,
+        Flag.RED: 1,
+        Flag.ORANGE: 2,
+        Flag.GREEN: 3,
+        Flag.BLUE: 4,
+        Flag.PINK: 5,
+        Flag.TURQUOISE: 6,
+        Flag.PURPLE: 7,
+    }
+
+    __flag_map_rev = {__v: __k for (__k, __v) in __flag_map.items()}  # map is exhaustive
+
+    @staticmethod  # needed for constructor
+    def __get_flag_raw(raw_card: Card):
+        return AnkiCard.__flag_map_rev[raw_card.flags]
+
+    def get_flag(self) -> Flag:
+        return self.__get_flag_raw(self.raw_card)
+
+    def set_flag(self, new_flag: Flag) -> None:
+        """Note that this is **not yet** persisted to the Anki collection."""
+        self.raw_card.flags = self.__flag_map[new_flag]
+
+    @staticmethod  # needed for constructor
+    def __get_state_raw(raw_card: Card):
+        queue_state = AnkiCard.__queue_map_rev[raw_card.queue]
+        type_state = AnkiCard.__type_map_rev[raw_card.type]
+
+        if queue_state == type_state:
+            return queue_state
+
+        # queue state is more specific
+        if type_state not in {CardState.LEARNING, CardState.REVIEW}:
+            return queue_state
+
+        raise RuntimeError(f"Internal states are incompatible: Raw queue {queue_state} and raw type {type_state}.")
+
+    def get_state(self) -> CardState:
+        return self.__get_state_raw(self.raw_card)
+
+    def set_state(self, new_state: CardState) -> None:
+        """Note that this is **not yet** persisted to the Anki collection."""
+        self.raw_card.queue = self.__queue_map[new_state]
+        self.raw_card.type = self.__type_map[new_state]
 
     def __init__(self, note: Note, deck: AnkiDeck, raw_card: Card):
         # If raw_card.ord == 0, then the first field is the question, the second the answer.
@@ -63,30 +142,22 @@ class AnkiCard(AbstractCard):
             LocalCardID(raw_card.id),
             question=note.fields[raw_card.ord],
             answer=note.fields[1 - raw_card.ord],
-            state=CardState.BURIED,  # TODO
-            flag=Flag.ORANGE,  # TODO
+            state=AnkiCard.__get_state_raw(raw_card),
+            flag=AnkiCard.__get_flag_raw(raw_card),
         )
         self.note = note
         self.deck = deck
         self.raw_card = raw_card
 
-    @property
-    def type(self) -> str:
-        return self.__type_map.get(self.raw_card.type, "Unknown")
-
-    @property
-    def queue(self) -> str:
-        return self.__queue_map.get(self.raw_card.queue, "Unknown")
-
     @override
     def to_hashable(self) -> Any:
-        # This function is not used but is retained.
         return self.question, self.answer, self.raw_card.type, self.raw_card.queue, self.raw_card.flags
 
-    def __str__(self) -> str:
+    def __str__(self):
         return (
-            f"AnkiCard(id={self.id}, question={self.question}, answer={self.answer}, deck={self.deck.name}, "
-            f"note={self.note}, raw_card={self.raw_card}, type={self.type}, queue={self.queue})"
+            f"AnkiCard(id={self.id}, deck={self.deck.name}, question={self.question}, answer={self.answer}, "
+            f"state={self.state}, flag={self.flag}, raw_card={self.raw_card}), "
+            f"note={self.note.id})"
         )
 
 
@@ -207,19 +278,26 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
     def delete_deck(self, deck: AnkiDeck) -> None:
         self._verify_deck_exists(deck)
         if deck.name == "Default":
-            logger.debug("Can NOT delete 'Default' deck!")
-            return
-        logger.debug(f"Delete deck '{deck.name}' (ID={deck.id.numeric_id})")
+            raise ValueError("The default deck cannot be deleted.")
         self.col.decks.remove([deck.id.numeric_id])
 
     # Cards
     @override
-    def add_card(self, deck: AnkiDeck, question: str, answer: str) -> AnkiCard:
+    def add_card(self, deck: AnkiDeck, question: str, answer: str, flag: Flag, state: CardState) -> AnkiCard:
         logger.debug(f"Adding card to deck '{deck.name}'...")
+        # noinspection PyTypeChecker
         new = self.add_note(deck, question, answer)
-        assert len(new.cards) == 1  # TODO: Now only "Basic" model is supported
+        assert len(new.cards) == 1  # Now only "Basic" model is supported
 
-        return AnkiCard(new.note, deck, new.cards[0])
+        card = AnkiCard(new.note, deck, new.cards[0])
+
+        if flag != Flag.NONE:
+            self.edit_card_flag(card, flag)
+
+        if state != CardState.NEW:
+            self.edit_card_state(card, state)
+
+        return self.get_card(card.id)
 
     @override
     def card_exists(self, card: AnkiCard) -> bool:
@@ -286,11 +364,25 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         return self.get_card_or_none(card.id)
 
     @override
+    def edit_card_flag(self, card: AnkiCard, new_flag: Flag) -> AnkiCard:
+        self._verify_card_exists(card)
+        card.set_flag(new_flag)
+        self.col.update_card(card.raw_card)
+        return self.get_card_or_none(card.id)
+
+    @override
+    def edit_card_state(self, card: AnkiCard, new_state: CardState) -> AnkiCard:
+        self._verify_card_exists(card)
+        card.set_state(new_state)
+        self.col.update_card(card.raw_card)
+        return self.get_card_or_none(card.id)
+
+    @override
     def copy_card_to(self, card: AnkiCard, deck: AnkiDeck) -> AnkiCard:
         self._verify_card_exists(card)
         self._verify_deck_exists(deck)
         logger.debug(f"Copying card ID={card.id.numeric_id} from deck '{card.deck.name}' to deck '{deck.name}'...")
-        new_card = self.add_card(deck, card.question, card.answer)
+        new_card = self.add_card(deck, card.question, card.answer, card.flag, card.state)
 
         return new_card
 
@@ -482,44 +574,6 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         logger.debug(f"Set CardID_{card.id} memory grade: {ease}")
         self.col.update_card(card)
 
-    def set_flag(self, card_id: int, flag: str | int) -> None:
-        """Set flag:
-        "none": 0,
-        "red": 1,
-        "orange": 2,
-        "green": 3,
-        "blue": 4,
-        "pink": 5,
-        "cyan": 6,
-        "purple": 7,
-        """
-        card = self.col.get_card(CardId(card_id))
-
-        flag_map = {
-            "none": 0,
-            "red": 1,
-            "orange": 2,
-            "green": 3,
-            "blue": 4,
-            "pink": 5,
-            "cyan": 6,
-            "purple": 7,
-        }
-        if isinstance(flag, str):
-            if flag not in flag_map:
-                raise ValueError(f"Invalid flag: {flag}")
-            flag_name = flag
-            flag = flag_map[flag]
-
-        else:
-            if flag < 0 or flag > 7:
-                raise ValueError(f"Invalid numeric flag: {flag} (must be between 0 and 7)")
-            flag_name = next(k for k, v in flag_map.items() if v == flag)
-
-        card.flags = flag
-        logger.debug(f"Set flag_{flag}_{flag_name} on card ID={card_id}.")
-        self.col.update_card(card)
-
     # noinspection SqlNoDataSourceInspection
     def activate_preview_cards(self, deck_name: str) -> None:
         """
@@ -569,6 +623,7 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
 
     # # TODO fix this
     def learning_process(self):
+        raise NotImplementedError("Working")
 
         self.activate_preview_cards(self.user_context.current_deck.name)
 
@@ -594,6 +649,7 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
     # ###########################################################
     # ######### Following functions are not used ################
     # ###########################################################
+    # TODO @Zicheng please consider removing these functions. They are unused, and I can't imagine how we would use them
     def set_type(self, card_id: int, type_code: int) -> None:
         """
         0: "New", # New card

@@ -257,9 +257,11 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
     def edit_card_answer(self, card: TCard, new_answer: str) -> TCard:
         """Edit the answer of a card."""
 
+    @abstractmethod
     def edit_card_flag(self, card: TCard, new_flag: Flag) -> TCard:
         """Edit the flag of a card."""
 
+    @abstractmethod
     def edit_card_state(self, card: TCard, new_state: CardState) -> TCard:
         """Edit the state of a card."""
 
