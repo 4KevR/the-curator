@@ -86,6 +86,11 @@ class TestEvalResult:
         print(s)
 
     def to_markdown(self, skip_thinking=False) -> str:
+        if self.max_levenshtein_distance is None and self.max_levenshtein_factor is None:
+            levenshtein = "No, exact matching."
+        else:
+            levenshtein = f"distance: {self.max_levenshtein_distance}, factor: {self.max_levenshtein_factor:.3f}"
+
         header = f"""
 ## Test {self.name} {("✅ passed" if self.passed else ("⚡ crashed" if self.crashed else "❌ failed"))}
 Audio files available: {'No' if not self.audio_files_available else 'Yes'}
@@ -99,6 +104,8 @@ Fuzzy Matching LLM: {self.fuzzy_matching_llm_name}
 LLM Judge: {self.llm_judge_name}
 
 Time taken: {self.time_taken_s:.2f} s.
+
+Levenshtein matching: {levenshtein}
 """
         if self.transcribed_queries is not None:
             queries = "### Queries\n" + "\n\n".join(

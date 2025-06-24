@@ -13,6 +13,7 @@ from src.backend.modules.srs.abstract_srs import (
     CardState,
     DeckID,
     Flag,
+    MissingDeckException,
 )
 
 
@@ -145,7 +146,7 @@ class TestFlashcardManager(AbstractSRS[TestCard, TestDeck]):
 
     def _verify_deck_exists(self, deck: TestDeck):
         if deck.id not in self.__decks_by_id:
-            raise ValueError(f"Deck {deck.id} not found.")
+            raise MissingDeckException(deck_name=deck.name, deck_id=deck.id)
 
     @override
     def get_deck_by_name_or_none(self, deck_name: str) -> TestDeck | None:

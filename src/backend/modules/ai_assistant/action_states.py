@@ -4,6 +4,7 @@ from json import JSONDecodeError
 from typing import Any, Optional
 
 import pandas as pd
+from rapidfuzz.distance import Levenshtein
 
 from src.backend.modules.helpers.string_util import find_substring_in_llm_response_or_null, remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
@@ -12,7 +13,14 @@ from src.backend.modules.search.abstract_card_searcher import AbstractCardSearch
 from src.backend.modules.search.llama_index import LlamaIndexExecutor, LlamaIndexSearcher
 from src.backend.modules.search.search_by_substring import SearchBySubstring
 from src.backend.modules.search.search_by_substring_fuzzy import SearchBySubstringFuzzy
-from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS, CardState, Flag
+from src.backend.modules.srs.abstract_srs import (
+    AbstractCard,
+    AbstractDeck,
+    AbstractSRS,
+    CardState,
+    Flag,
+    MissingDeckException,
+)
 
 
 class AbstractActionState(ABC):
@@ -151,10 +159,21 @@ Is the user prompt a 'local' or 'global' task? Please **only** answer with 'loca
         self.user_prompt = user_prompt
         self.srs = srs
 
+    def preprocess_user_task(self, raw_task) -> str:
+        """
+        Preprocess the user task. Currently quite minimal, but could be expanded.
+        """
+        # TODO: Maybe even own state? Update: Definitely add own state that only fixes the task.
+        # currently only quotation marks. They cant be transcribed anyways.
+
+        return raw_task.replace('"', "").replace("'", "")
+
     def act(self) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
+            cleaned_user_prompt = self.preprocess_user_task(self.user_prompt)
+
             if attempt == 0:
-                message = self._prompt_template.format(user_input=self.user_prompt)
+                message = self._prompt_template.format(user_input=cleaned_user_prompt)
             else:
                 message = "Your answer must be either 'local' or 'global'."
 
@@ -165,9 +184,9 @@ Is the user prompt a 'local' or 'global' task? Please **only** answer with 'loca
             resp = find_substring_in_llm_response_or_null(response, "local", "global", True)
 
             if resp is True:
-                return StateTaskSearchDecks(self.user_prompt, self.llm, self.srs)
+                return StateTaskSearchDecks(cleaned_user_prompt, self.llm, self.srs)
             elif resp is False:
-                return StateTaskNoSearch(self.user_prompt, self.llm, self.srs)
+                return StateTaskNoSearch(cleaned_user_prompt, self.llm, self.srs)
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
@@ -832,6 +851,7 @@ If no deck exists with the given name, you will receive an error and can try aga
 "answer": "<answer here>", "state": "<card state here>", "flag": "<flag here>"}}
 Calling this function will add a new card to the deck with the given name.
 If no deck exists with the given name, you will receive an error and can try again.
+The user input has speech-to-text errors, so please fix capitalization in question and answer!
 Valid flags are: ['none', 'red', 'orange', 'green', 'blue', 'pink', 'turquoise', 'purple']
 Valid card states are: ['new', 'learning', 'review', 'suspended', 'buried']
 
@@ -929,7 +949,7 @@ Please answer only with the filled-in, valid json.
             new_name = cmd_dict["new_name"]
             deck = self.srs.get_deck_by_name_or_none(old_name)
             if deck is None:
-                raise ValueError(f"Deck {old_name} does not exist")
+                raise MissingDeckException(old_name)
             if self.srs.get_deck_by_name_or_none(new_name) is not None:
                 raise ValueError(f"New name {new_name} already exists")
             self.srs.rename_deck(deck, new_name)
@@ -939,7 +959,7 @@ Please answer only with the filled-in, valid json.
             name = cmd_dict["name"]
             deck = self.srs.get_deck_by_name_or_none(name)
             if deck is None:
-                raise ValueError(f"Deck {name} does not exist")
+                raise MissingDeckException(name)
             self.srs.delete_deck(deck)
             return
 
@@ -953,7 +973,7 @@ Please answer only with the filled-in, valid json.
             flag = Flag.from_str(flag)
             deck = self.srs.get_deck_by_name_or_none(deck_name)
             if deck is None:
-                raise ValueError(f"Deck {deck_name} does not exist")
+                raise MissingDeckException(deck_name)
 
             self.srs.add_card(deck, question, answer, flag, state)
             return
@@ -983,6 +1003,21 @@ Please answer only with the filled-in, valid json.
                 # )
             except JSONDecodeError as jde:
                 message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
+            except MissingDeckException as mde:
+                if mde.deck_name is None:
+                    message = "You must provide a deck name."
+                else:
+                    deck_names = [deck.name for deck in self.srs.get_all_decks()]
+                    similar_deck_names = "\n".join(
+                        f"* {deck_name}"
+                        for deck_name in sorted(deck_names, key=lambda x: Levenshtein.distance(x, mde.deck_name))[:2]
+                    )
+                    message = (
+                        "The deck empty deck does not exist. The following existing decks have similar names:\n\n"
+                        f"{similar_deck_names}"
+                        "\n\nIf one of this names roughly matches the name the user gave you, please just assume there "
+                        "was an audio-to-text error and just use this deck name! Please try again."
+                    )
             except Exception as e:  # TODO: We need a rollback-function here.
                 message = f"An exception occurred during command execution: {e}. Please try again."
 

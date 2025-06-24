@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, ClassVar, Generic, TypeVar
 
+from overrides.final import final
 from typeguard import typechecked
 
 TCard = TypeVar("TCard", bound="AbstractCard")  # Must be a subtype of AbstractCard
@@ -140,6 +141,26 @@ class AbstractCard(ABC):
         raise NotImplementedError
 
 
+class MissingDeckException(Exception):
+
+    def __init__(self, deck_name: str | None = None, deck_id: DeckID | None = None, *args: object) -> None:
+        self.deck_name = deck_name
+        self.deck_id = deck_id
+        if deck_name is None and deck_id is None:
+            raise ValueError("At least one of deck_name or deck_id must be specified.")
+        super().__init__(*args)
+
+    def __str__(self):
+        if self.deck_name is not None and self.deck_id is not None:
+            return f"Deck '{self.deck_name}' with id {self.deck_id} does not exist."
+        elif self.deck_name is not None:
+            return f"Deck '{self.deck_name}' does not exist."
+        elif self.deck_id is not None:
+            return f"Deck with id {self.deck_id} does not exist."
+        else:
+            raise AssertionError("Unreachable.")
+
+
 class AbstractSRS(Generic[TCard, TDeck], ABC):
     """Abstract class for a spaced repetition system (SRS), such as Anki."""
 
@@ -156,14 +177,15 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
     def deck_exists(self, deck: TDeck) -> bool:
         """Check if the given deck exists."""
 
+    @final
     def get_deck_by_name(self, deck_name: str) -> TDeck:
         """
         Retrieve a deck by name.
-        If the deck does not exist, an error is thrown.
+        If the deck does not exist, an MissingDeckException is thrown.
         """
         deck = self.get_deck_by_name_or_none(deck_name)
         if deck is None:
-            raise ValueError(f"Deck '{deck_name}' does not exist.")
+            raise MissingDeckException(deck_name=deck_name)
         return deck
 
     @abstractmethod
@@ -173,14 +195,15 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
         If the deck does not exist, return None.
         """
 
+    @final
     def get_deck_by_id(self, deck_id: DeckID) -> TDeck:
         """
         Retrieve a deck by id.
-        If the deck does not exist, an error is thrown.
+        If the deck does not exist, an MissingDeckException is thrown.
         """
         deck = self.get_deck_by_id_or_none(deck_id)
         if deck is None:
-            raise ValueError(f"Deck with id {deck_id} does not exist.")
+            raise MissingDeckException(deck_id=deck_id)
         return deck
 
     @abstractmethod
