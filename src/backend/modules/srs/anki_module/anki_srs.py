@@ -37,6 +37,8 @@ from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, Abs
 from src.backend.modules.srs.abstract_srs import CardID as LocalCardID
 from src.backend.modules.srs.abstract_srs import DeckID as LocalDeckID
 
+from src.backend.modules.search.llama_index import LlamaIndexExecutor
+
 logger = logging.getLogger(__name__)
 
 # General directory for storing Anki collections
@@ -144,9 +146,9 @@ class AnkiCard(AbstractCard):
             answer=note.fields[1 - raw_card.ord],
             state=AnkiCard.__get_state_raw(raw_card),
             flag=AnkiCard.__get_flag_raw(raw_card),
+            deck=deck,
         )
         self.note = note
-        self.deck = deck
         self.raw_card = raw_card
 
     @override
@@ -218,6 +220,7 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         collection_path = os.path.join(self.dir, "collection.anki2")
         logger.debug(f"Collection path: {os.path.abspath(collection_path)}")
         self.col = Collection(collection_path)
+        self.llama_index_executor = LlamaIndexExecutor(anki_user)
 
     # Decks
     @override
@@ -231,8 +234,9 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
 
         deck_id = self.col.decks.id(deck_name)
         logger.debug(f"Deck '{deck_name}' is added.")
-
-        return AnkiDeck(LocalDeckID(deck_id), deck_name)
+        anki_deck = AnkiDeck(LocalDeckID(deck_id), deck_name)
+        self.llama_index_executor.add_deck(anki_deck)
+        return anki_deck
 
     @override
     def deck_exists(self, deck: AnkiDeck) -> bool:
@@ -266,13 +270,15 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
     def get_all_decks(self) -> list[AnkiDeck]:
         """Returns all deck names and corresponding IDs."""
         decks = self.col.decks.all_names_and_ids()
-        return [AnkiDeck(deck.id, deck.name) for deck in decks]
+        return [AnkiDeck(LocalDeckID(deck.id), deck.name) for deck in decks]
 
     @override
     def rename_deck(self, deck: AnkiDeck, new_name: str) -> None:
         self._verify_deck_exists(deck)
         logger.debug(f"Rename deck '{deck.name}' (ID={deck.id.numeric_id}) to '{new_name}'")
         self.col.decks.rename(deck.id.numeric_id, new_name)
+        deck.name = new_name
+        self.llama_index_executor.modify_deck(deck)
 
     @override
     def delete_deck(self, deck: AnkiDeck) -> None:
@@ -280,6 +286,7 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         if deck.name == "Default":
             raise ValueError("The default deck cannot be deleted.")
         self.col.decks.remove([deck.id.numeric_id])
+        self.llama_index_executor.remove_deck(deck.id)
 
     # Cards
     @override
@@ -296,6 +303,8 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
 
         if state != CardState.NEW:
             self.edit_card_state(card, state)
+
+        self.llama_index_executor.add_card(card)
 
         return self.get_card(card.id)
 
@@ -341,12 +350,14 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         self.col.update_card(raw_card)
         logger.debug(f"Change deck of card ID={card.id.numeric_id} from '{card.deck.name}' to '{new_deck.name}'.")
 
-        return AnkiCard(card.note, new_deck, card.raw_card)
+        modified_card = AnkiCard(card.note, new_deck, card.raw_card)
+        self.llama_index_executor.modify_card(modified_card)
+        return modified_card
 
     @override
     def get_cards_in_deck(self, deck: AnkiDeck) -> list[AnkiCard]:
         self._verify_deck_exists(deck)
-        card_ids = self.col.find_cards(f"deck:{deck.name}")
+        card_ids = self.col.find_cards(f'deck:"{deck.name}"')
         logger.debug(f"Retrieved {len(card_ids)} cards from deck '{deck.name}'.")
 
         return [self.get_card_or_none(LocalCardID(card_id)) for card_id in card_ids]
@@ -355,20 +366,26 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
     def edit_card_question(self, card: AnkiCard, new_question: str) -> AnkiCard:
         self._verify_card_exists(card)
         self.edit_note(card.note.id, question=new_question)
-        return self.get_card_or_none(card.id)
+        modified_card = self.get_card_or_none(card.id)
+        self.llama_index_executor.modify_card(modified_card)
+        return modified_card
 
     @override
     def edit_card_answer(self, card: AnkiCard, new_answer: str) -> AnkiCard:
         self._verify_card_exists(card)
         self.edit_note(card.note.id, answer=new_answer)
-        return self.get_card_or_none(card.id)
+        modified_card = self.get_card_or_none(card.id)
+        self.llama_index_executor.modify_card(modified_card)
+        return modified_card
 
     @override
     def edit_card_flag(self, card: AnkiCard, new_flag: Flag) -> AnkiCard:
         self._verify_card_exists(card)
         card.set_flag(new_flag)
         self.col.update_card(card.raw_card)
-        return self.get_card_or_none(card.id)
+        modified_card = self.get_card_or_none(card.id)
+        self.llama_index_executor.modify_card(modified_card)
+        return modified_card
 
     @override
     def edit_card_state(self, card: AnkiCard, new_state: CardState) -> AnkiCard:
@@ -383,13 +400,14 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         self._verify_deck_exists(deck)
         logger.debug(f"Copying card ID={card.id.numeric_id} from deck '{card.deck.name}' to deck '{deck.name}'...")
         new_card = self.add_card(deck, card.question, card.answer, card.flag, card.state)
-
+        self.llama_index_executor.add_card(new_card)
         return new_card
 
     @override
     def delete_card(self, card: AnkiCard) -> None:
         self._verify_card_exists(card)
         self.delete_cards_by_ids([card.id.numeric_id])  # returns the amount of cards deleted
+        self.llama_index_executor.remove_card(card.id)
 
     def delete_cards_by_ids(self, card_ids: list[int]) -> int:
         """
@@ -512,7 +530,7 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         if deck is None:
             return []
 
-        card_ids = self.col.find_cards(f"deck:{deck_name}")
+        card_ids = self.col.find_cards(f'deck:"{deck_name}"')
         note_ids = {self.col.get_card(cid).nid for cid in card_ids}
 
         result = []

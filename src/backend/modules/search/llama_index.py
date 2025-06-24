@@ -35,7 +35,7 @@ def abstract_card_to_document(card: AbstractCard) -> Document:
     return Document(
         doc_id=card.id.hex_id(),
         text=f"Q: {card.question}\nA: {card.answer}",
-        metadata={},
+        metadata={"flag": card.flag.value, "deck_id": card.deck.id.hex_id()},
     )
 
 
@@ -139,7 +139,7 @@ class LlamaIndexExecutor:
         self.deck_index.delete_ref_doc(deck_id.hex_id(), delete_from_docstore=True)
 
     def modify_deck(self, deck: AbstractDeck):
-        deck_document = abstract_card_to_document(deck)
+        deck_document = abstract_deck_to_document(deck)
         self.deck_index.update_ref_doc(
             deck_document,
         )

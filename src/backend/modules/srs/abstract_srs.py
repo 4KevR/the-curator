@@ -127,13 +127,15 @@ class AbstractCard(ABC):
     answer: str
     flag: Flag
     state: CardState
+    deck: AbstractDeck
 
-    def __init__(self, card_id: CardID, question: str, answer: str, flag: Flag, state: CardState):
+    def __init__(self, card_id: CardID, question: str, answer: str, flag: Flag, state: CardState, deck: AbstractDeck):
         self.id = card_id
         self.question = question
         self.answer = answer
         self.flag = flag
         self.state = state
+        self.deck = deck
 
     @abstractmethod
     def to_hashable(self) -> Any:

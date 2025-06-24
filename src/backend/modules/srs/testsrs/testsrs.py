@@ -17,7 +17,6 @@ from src.backend.modules.srs.abstract_srs import (
 )
 
 
-@dataclass(frozen=False)
 @typechecked
 class TestCard(AbstractCard):
     """
@@ -37,13 +36,28 @@ class TestCard(AbstractCard):
     """
 
     id: CardID
-    deck: "TestDeck"
     question: str
     answer: str
     flag: Flag
     state: CardState
+    deck: "TestDeck"
     fuzzymatch_question: bool = False
     fuzzymatch_answer: bool = False
+
+    def __init__(
+        self,
+        id: CardID,
+        question: str,
+        answer: str,
+        flag: Flag,
+        state: CardState,
+        deck: "TestDeck",
+        fuzzymatch_question: bool = False,
+        fuzzymatch_answer: bool = False,
+    ):
+        super().__init__(id=id, question=question, answer=answer, flag=flag, state=state, deck=deck)
+        self.fuzzymatch_question = fuzzymatch_question
+        self.fuzzymatch_answer = fuzzymatch_answer
 
     def __str__(self):
         return (
