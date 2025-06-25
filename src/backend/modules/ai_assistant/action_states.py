@@ -136,11 +136,11 @@ The user gave the following input:
 There are two categories of tasks:
 
 Category 'search' contains the following tasks:
+Searching for cards (by keyword or by content) and
 
-Searching for cards (by keyword or by content and)
 * editing found cards or
 * deleting found cards or
-* adding found cards to new or existing decks.
+* adding existing, found cards to new or existing decks.
 
 Creating a new deck and adding existing cards to it is 'search' too.
 
@@ -148,6 +148,7 @@ Creating a new deck and adding existing cards to it is 'search' too.
 Category 'global' contains the following tasks:
 
 * Adding new, empty decks.
+* Adding new cards to existing decks.
 * Renaming decks.
 * Deleting decks.
 * Creating new cards and adding them to a deck.
