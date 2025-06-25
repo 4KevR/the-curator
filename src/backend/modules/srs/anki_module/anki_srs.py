@@ -9,19 +9,17 @@ from typing import Any
 from anki.collection import Collection  # Must be placed at the top, or circular import will occur.
 from anki.cards import Card, CardId
 from anki.consts import (
-    CardQueue,
-    CardType,
-    QUEUE_TYPE_MANUALLY_BURIED,
-    QUEUE_TYPE_NEW,
-    QUEUE_TYPE_LRN,
-    QUEUE_TYPE_DAY_LEARN_RELEARN,
-    QUEUE_TYPE_REV,
-    QUEUE_TYPE_SUSPENDED,
     CARD_TYPE_NEW,
     CARD_TYPE_LRN,
     CARD_TYPE_REV,
     CARD_TYPE_RELEARNING,
+    QUEUE_TYPE_MANUALLY_BURIED,
     QUEUE_TYPE_SIBLING_BURIED,
+    QUEUE_TYPE_SUSPENDED,
+    QUEUE_TYPE_NEW,
+    QUEUE_TYPE_LRN,
+    QUEUE_TYPE_REV,
+    QUEUE_TYPE_DAY_LEARN_RELEARN,
     QUEUE_TYPE_PREVIEW,
 )
 from anki.decks import DeckId
@@ -46,7 +44,8 @@ _base_dir = os.getenv("ANKI_COLLECTION_PATH", "data/anki_collection")
 
 @typechecked
 class AnkiDeck(AbstractDeck):
-    pass
+    def __str__(self):
+        return f"""Deck: '{self.name}', Id: {self.id.numeric_id}"""
 
 
 @typechecked
@@ -55,41 +54,43 @@ class AnkiCard(AbstractCard):
     deck: AnkiDeck
     raw_card: Card
 
-    __type_map = {  # map is exhaustive
+    _type_map = {  # map is exhaustive
         CardState.NEW: CARD_TYPE_NEW,
         CardState.LEARNING: CARD_TYPE_LRN,
         CardState.REVIEW: CARD_TYPE_REV,
+        CardState.RELEARN: CARD_TYPE_RELEARNING,
         CardState.BURIED: CARD_TYPE_NEW,  # should do it
         CardState.SUSPENDED: CARD_TYPE_NEW,  # should do it
     }
 
-    __type_map_rev = {  # map is exhaustive; there are no other internal card types.
+    _type_map_rev = {  # map is exhaustive; there are no other internal card types.
         CARD_TYPE_NEW: CardState.NEW,
         CARD_TYPE_LRN: CardState.LEARNING,
         CARD_TYPE_REV: CardState.REVIEW,
-        CARD_TYPE_RELEARNING: CardState.REVIEW,
+        CARD_TYPE_RELEARNING: CardState.RELEARN,
     }
 
-    __queue_map = {
+    _queue_map = {
         CardState.BURIED: QUEUE_TYPE_MANUALLY_BURIED,
         CardState.SUSPENDED: QUEUE_TYPE_SUSPENDED,
         CardState.NEW: QUEUE_TYPE_NEW,
         CardState.LEARNING: QUEUE_TYPE_LRN,
         CardState.REVIEW: QUEUE_TYPE_REV,
+        CardState.RELEARN: QUEUE_TYPE_DAY_LEARN_RELEARN,
     }
 
-    __queue_map_rev = {  # map is exhaustive; there are no other internal queue types.
+    _queue_map_rev = {
         QUEUE_TYPE_MANUALLY_BURIED: CardState.BURIED,
         QUEUE_TYPE_SIBLING_BURIED: CardState.BURIED,
         QUEUE_TYPE_SUSPENDED: CardState.SUSPENDED,
         QUEUE_TYPE_NEW: CardState.NEW,
         QUEUE_TYPE_LRN: CardState.LEARNING,
         QUEUE_TYPE_REV: CardState.REVIEW,
-        QUEUE_TYPE_DAY_LEARN_RELEARN: CardState.REVIEW,
+        QUEUE_TYPE_DAY_LEARN_RELEARN: CardState.RELEARN,
         QUEUE_TYPE_PREVIEW: CardState.NEW,  # should be fine
     }
 
-    __flag_map = {  # exhaustive; these are all flags that exist
+    _flag_map = {  # exhaustive; these are all flags that exist
         Flag.NONE: 0,
         Flag.RED: 1,
         Flag.ORANGE: 2,
@@ -100,23 +101,23 @@ class AnkiCard(AbstractCard):
         Flag.PURPLE: 7,
     }
 
-    __flag_map_rev = {__v: __k for (__k, __v) in __flag_map.items()}  # map is exhaustive
+    _flag_map_rev = {__v: __k for (__k, __v) in _flag_map.items()}  # map is exhaustive
 
     @staticmethod  # needed for constructor
     def __get_flag_raw(raw_card: Card):
-        return AnkiCard.__flag_map_rev[raw_card.flags]
+        return AnkiCard._flag_map_rev[raw_card.flags]
 
     def get_flag(self) -> Flag:
         return self.__get_flag_raw(self.raw_card)
 
     def set_flag(self, new_flag: Flag) -> None:
         """Note that this is **not yet** persisted to the Anki collection."""
-        self.raw_card.flags = self.__flag_map[new_flag]
+        self.raw_card.flags = self._flag_map[new_flag]
 
     @staticmethod  # needed for constructor
     def __get_state_raw(raw_card: Card):
-        queue_state = AnkiCard.__queue_map_rev[raw_card.queue]
-        type_state = AnkiCard.__type_map_rev[raw_card.type]
+        queue_state = AnkiCard._queue_map_rev[raw_card.queue]
+        type_state = AnkiCard._type_map_rev[raw_card.type]
 
         if queue_state == type_state:
             return queue_state
@@ -132,8 +133,8 @@ class AnkiCard(AbstractCard):
 
     def set_state(self, new_state: CardState) -> None:
         """Note that this is **not yet** persisted to the Anki collection."""
-        self.raw_card.queue = self.__queue_map[new_state]
-        self.raw_card.type = self.__type_map[new_state]
+        self.raw_card.queue = self._queue_map[new_state]
+        self.raw_card.type = self._type_map[new_state]
 
     def __init__(self, note: Note, deck: AnkiDeck, raw_card: Card):
         # If raw_card.ord == 0, then the first field is the question, the second the answer.
@@ -155,8 +156,8 @@ class AnkiCard(AbstractCard):
 
     def __str__(self):
         return (
-            f"AnkiCard(id={self.id}, deck={self.deck.name}, question={self.question}, answer={self.answer}, "
-            f"state={self.state}, flag={self.flag}, raw_card={self.raw_card}), "
+            f"AnkiCard(id={self.id.numeric_id}, deck={self.deck.name}, question={self.question}, answer={self.answer}, "
+            f"state={self.state.value}, flag={self.flag.value}, raw_card={self.raw_card}), "
             f"note={self.note.id})"
         )
 
@@ -171,6 +172,7 @@ class NoteCreationResult:
 @dataclass
 @typechecked
 class CardsDueToday:
+    card_ids: list[int]
     new: int
     learning: int
     review: int
@@ -559,6 +561,8 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         - 'hard': difficult
         - 'good': remember (normal)
         - 'easy': very easy
+
+        (only simulate click, no scheduling.)
         """
         grade_map = {
             "again": 0,
@@ -572,135 +576,4 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         card = self.col.get_card(CardId(card_id))
         card.answer = grade_map[ease]
         logger.debug(f"Set CardID_{card.id} memory grade: {ease}")
-        self.col.update_card(card)
-
-    # noinspection SqlNoDataSourceInspection
-    def activate_preview_cards(self, deck_name: str) -> None:
-        """
-        Activate all new cards in queue=0 (Preview) of the specified deck to queue=1 (New),
-        so that it can enter the normal learning process.
-        """
-        self.col.db.execute(
-            "UPDATE cards SET queue = 1 WHERE did = ? AND type = 0 AND queue = 0",
-            self.get_deck_by_name(deck_name).id.numeric_id,
-        )
-
-    # noinspection SqlNoDataSourceInspection
-    def count_cards_due_today(self, deck_name: str) -> CardsDueToday:
-        """How many cards need to be learned today."""
-        today = self.col.sched.today
-
-        # Query all active cards
-        cards = self.col.db.list(
-            "SELECT id FROM cards WHERE did = ? AND queue IN (1, 2, 3)",
-            self.get_deck_by_name(deck_name).id.numeric_id,
-        )
-
-        count = {key: 0 for key in ("new", "learning", "review", "relearn")}
-
-        for card in cards:
-            card = self.col.get_card(card)
-
-            if card.queue == 1:
-                count["new"] += 1
-            elif card.due <= today:
-                if card.type == 3:
-                    count["relearn"] += 1
-                elif card.queue == 2:
-                    count["learning"] += 1
-                elif card.queue == 3:
-                    count["review"] += 1
-
-        count["total"] = sum(count.values())
-
-        return CardsDueToday(
-            new=count["new"],
-            learning=count["learning"],
-            review=count["review"],
-            relearn=count["relearn"],
-            total=count["total"],
-        )
-
-    # # TODO fix this
-    def learning_process(self):
-        raise NotImplementedError("Working")
-
-        self.activate_preview_cards(self.user_context.current_deck.name)
-
-        cards = self.col.db.list(
-            "SELECT id FROM cards WHERE did = ? AND queue IN (1, 2, 3)",
-            self.get_deck_by_name(self.user_context.current_deck.name).id.numeric_id,
-        )
-
-        for card_id in cards:
-            # card = self.col.get_card(card_id)
-
-            # set self.user_context.current_card
-            # get question and answer
-            ...
-
-            # 1.tts
-            # 2.wait user response
-            # 3.llm judge
-            # 4.set memory grade
-            # 5.ask user if he wants to set flag
-            # 6.set flag if needed
-
-    # ###########################################################
-    # ######### Following functions are not used ################
-    # ###########################################################
-    # TODO @Zicheng please consider removing these functions. They are unused, and I can't imagine how we would use them
-    def set_type(self, card_id: int, type_code: int) -> None:
-        """
-        0: "New", # New card
-        1: "Learn", # Learning
-        2: "Review", # Review
-        3: "Relearn" # Relearn, once mastered but forgotten
-        """
-        assert type_code in [0, 1, 2, 3]
-        card = self.col.get_card(CardId(card_id))
-        card.type = CardType(type_code)
-        self.col.update_card(card)
-
-    def set_queue(self, card_id: int, queue_code: int) -> None:
-        """
-        We ignored "BURIED": -3 -2.
-
-        -1: "Suspended",  # Manually suspended; excluded from scheduling
-        0: "Preview",    # In preview mode (typically via filtered decks)
-        1: "New",        # New card, not yet learned
-        2: "Learning",   # In learning phase with steps
-        3: "Review",     # Due for review based on interval
-        4: "Filtered",   # In a filtered deck; temporary scheduling
-        """
-        assert queue_code in [-1, 0, 1, 2, 3, 4]
-        card = self.col.get_card(CardId(card_id))
-        card.queue = CardQueue(queue_code)
-        self.col.update_card(card)
-
-    def set_due(self, card_id: int, due: int) -> None:
-        """Set the due date (in days) for a specific card."""
-        card = self.col.get_card(CardId(card_id))
-        card.due = due
-        self.col.update_card(card)
-
-    def set_interval(self, card_id: int, ivl: int) -> None:
-        """Set the review interval (in days) for a specific card."""
-        card = self.col.get_card(CardId(card_id))
-        card.ivl = ivl
-        self.col.update_card(card)
-
-    def set_review_stats(self, card_id: int, reps: int = None, lapses: int = None, left: int = None) -> None:
-        """
-        :reps: total number of reviews
-        :lapses: number of abandonments (forgetting)
-        :left: number of remaining study times for the day
-        """
-        card = self.col.get_card(CardId(card_id))
-        if reps is not None:
-            card.reps = reps
-        if lapses is not None:
-            card.lapses = lapses
-        if left is not None:
-            card.left = left
         self.col.update_card(card)
