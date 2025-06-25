@@ -44,14 +44,6 @@
             "args": ["action-loop"]
         },
         {
-            "name": "CLI application: Action voice loop (WAV)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/run-cli.py",
-            "console": "integratedTerminal",
-            "args": ["action-loop-wav"]
-        },
-        {
             "name": "CLI application: Process file & Act",
             "type": "debugpy",
             "request": "launch",

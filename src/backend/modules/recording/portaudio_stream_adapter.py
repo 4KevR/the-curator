@@ -33,11 +33,6 @@ class PortaudioStream(BaseAdapter):
             input=True,
             frames_per_buffer=self.chunk_size,
         )
-        print("Format: ", self.format)
-        print("Channels: ", self.channel_count)
-        print("Rate: ", self.rate)
-        print("Chunk size: ", self.chunk_size)
-        print("Input device: ", self.input_id)
         self.queue = queue.Queue()
         self.running = True
         self.thread = threading.Thread(target=self._process_audio)

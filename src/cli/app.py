@@ -1,12 +1,11 @@
 import argparse
 import base64
-import tempfile
-import wave
 
 import requests
 from dotenv import load_dotenv
 
 from src.backend.modules.recording.recording_client import RecordingClient
+from src.cli.cli_socket import main as websocket_main
 from src.cli.local_lecture_translator import LocalLectureTranslatorASR
 from src.cli.tts import tts_and_play
 
@@ -63,32 +62,6 @@ def enter_action_loop():
     except KeyboardInterrupt:
         print("\nStopping action loop.")
         lecture_translator._send_end()
-
-
-def enter_action_loop_whisper():
-    client = RecordingClient()
-    user = input("Enter user identifier: ")
-    while True:
-        input("Press Enter to start the recording...")
-        client.get_next_batch()
-        input("Press Enter to send the next batch...")
-        batch = client.get_next_batch()
-        if not batch:
-            print("No audio data recorded.")
-            continue
-        # Save batch as temporary wav file
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
-            with wave.open(tmp_wav, "wb") as wf:
-                wf.setnchannels(1)
-                wf.setsampwidth(2)  # 16-bit PCM
-                wf.setframerate(16000)
-                wf.writeframes(batch)
-            tmp_wav_path = tmp_wav.name
-        with open(tmp_wav_path, "rb") as f:
-            files = {"file": (tmp_wav_path, f, "audio/wav")}
-            data = {"user": user}
-            response = requests.post("http://127.0.0.1:5000/action-wav", files=files, data=data)
-            print(f"Response: {response.status_code} - {response.text}")
 
 
 def process_audio_file(file_path: str):
@@ -149,6 +122,12 @@ def main():
     )
     file_parser.add_argument("file_path", type=str, help="Path to the local audio file to process.")
     file_parser.set_defaults(func=lambda args: process_audio_file(args.file_path))
+
+    websocket_parser = subparsers.add_parser(
+        "websocket-mode",
+        help="Interact with the backend using websocket mode (Socket.IO).",
+    )
+    websocket_parser.set_defaults(func=lambda args: websocket_main())
 
     args = parser.parse_args()
     args.func(args)

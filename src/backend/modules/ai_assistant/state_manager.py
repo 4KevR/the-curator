@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Callable, Optional
 
 from src.backend.modules.ai_assistant.action_states import (
     AbstractActionState,
@@ -24,13 +25,20 @@ class StateManager:
 
     _current_state: AbstractActionState | None
 
-    def __init__(self, task_llm: AbstractLLM, srs: AbstractSRS, llama_index_executor: LlamaIndexExecutor):
+    def __init__(
+        self,
+        task_llm: AbstractLLM,
+        srs: AbstractSRS,
+        llama_index_executor: LlamaIndexExecutor,
+        progress_callback: Callable[[str, Optional[bool]], None] | None = None,
+    ):
         self.logging_llm = LoggingLLM(task_llm)
         self._current_state = None
         self.state_history: list[str] = []
         self.state_history.append(str(self._current_state))
         self.srs = srs
         self.llama_index_executor = llama_index_executor
+        self.progress_callback = progress_callback
 
     def run(self, user_prompt: str, log_states: bool = False) -> EvaluationResult:
 
@@ -39,14 +47,15 @@ class StateManager:
         while True:
             if log_states:
                 print(f"Current state: {self._current_state}")
+            if self.progress_callback:
+                self.progress_callback(f"Current State: {str(self._current_state)}")
 
-            next_state = self._current_state.act()
+            next_state = self._current_state.act(self.progress_callback)
             if next_state is None:
                 # now we know that we are in one of the end states.
                 # Only end states are: StateFinishedTask and StateAnswer.
                 answer = self._current_state.answer if isinstance(self._current_state, StateAnswer) else None
                 task_msg = self._current_state.message if isinstance(self._current_state, StateFinishedTask) else None
-
                 return EvaluationResult(task_msg, answer, self.state_history, self.logging_llm.get_log())
 
             self._current_state = next_state
