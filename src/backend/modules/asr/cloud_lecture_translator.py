@@ -25,19 +25,21 @@ class CloudLectureTranslatorASR(AbstractASR):
         self.text_queue = Queue()
         self._run_session()
         self._send_start()
+        self._start_listener()
 
     def _terminate_session(self):
         self._send_end()
         self.session_thread.join()
         self.session_keepalive_thread.join()
 
-    def _run_session(self):
-        session_id, stream_id = self._set_graph()
-        self.session_url = urljoin(self.url, f"{self.api}/{session_id}/{stream_id}/append")
-
+    def _start_listener(self):
         self.session_thread = Thread(target=self._read_text)
         self.session_thread.daemon = True
         self.session_thread.start()
+
+    def _run_session(self):
+        session_id, stream_id = self._set_graph()
+        self.session_url = urljoin(self.url, f"{self.api}/{session_id}/{stream_id}/append")
 
         time.sleep(1)
 
