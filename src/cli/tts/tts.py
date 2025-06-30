@@ -50,7 +50,7 @@ def tts_and_play(text: str) -> None:
         # write(file_name, _tts_model.synthesizer.output_sample_rate, np.array(audio))
 
 
-ALLOWED_CHARS = set("_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\n")
+ALLOWED_CHARS = set("`_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\n")
 
 
 def check_illegal_chars(text: str):
@@ -60,5 +60,5 @@ def check_illegal_chars(text: str):
 
 
 if __name__ == "__main__":
-    text = "Let's begin your interactive learning session."
+    text = "Let's begin your interactive learning session. What is `NLP`? What is `Transformer`?"
     tts_and_play(text)
