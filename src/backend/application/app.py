@@ -9,7 +9,7 @@ from src.backend.controllers.action import action_blueprint
 from src.backend.controllers.speech import speech_blueprint
 from src.backend.modules.ai_assistant import StateManager
 from src.backend.modules.asr.local_whisper_asr import LocalWhisperASR
-from src.backend.modules.llm import LMStudioLLM
+from src.backend.modules.llm.kit_llm_req import KitLLMReq
 from src.backend.modules.search.llama_index import LlamaIndexExecutor
 from src.backend.modules.srs.anki_module import AnkiSRS
 
@@ -18,7 +18,7 @@ app.register_blueprint(action_blueprint)
 app.register_blueprint(speech_blueprint)
 socketio = SocketIO(app)
 
-llm = LMStudioLLM("meta-llama-3.1-8b-instruct", 0.05, 2048)
+llm = KitLLMReq(os.getenv("LLM_URL"), 0.05, 2048)
 whisper_asr = LocalWhisperASR("openai/whisper-medium")
 anki_srs_adapters = {}
 llama_index_executors = {}

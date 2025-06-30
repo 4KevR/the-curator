@@ -8,6 +8,8 @@ import socketio
 
 from src.backend.modules.recording.recording_client import RecordingClient
 
+from .tts import tts_and_play
+
 ANSI_BOLD = "\033[1m"
 ANSI_GREEN = "\033[32m"
 ANSI_YELLOW = "\033[33m"
@@ -83,6 +85,7 @@ def on_action_result(data):
     quesion_answer = result_data.get("question_answer", None)
     if quesion_answer:
         print_result(quesion_answer)
+        tts_and_play(quesion_answer)
     # Add any pending SRS actions to the persistent list
     srs_actions.extend(current_actions)
     current_actions.clear()

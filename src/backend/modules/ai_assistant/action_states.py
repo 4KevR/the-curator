@@ -875,8 +875,6 @@ Please answer only with the operation you want to perform in the given format, a
                 flag=card.flag,
                 state=card.state,
             )
-            response = self.llm_communicator.send_message(message)
-            self._execute_command(response, card)
             self.llm_communicator.start_visibility_block()
 
             for attempt in range(self.MAX_ATTEMPTS_PER_CARD):

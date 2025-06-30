@@ -111,11 +111,6 @@ def main():
     )
     action_loop_parser.set_defaults(func=lambda args: enter_action_loop())
 
-    action_loop_whisper_parser = subparsers.add_parser(
-        "action-loop-wav", help="Enter the action loop using wav file upload."
-    )
-    action_loop_whisper_parser.set_defaults(func=lambda args: enter_action_loop_whisper())
-
     file_parser = subparsers.add_parser(
         "process-file",
         help="Process an audio file and send transcription to the action endpoint.",
