@@ -2,7 +2,7 @@ import subprocess
 import time
 from typing import Any, Optional, cast
 
-from src.backend.modules.recording.input_stream_adapter import BaseAdapter
+from src.shared.recording.input_stream_adapter import BaseAdapter
 
 
 class FfmpegStream(BaseAdapter):

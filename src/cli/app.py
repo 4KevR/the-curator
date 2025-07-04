@@ -4,10 +4,9 @@ import base64
 import requests
 from dotenv import load_dotenv
 
-from src.backend.modules.recording.recording_client import RecordingClient
 from src.cli.cli_socket import main as websocket_main
-from src.cli.local_lecture_translator import LocalLectureTranslatorASR
 from src.cli.tts import tts_and_play
+from src.shared.recording.recording_client import RecordingClient
 
 load_dotenv(".env.local")
 
@@ -43,43 +42,44 @@ def send_action(transcription: str, user: str):
         "transcription": transcription,
         "user": user,
     }
-    requests.post(url="http://127.0.0.1:5000/action", json=data)
+    res = requests.post(url="http://127.0.0.1:5000/action", json=data)
+    if res.status_code != 200:
+        print(f"Error sending action: {res.status_code} - {res.text}")
+    else:
+        print(f"Action sent successfully: {res.json()}")
 
 
-def enter_action_loop():
-    """Enter an action loop to continuously send transcriptions with the lecture translator."""
-    print("Entering action loop...")
-    lecture_translator = LocalLectureTranslatorASR()
-    client = RecordingClient()
-    try:
-        while True:
-            batch = client.get_next_batch()
-            data = {
-                "b64_pcm": base64.b64encode(batch).decode("ascii"),
-                "duration": len(batch) / 32000,
-            }
-            lecture_translator._send_audio(encoded_audio=data["b64_pcm"], duration=data["duration"])
-    except KeyboardInterrupt:
-        print("\nStopping action loop.")
-        lecture_translator._send_end()
-
-
-def process_audio_file(file_path: str):
-    """Enter an action loop to continuously send transcriptions."""
-    print("Entering action loop...")
-    lecture_translator = LocalLectureTranslatorASR()
+def process_audio_file(file_path: str, user: str):
+    """Process an audio file, transcribe each batch, and send actions to the server."""
+    print("Processing audio file and sending actions...")
     client = RecordingClient(file_path)
+    batch = b""
     while True:
-        batch = client.get_next_batch()
-        data = {
-            "b64_pcm": base64.b64encode(batch).decode("ascii"),
-            "duration": len(batch) / 32000,
-        }
-        if not data["b64_pcm"]:
+        batch_to_add = client.get_next_batch()
+        if not batch_to_add:
             print("No more audio data to process.")
             break
-        lecture_translator._send_audio(encoded_audio=data["b64_pcm"], duration=data["duration"])
-    lecture_translator._send_end()
+        batch += batch_to_add
+    data = {
+        "b64_pcm": base64.b64encode(batch).decode("ascii"),
+        "duration": len(batch) / 16000,
+    }
+    response = requests.post(url="http://127.0.0.1:5000/transcribe", json=data)
+    if response.status_code != 200:
+        print(f"Transcription error: {response.status_code} - {response.text}")
+        return
+    transcription = response.json().get("transcription", "")
+    print(f"Transcription: {transcription}")
+    if transcription:
+        action_data = {
+            "transcription": transcription,
+            "user": user,
+        }
+        action_response = requests.post(url="http://127.0.0.1:5000/action", json=action_data)
+        if action_response.status_code != 200:
+            print(f"Action error: {action_response.status_code} - {action_response.text}")
+        else:
+            print(f"Action response: {action_response.json()}")
 
 
 def main():
@@ -106,17 +106,17 @@ def main():
     )
     action_parser.set_defaults(func=lambda args: send_action(args.transcription, args.user))
 
-    action_loop_parser = subparsers.add_parser(
-        "action-loop", help="Enter the action loop to continuously send transcriptions."
-    )
-    action_loop_parser.set_defaults(func=lambda args: enter_action_loop())
-
     file_parser = subparsers.add_parser(
         "process-file",
         help="Process an audio file and send transcription to the action endpoint.",
     )
     file_parser.add_argument("file_path", type=str, help="Path to the local audio file to process.")
-    file_parser.set_defaults(func=lambda args: process_audio_file(args.file_path))
+    file_parser.add_argument(
+        "user",
+        type=str,
+        help="User identifier to associate with the action.",
+    )
+    file_parser.set_defaults(func=lambda args: process_audio_file(args.file_path, args.user))
 
     websocket_parser = subparsers.add_parser(
         "websocket-mode",

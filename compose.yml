@@ -11,6 +11,8 @@ services:
       - .env.db
     environment:
       - IN_DOCKER=1
+    depends_on:
+      - vector-db
   vector-db:
     image: pgvector/pgvector:pg17
     container_name: pgvector-db

@@ -2,6 +2,7 @@
 # The above model is deployed locally in LM Studio.
 # First check the port usage, the default port is 1234.
 # Then start the server using "lms server start"
+import os
 
 from openai import OpenAI
 from overrides import overrides
@@ -21,7 +22,10 @@ class LMStudioLLM(AbstractLLM):
         no_think: bool = False,
     ):
         """Initialize the LLM Studio client."""
-        self.client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+        if int(os.getenv("IN_DOCKER", "0")):
+            self.client = OpenAI(base_url="http://host.docker.internal:1234/v1", api_key="lm-studio")
+        else:
+            self.client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
         self.default_temperature = default_temperature
         self.default_max_tokens = default_max_tokens
         self.model = model

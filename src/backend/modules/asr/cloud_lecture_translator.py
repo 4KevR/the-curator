@@ -12,7 +12,7 @@ import requests
 from sseclient import SSEClient
 
 from src.backend.modules.asr.abstract_asr import AbstractASR
-from src.backend.modules.recording.ffmpeg_stream_adapter import FfmpegStream
+from src.shared.recording.ffmpeg_stream_adapter import FfmpegStream
 
 logger = logging.getLogger(__name__)
 
@@ -190,9 +190,10 @@ class CloudLectureTranslatorASR(AbstractASR):
         """Transcribe a chunk of audio data."""
         self._empty_queue()
         chunk_size = 10000
+        chunk_duration = duration / (len(audio_chunk) / chunk_size)
         for i in range(0, len(audio_chunk), chunk_size):
             chunk = audio_chunk[i : i + chunk_size]
-            self._send_audio(chunk, duration)
+            self._send_audio(chunk, chunk_duration)
         self._send_white_noise()
         time.sleep(5)
         return self._read_from_queue()

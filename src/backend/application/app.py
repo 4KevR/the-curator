@@ -1,17 +1,23 @@
 import base64
+import logging
 import os
 import tempfile
+from collections import defaultdict
 
+import nltk
 from flask import Flask
 from flask_socketio import SocketIO, emit
 
 from src.backend.controllers.action import action_blueprint
 from src.backend.controllers.speech import speech_blueprint
 from src.backend.modules.ai_assistant import StateManager
+from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR
 from src.backend.modules.asr.local_whisper_asr import LocalWhisperASR
 from src.backend.modules.llm.kit_llm_req import KitLLMReq
 from src.backend.modules.search.llama_index import LlamaIndexExecutor
 from src.backend.modules.srs.anki_module import AnkiSRS
+
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.register_blueprint(action_blueprint)
@@ -20,8 +26,10 @@ socketio = SocketIO(app)
 
 llm = KitLLMReq(os.getenv("LLM_URL"), 0.05, 2048)
 whisper_asr = LocalWhisperASR("openai/whisper-medium")
-anki_srs_adapters = {}
-llama_index_executors = {}
+lecture_translator_asr: dict[str, CloudLectureTranslatorASR] = {}
+anki_srs_adapters: dict[str, AnkiSRS] = {}
+llama_index_executors: dict[str, LlamaIndexExecutor] = {}
+temporary_user_data: dict[str, str] = defaultdict(str)
 
 
 def get_adapters(user_name):
@@ -55,7 +63,7 @@ def handle_submit_action(data):
 
 @socketio.on("submit_action_file")
 def handle_submit_action_file(data):
-    print("Received file action request")
+    logger.info("Received file action request")
     user = data.get("user")
     file_b64 = data.get("file_b64")
     if not user or not file_b64:
@@ -84,3 +92,46 @@ def handle_submit_action_file(data):
         emit("action_error", {"error": str(e)})
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
+
+
+@socketio.on("start_audio_streaming")
+def handle_start_audio_streaming(data):
+    user = data.get("user")
+    lecture_translator_asr[user] = CloudLectureTranslatorASR()
+    emit("acknowledged_stream_start", {"user": user})
+    logger.info(f"Started audio streaming for user: {user}")
+    temporary_user_data[user] = ""
+
+
+@socketio.on("submit_stream_batch")
+def handle_submit_stream_batch(data):
+    user = data.get("user")
+    print(f"Received stream batch for user: {user}")
+    b64_pcm = data.get("b64_pcm")
+    duration = data.get("duration", 0)
+    if not user or not b64_pcm:
+        emit("action_error", {"error": "User and audio data required."})
+        return
+    data = {
+        "b64_pcm": b64_pcm,
+        "duration": duration,
+    }
+    lecture_translator_asr[user]._send_audio(encoded_audio=data["b64_pcm"], duration=data["duration"])
+    read_data = lecture_translator_asr[user]._read_from_queue()
+    if read_data:
+        emit("streamed_sentence_part", {"part": read_data})
+        temporary_user_data[user] += read_data
+    sentences = nltk.tokenize.sent_tokenize(temporary_user_data[user])
+    complete_sentences = [sentence for sentence in sentences if sentence.endswith((".", "!", "?"))]
+    if complete_sentences:
+        emit("received_complete_sentence", {"sentence": complete_sentences[0]})
+        temporary_user_data[user] = ""
+        anki_adapter, llama_executor = get_adapters(user)
+
+        def progress_callback(msg: str, is_srs_action: bool = False):
+            emit("action_progress", {"message": msg, "is_srs_action": is_srs_action})
+
+        result = StateManager(llm, anki_adapter, llama_executor, progress_callback=progress_callback).run(
+            complete_sentences[0], True
+        )
+        emit("action_result", {"result": result.__dict__})

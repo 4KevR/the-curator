@@ -7,7 +7,7 @@ from typing import Optional
 import numpy as np
 import pyaudio
 
-from src.backend.modules.recording.input_stream_adapter import BaseAdapter
+from src.shared.recording.input_stream_adapter import BaseAdapter
 
 
 class NoAudioDeviceException(Exception):
