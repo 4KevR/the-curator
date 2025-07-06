@@ -8,10 +8,8 @@ from dotenv import load_dotenv
 if os.path.basename(os.path.abspath(".")) != "the-curator":
     raise RuntimeError("This script must be run from the 'the-curator' directory.")
 
-
-from src.backend.modules.srs.abstract_srs import CardState, Flag  # noqa: E402
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from src.backend.modules.srs.abstract_srs import CardState, Flag  # noqa: E402
 from src.backend.modules.srs.anki_module.anki_srs import AnkiSRS  # noqa: E402
 
 if __name__ == "__main__":
@@ -81,15 +79,6 @@ if __name__ == "__main__":
         myCard = myAnki.edit_card_state(myCard, card_state)
         assert myCard.state == card_state
 
-    # Learn
-    # TODO: All statements after this line: Not sure what this does, so I can't create a test for it.
-    myAnki.set_memory_grade(myCard.id.numeric_id, "hard")
-
-    print("-" * 80)
-    print(myAnki.count_cards_due_today(myDeck.name))
-    myAnki.activate_preview_cards(myDeck.name)
-    print(myAnki.count_cards_due_today(myDeck.name))
-
     # Note
     print("\nNote" + "-" * 80)
     print(myAnki.list_all_notes())
@@ -101,4 +90,4 @@ if __name__ == "__main__":
     print("-" * 80)
     myAnki.export_deck_to_apkg(myDeck)
     myAnki.delete_deck(myDeck)
-    # myAnki.import_deck_from_apkg("path") # TODO Fix this test, path is not the correct path.
+    myAnki.import_deck_from_apkg("my_path")

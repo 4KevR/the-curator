@@ -137,20 +137,25 @@ The user gave the following input:
 
 There are two categories of tasks:
 
-Category 'local' contains the following tasks:
+Category 'search' contains the following tasks:
+Searching for cards (by keyword or by content) and
 
-* Editing specific cards.
-* Deleting specific cards.
+* editing found cards or
+* deleting found cards or
+* adding existing, found cards to new or existing decks.
+
+Creating a new deck and adding existing cards to it is 'search' too.
 
 
 Category 'global' contains the following tasks:
 
 * Adding new, empty decks.
+* Adding new cards to existing decks.
 * Renaming decks.
 * Deleting decks.
 * Creating new cards and adding them to a deck.
 
-Is the user prompt a 'local' or 'global' task? Please **only** answer with 'local' or 'global' and **nothing else**.
+Is the user prompt a 'search' or 'global' task? Please **only** answer with 'search' or 'global' and **nothing else**.
 """.strip()  # TODO: I could add the option here to find impossible tasks.
 
     MAX_ATTEMPTS = 3
@@ -177,13 +182,13 @@ Is the user prompt a 'local' or 'global' task? Please **only** answer with 'loca
             if attempt == 0:
                 message = self._prompt_template.format(user_input=cleaned_user_prompt)
             else:
-                message = "Your answer must be either 'local' or 'global'."
+                message = "Your answer must be either 'search' or 'global'."
 
             response = self.llm_communicator.send_message(message)
 
             response = remove_block(response, "think")
             response = response.replace('"', "").replace("'", "")
-            resp = find_substring_in_llm_response_or_null(response, "local", "global", True)
+            resp = find_substring_in_llm_response_or_null(response, "search", "global", True)
 
             if resp is True:
                 return StateTaskSearchDecks(cleaned_user_prompt, self.llm, self.srs)
@@ -209,7 +214,10 @@ The following decks are available:
 
 If you want to search in all decks, answer "all". If you want to search in a specific deck, answer the name of the deck.
 If you want to search in multiple, specific decks, answer a comma-separated list of deck names.
-If you are unsure, rather include than exclude a deck. Make sure to exactly match the deck names.
+If you are unsure, rather include than exclude a deck.
+If you have no information about which decks to search in, answer "all".
+
+Make sure to exactly match the deck names.
 **Do not answer anything else**!
 """.strip()
     MAX_ATTEMPTS = 3
@@ -274,7 +282,7 @@ Please decide now how you want to search for cards. Your options are:
 * Search cards with fitting content: You give me a search prompt and I will search for cards that fit the search prompt. The search is *not* limited to exact wording, but searches for cards with fitting content.
 
 
-If you have exact keywords to look for, you should use exact search. If you have one or more words/phrases to search for, but you cannot be sure that all fitting cards contain the keywords/phrases exactly (e.g. plural form, quotation marks, etc.), use fuzzy search. If you want to search for a topic, use content-based search.
+If you have exact keywords to look for, you should use exact search. If you have one or more words/phrases to search for, but you cannot be sure that all fitting cards contain the keywords/phrases exactly (e.g. plural form, quotation marks, etc.), use fuzzy search. If you search for a topic, a category or a concept, or have any other search term that does not contain concrete search terms, use content search.
 
 Please answer "exact", "fuzzy" or "content", and **nothing else**. All other details will be determined later.
 """.strip()
@@ -321,19 +329,21 @@ The user gave the following input:
 
 You already decided that you have to search for cards, and that you want to use keyword search. You may search for one or more keywords.
 Please fill in the following template. Make sure to produce valid json.
+[
 {{
     "search_substring": "<search_substring_here>",
     "search_in_question": <bool here>,
     "search_in_answer": <bool here>,
     "case_sensitive": <bool here>
 }}
+]
 
 If you are unsure, use these defaults:
   search_in_question: true
   search_in_answer: true
   case_sensitive: false
 
-Please answer only with an json array [...] of filled-in, valid json object as described above.
+Please answer only with the json list of filled-in, valid json object as described above.
 """.strip()
     MAX_ATTEMPTS = 3
 
@@ -402,6 +412,7 @@ The user gave the following input:
 
 You already decided that you have to search for cards, and that you want to use fuzzy keyword search. You may search for one or more keywords.
 Please fill in the following template. Make sure to produce valid json.
+[
 {{
     "search_substring": "<search_substring_here>",
     "search_in_question": <bool here>,
@@ -409,6 +420,7 @@ Please fill in the following template. Make sure to produce valid json.
     "case_sensitive": <bool here>,
     "fuzzy": <float here>
 }}
+]
 
 If you are unsure, use these defaults:
   search_in_question: true
@@ -416,7 +428,9 @@ If you are unsure, use these defaults:
   case_sensitive: false
   fuzzy: 0.8
 
-Please answer only with an json array [...] of filled-in, valid json object as described above.
+If multiple keywords are specified, each card that matches at least one of the keywords will be returned. Only use multiple keywords if necessary; do not use substrings of other keywords.
+
+Please answer only with the json list of filled-in, valid json object as described above.
 """.strip()
     MAX_ATTEMPTS = 3
 
@@ -608,8 +622,8 @@ The user gave the following input:
 You decided to search for cards, and found {amount_cards} fitting cards. Nothing has been done with these cards yet. Now you have to decide what to do with the cards you found. You have the following options:
 
 * You can delete all cards you found from the system. ('delete_all')
-* You can copy all cards you found to a new deck, but keep them unchanged. You will be asked to specify the name of the new deck. ('copy_to_deck')
-* You can be presented every single card and you can decide individually what to do with each card (options are editing the card, deleting the card, or doing nothing with the card). ('stream_cards')
+* You can copy all cards you found to a deck. You will be asked to specify the name of the target deck. This also allows you to create a new deck and add all found cards to it. ('copy_to_deck')
+* You can be presented every single card and you can decide individually what to do with each card (options are editing the card, deleting the card, or doing nothing with the card). This is the only way to edit the found cards. ('stream_cards')
 
 Please answer only with the operation you want to perform, and nothing else. Again, the operations are:
 delete_all, copy_to_deck, stream_cards
@@ -657,36 +671,7 @@ delete_all, copy_to_deck, stream_cards
                 return StateFinishedTask(f"{len(self.found_cards)} cards deleted.")
 
             if response == "copy_to_deck":
-                # TODO: This got too big. Make an own state.
-                deck_list = "\n".join([f" * {it.name}" for it in self.srs.get_all_decks()])
-                deck_name = self.llm_communicator.send_message(
-                    "The cards can either be copied to an existing or new deck, depending on the user's request. "
-                    "If you are unsure, please create a new deck. If the user says to add the cards to 'the deck' and "
-                    "only one deck exists, please use that one.\n"
-                    "\n"
-                    "If you have to create a new deck, and the user provided a name, use that name. "
-                    "Else create a fitting name. Only use letters, numbers, spaces and underscores for the name."
-                    "\n\n"
-                    f"Remember, the user prompt was:\n {self.user_prompt}\n"
-                    "Currently, the following decks exist:\n"
-                    f"{deck_list}"
-                    "\n\n"
-                    "Please answer only with the name of the deck, and nothing else. "
-                )  # noqa: E999
-
-                deck_created = False
-                deck = self.srs.get_deck_by_name_or_none(deck_name)
-                if deck is None:
-                    deck = self.srs.add_deck(deck_name)
-                    deck_created = True
-
-                for card in self.found_cards:
-                    self.srs.copy_card_to(card, deck)
-
-                if deck_created:
-                    return StateFinishedTask(f"{len(self.found_cards)} cards copied to newly created deck {deck_name}.")
-                else:
-                    return StateFinishedTask(f"{len(self.found_cards)} cards copied to existing deck {deck_name}.")
+                return StateSearchCopyToDeck(self.user_prompt, self.llm, self.srs, self.found_cards)
 
             if response == "stream_cards":
                 return StateStreamFoundCards(
@@ -872,8 +857,8 @@ Please answer only with the operation you want to perform in the given format, a
                 user_task=self.user_prompt,
                 question=card.question,
                 answer=card.answer,
-                flag=card.flag,
-                state=card.state,
+                flag=card.flag.value,
+                state=card.state.value,
             )
             self.llm_communicator.start_visibility_block()
 

@@ -20,3 +20,7 @@ class AbstractLLM(ABC):
     @abstractmethod
     def get_description(self) -> str:
         """Get a description of the LLM."""
+
+    def generate_single(self, message: str, role: str = "user") -> str:
+        """Shorthand for generating a response from a single message."""
+        return self.generate([{"role": role, "content": message}])

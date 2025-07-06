@@ -98,6 +98,7 @@ class CardState(Enum):
     REVIEW = "review"
     SUSPENDED = "suspended"
     BURIED = "buried"
+    RELEARN = "relearn"
 
     @staticmethod
     def from_str(s: str):
