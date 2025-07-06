@@ -554,7 +554,8 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         card_ids = [card.id for card in note.cards()]
         return card_ids
 
-    def set_memory_grade(self, card_id: int, ease: str) -> None:
+    @override
+    def set_memory_grade(self, card_id: LocalCardID, ease: str) -> None:
         """
         Simulate user memory feedback:
         - 'again': can't remember (try again)
@@ -573,7 +574,7 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         if ease not in grade_map:
             raise ValueError("The memory level must be: again / hard / good / easy.")
 
-        card = self.col.get_card(CardId(card_id))
+        card = self.col.get_card(CardId(card_id.numeric_id))
         card.answer = grade_map[ease]
         logger.debug(f"Set CardID_{card.id} memory grade: {ease}")
         self.col.update_card(card)

@@ -1,7 +1,7 @@
 import json
 from abc import ABC, abstractmethod
 from json import JSONDecodeError
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 import pandas as pd
 from rapidfuzz.distance import Levenshtein
@@ -26,7 +26,9 @@ from src.backend.modules.srs.abstract_srs import (
 class AbstractActionState(ABC):
 
     @abstractmethod
-    def act(self) -> Optional["AbstractActionState"]:
+    def act(
+        self, progress_callback: Callable[[str, Optional[bool]], None] | None = None
+    ) -> Optional["AbstractActionState"]:
         """
         Returns
         * A (different) ActionState if the llm is now in another state.
@@ -50,7 +52,10 @@ class ExceedingMaxAttemptsError(Exception):
 
 class StateAction(AbstractActionState):
     _prompt_template = """
-You are an assistant of a flashcard management system. You assist a user in interacting with the system (creating/modifying/deleting cards/decks etc.) and in answering questions about the content of the flashcards.
+You are an assistant of a flashcard management system. You assist a user in interacting in three ways:
+1. Interacting with the flashcard system (creating/modifying/deleting cards/decks etc.),
+2. Answering questions about the content of the flashcards,
+3. Entering and managing study sessions (e.g., starting to learn or review a deck).
 
 The user gave the following prompt:
 
@@ -58,6 +63,7 @@ The user gave the following prompt:
 
 If you think the user wants you to **interact** with the flashcard system (e.g. creating, modifying, or deleting cards or decks), please answer "task".
 If the user wants you to answer a question about the content of the flashcards, please answer "question".
+If the user wants to **enter study mode**, such as learning or reviewing a specific deck, please answer "study".
 Do not answer anything else.
 """
     MAX_ATTEMPTS = 3
@@ -69,25 +75,31 @@ Do not answer anything else.
         self.srs = srs
         self.llama_index_executor = llama_index_executor
 
-    def act(self) -> AbstractActionState | None:
-        for attempt in range(self.MAX_ATTEMPTS):
-            if attempt == 0:
-                message = self._prompt_template.format(user_input=self.user_prompt)
-            else:
-                message = "Your answer must be either 'question' or 'task'."
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+        if self.srs.study_mode is True:
+            return StateClassify(self.user_prompt, self.llm, self.srs)
+        else:
+            for attempt in range(self.MAX_ATTEMPTS):
+                if attempt == 0:
+                    message = self._prompt_template.format(user_input=self.user_prompt)
+                else:
+                    message = "Your answer must be either 'question', 'task' or 'study'."
 
-            response = self.llm_communicator.send_message(message)
+                response = self.llm_communicator.send_message(message)
 
-            response = remove_block(response, "think")
-            response = response.replace('"', "").replace("'", "")
-            resp = find_substring_in_llm_response_or_null(response, "question", "task", True)
+                response = remove_block(response, "think")
+                response = response.replace('"', "").replace("'", "")
+                resp = find_substring_in_llm_response_or_null(response, "question", "task", True)
 
-            if resp is True:
-                return StateQuestion(self.user_prompt, self.llm, self.llama_index_executor)
-            elif resp is False:
-                return StateTask(self.user_prompt, self.llm, self.srs)
+                if resp is True:
+                    return StateQuestion(self.user_prompt, self.llm, self.llama_index_executor)
+                elif resp is False:
+                    return StateTask(self.user_prompt, self.llm, self.srs)
+                elif resp is None:
+                    if "study" in response.lower():
+                        return StateStartLearn(self.user_prompt, self.llm, self.srs)
 
-        raise ExceedingMaxAttemptsError(self.__class__.__name__)
+            raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateQuestion(AbstractActionState):
@@ -107,7 +119,7 @@ class StateQuestion(AbstractActionState):
         self.user_prompt = user_prompt
         self.llama_index_executor = llama_index_executor
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         fitting_nodes = self.llama_index_executor.search_cards(self.user_prompt)
         fitting_nodes = sorted(fitting_nodes, key=lambda x: x[1], reverse=True)[:5]
         fitting_nodes = "\n".join(fn[0] for fn in fitting_nodes)
@@ -121,7 +133,7 @@ class StateAnswer(AbstractActionState):
     def __init__(self, answer: str):
         self.answer = answer
 
-    def act(self) -> None:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> None:
         return None  # final state
 
 
@@ -173,7 +185,7 @@ Is the user prompt a 'search' or 'global' task? Please **only** answer with 'sea
 
         return raw_task  # .replace('"', "").replace("'", "")
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
             cleaned_user_prompt = self.preprocess_user_task(self.user_prompt)
 
@@ -228,8 +240,7 @@ Make sure to exactly match the deck names.
         self.possible_decks = self.srs.get_all_decks()
         self.possible_deck_names = {deck.name for deck in self.possible_decks}
 
-    def act(self) -> AbstractActionState | None:
-
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         message = self._prompt_template.format(
             user_input=self.user_prompt, decks=[str(it) for it in self.srs.get_all_decks()]
         )
@@ -293,7 +304,7 @@ Please answer "exact", "fuzzy" or "content", and **nothing else**. All other det
         self.decks_to_search_in = decks_to_search_in
         self.srs = srs
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
             if attempt == 0:
                 message = self._prompt_template.format(user_input=self.user_prompt)
@@ -352,7 +363,7 @@ Please answer only with the json list of filled-in, valid json object as describ
         self.decks_to_search_in = decks_to_search_in
         self.srs = srs
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         message = self._prompt_template.format(user_input=self.user_prompt)
         for attempt in range(self.MAX_ATTEMPTS):
             try:
@@ -439,7 +450,7 @@ Please answer only with the json list of filled-in, valid json object as describ
         self.decks_to_search_in = decks_to_search_in
         self.srs = srs
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         message = self._prompt_template.format(user_input=self.user_prompt)
         for attempt in range(self.MAX_ATTEMPTS):
             try:
@@ -516,7 +527,7 @@ Please answer only with the filled-in, valid json.
         self.decks_to_search_in = decks_to_search_in
         self.srs = srs
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         message = self._prompt_template.format(user_input=self.user_prompt)
         for attempt in range(self.MAX_ATTEMPTS):
             try:
@@ -577,7 +588,7 @@ class StateVerifySearch(AbstractActionState):
         ]
         self.found_cards = AbstractCardSearcher.union_search_all(searchers, self.all_cards)
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
             if attempt == 0:
                 if len(self.found_cards) <= self.SAMPLE_SIZE:
@@ -644,7 +655,7 @@ delete_all, copy_to_deck, stream_cards
         self.srs = srs
         self.found_cards = found_cards
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
             if attempt == 0:
                 message = self._prompt_template.format(
@@ -714,7 +725,7 @@ Now please answer the name of the deck that the search result should be saved to
         self.srs = srs
         self.found_cards = found_cards
 
-    def act(self) -> Optional["AbstractActionState"]:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> Optional["AbstractActionState"]:
         for attempt in range(self.MAX_ATTEMPTS):
             deck_list = "\n".join([f" * {it.name}" for it in self.srs.get_all_decks()])
             prompt = self._prompt_template.format(deck_list=deck_list, user_input=self.user_prompt)
@@ -792,13 +803,17 @@ Please answer only with the operation you want to perform in the given format, a
         self.srs = srs
         self.found_cards = found_cards
 
-    def _execute_command(self, response: str, card: AbstractCard):
+    def _execute_command(
+        self, response: str, card: AbstractCard, progress_callback: Callable[[str, Optional[bool]], None] | None = None
+    ):
         response = response.strip()
 
         if response == "do_nothing":
             return
         if response == "delete_card":
             self.srs.delete_card(card)
+            if progress_callback:
+                progress_callback(f"Deleted card: {card.question} - {card.answer}", True)
             return
 
         # only editing or wrong input left.
@@ -824,18 +839,28 @@ Please answer only with the operation you want to perform in the given format, a
         # edit card
         if "question" in parsed and parsed["question"] != card.question:
             self.srs.edit_card_question(card, parsed["question"])
+            if progress_callback:
+                progress_callback(
+                    f"Edited question of card: {card.question} - {card.answer} to {parsed['question']}", True
+                )
         if "answer" in parsed and parsed["answer"] != card.answer:
             self.srs.edit_card_answer(card, parsed["answer"])
+            if progress_callback:
+                progress_callback(f"Edited answer of card: {card.question} - {card.answer} to {parsed['answer']}", True)
         if "flag" in parsed and parsed["flag"] != card.flag:
             flag = Flag.from_str(parsed["flag"])
             self.srs.edit_card_flag(card, flag)
+            if progress_callback:
+                progress_callback(f"Set flag of card: {card.question} - {card.answer} to {parsed['flag']}", True)
         if "state" in parsed and parsed["state"] != card.state:
             state = CardState.from_str(parsed["state"])
             self.srs.edit_card_state(card, state)
+            if progress_callback:
+                progress_callback(f"Set state of card: {card.question} - {card.answer} to {parsed['state']}", True)
 
         return
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         for card in self.found_cards:
             message = self._prompt_template.format(
                 user_task=self.user_prompt,
@@ -849,7 +874,7 @@ Please answer only with the operation you want to perform in the given format, a
             for attempt in range(self.MAX_ATTEMPTS_PER_CARD):
                 response = self.llm_communicator.send_message(message)
                 try:
-                    self._execute_command(response, card)
+                    self._execute_command(response, card, progress_callback)
                     break  # if the command executed successfully
                 except JSONDecodeError as jde:
                     message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
@@ -976,7 +1001,9 @@ Please answer only with the filled-in, valid json.
 
         return parsed
 
-    def _execute_command(self, cmd_dict: dict[Any, Any]) -> None:
+    def _execute_command(
+        self, cmd_dict: dict[Any, Any], progress_callback: Callable[[str, Optional[bool]], None] | None = None
+    ) -> None:
         # execute tasks
         if cmd_dict["task"] == "create_deck":
             deck_name = cmd_dict["name"]
@@ -984,6 +1011,8 @@ Please answer only with the filled-in, valid json.
             if deck is not None:
                 raise ValueError("Deck already exists")
             self.srs.add_deck(deck_name)
+            if progress_callback:
+                progress_callback(f"Created deck: {cmd_dict['name']}", True)
             return
 
         if cmd_dict["task"] == "rename_deck":
@@ -995,6 +1024,8 @@ Please answer only with the filled-in, valid json.
             if self.srs.get_deck_by_name_or_none(new_name) is not None:
                 raise ValueError(f"New name {new_name} already exists")
             self.srs.rename_deck(deck, new_name)
+            if progress_callback:
+                progress_callback(f"Renamed deck: {old_name} to {new_name}", True)
             return
 
         if cmd_dict["task"] == "delete_deck":
@@ -1003,6 +1034,8 @@ Please answer only with the filled-in, valid json.
             if deck is None:
                 raise MissingDeckException(name)
             self.srs.delete_deck(deck)
+            if progress_callback:
+                progress_callback(f"Deleted deck: {name}", True)
             return
 
         if cmd_dict["task"] == "add_card":
@@ -1018,11 +1051,13 @@ Please answer only with the filled-in, valid json.
                 raise MissingDeckException(deck_name)
 
             self.srs.add_card(deck, question, answer, flag, state)
+            if progress_callback:
+                progress_callback(f"Added card to deck {deck_name}: {question} - {answer} (flag: {flag})", True)
             return
 
         raise AssertionError("Unreachable.")
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         deck_info = [
             f'name: "{it.name}", cards: {len(self.srs.get_cards_in_deck(it))}' for it in self.srs.get_all_decks()
         ]
@@ -1034,7 +1069,7 @@ Please answer only with the filled-in, valid json.
                 parsed = self._parse_commands(response)
 
                 for command in parsed:
-                    self._execute_command(command)
+                    self._execute_command(command, progress_callback)
 
                 return StateFinishedTask("No more tasks to execute.")  # TODO command count.
                 # TODO Now, there is only one iterations - all commands must be sent the first time.
@@ -1071,5 +1106,254 @@ class StateFinishedTask(AbstractActionState):
     def __init__(self, message: str):
         self.message = message
 
-    def act(self) -> AbstractActionState | None:
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+        return None
+
+
+class StateStartLearn(AbstractActionState):
+    _prompt_template = """
+You are an assistant of a flashcard management system.
+You help the user better remember the content of flashcards.
+
+The user is about to start studying a deck and gave the following input:
+
+{user_input}
+
+The following decks are available:
+
+{decks}
+
+Your task is to determine which deck the user wants to study.
+Return the exact name of the matching deck.
+
+If there's no exact match, you may fix only minor errors (e.g., one wrong/missing character or common ASR mistakes).
+Matching is case-sensitive.
+If no reasonable match is found, respond with "None".
+
+**Return only the exact name of the selected deck, or "None". Do not respond with anything else.**
+""".strip()
+    MAX_ATTEMPTS = 5
+
+    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
+        self.llm = llm
+        self.llm_communicator = LLMCommunicator(llm)
+        self.srs = srs
+        self.user_prompt = user_prompt
+
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+        deck_info = [
+            f'name: "{it.name}", cards: {len(self.srs.get_cards_in_deck(it))}' for it in self.srs.get_all_decks()
+        ]
+
+        message = self._prompt_template.format(user_input=self.user_prompt, decks="\n".join(deck_info))
+
+        for attempt in range(self.MAX_ATTEMPTS):
+            response = self.llm_communicator.send_message(message)
+            response = remove_block(response, "think").replace('"', "").strip()  # No replacement for '
+
+            deck_name = response
+
+            if deck_name == "None":
+                return StateFinishedLearn(
+                    "The deck you want to learn is not found. Please check the name and try again."
+                )
+            else:
+                deck = self.srs.get_deck_by_name_or_none(deck_name)
+                if deck is not None:
+                    cards = self.srs.get_cards_in_deck(deck)
+                    if len(cards) == 0:
+                        return StateFinishedLearn("The deck you want to learn is empty.")
+                    else:
+                        self.srs.study_mode = True
+                        self.srs.cards_to_be_learned = cards
+                        self.srs.card_index_currently_being_learned = 0
+                        first_card_question = self.srs.cards_to_be_learned[
+                            self.srs.card_index_currently_being_learned
+                        ].question
+
+                        msg_to_user = (
+                            f"Learning session for deck '{deck.name}' initialized successfully.\n"
+                            f"Enjoy your learning!\n\n"
+                            f"Question: {first_card_question}"
+                        )
+                        return StateFinishedLearn(msg_to_user)
+                else:
+                    message = f"""No matching deck was found based on your previous response: '{deck_name}'.
+                        **Return only the exact name of the selected deck, or "None". Do not respond with anything else.**"""
+
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
+
+
+class StateClassify(AbstractActionState):
+    _prompt_template = """
+You are an assistant of a flashcard study system. Your job is to classify the user's input based on its content.
+
+Given the following user input:
+
+{user_input}
+
+The current flashcard question is:
+
+{card_question}
+
+Analyze the user's input based on the following rules:
+- If the input **only** contains an answer to the current flashcard, return "answer".
+- If the input **only** contains a command to end the study session (e.g., "stop", "quit", "end"), return "end".
+  End commands will only appear at the end of the input.
+- If the input contains **both** an answer and a command to end the study session, return "both".
+
+Examples:
+- "NLP stands for natural language processing." → answer
+- "quit" → end
+- "The answer is Paris. Stop." → both
+- "The answer is Paris. End study." → both
+
+**Do not explain. Do not add any other text. Respond with only **one word**: 'answer', 'end', or 'both'.**
+""".strip()
+    MAX_ATTEMPTS = 3
+
+    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
+        self.llm = llm
+        self.llm_communicator = LLMCommunicator(llm)
+        self.user_prompt = user_prompt
+        self.srs = srs
+
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+        card_question = self.srs.cards_to_be_learned[self.srs.card_index_currently_being_learned].question
+        message = self._prompt_template.format(user_input=self.user_prompt, card_question=card_question)
+
+        for attempt in range(self.MAX_ATTEMPTS):
+            response = self.llm_communicator.send_message(message)
+            response = remove_block(response, "think").replace('"', "").replace("'", "").strip()
+            resp = find_substring_in_llm_response_or_null(response, "answer", "end", True)
+
+            if resp is True:
+                return StateJudgeAnswer(self.user_prompt, self.llm, self.srs, False)
+            elif resp is False:
+                self.srs.study_mode = False
+                return StateFinishedLearn("Exit learning process.")
+            elif resp is None:
+                if "both" in response.lower():
+                    return StateExtractAnswer(self.user_prompt, self.llm, self.srs)
+
+            message = "Return only one of the following: 'answer'', 'end', or 'both'. Do not return anything else."
+
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
+
+
+class StateExtractAnswer(AbstractActionState):
+    _prompt_template = """
+You are an assistant of a flashcard study system.
+
+Given the following user input:
+
+{user_input}
+
+The user's input contains two parts:
+1. an answer to the current flashcard, and
+2. a command to end the study session.
+
+Your task is to extract only the answer part of the input.
+
+Do not modify, correct, or interpret the content. Just return the answer exactly as it appears.
+
+**Return only the answer part. Do not include the end command, any explanation, or anything else.**
+""".strip()
+
+    MAX_ATTEMPTS = 3
+
+    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
+        self.llm = llm
+        self.llm_communicator = LLMCommunicator(llm)
+        self.user_prompt = user_prompt
+        self.srs = srs
+
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+        message = self._prompt_template.format(user_input=self.user_prompt)
+
+        for attempt in range(self.MAX_ATTEMPTS):
+            response = self.llm_communicator.send_message(message)
+            response = remove_block(response, "think").strip()
+            if response != "":  # not always stable
+                self.user_prompt = response
+                return StateJudgeAnswer(self.user_prompt, self.llm, self.srs, True)
+
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
+
+
+class StateJudgeAnswer(AbstractActionState):
+    _prompt_template = """
+You are an assistant of a flashcard study system. Please evaluate the user's answer.
+
+The current flashcard is as follows:
+- Question: {card_question}
+- Correct Answer: {card_answer}
+
+
+The user gave the following answers to the questions on the card:
+
+{user_answer}
+
+Your task is to evaluate the user's answer based on the correct answer above and return one of the following:
+
+- 'again': the user clearly did not remember the answer and should try again.
+- 'hard': the user struggled or was mostly incorrect, but showed partial understanding.
+- 'good': the user remembered the answer reasonably well with minor issues.
+- 'easy': the user recalled the answer very easily and accurately.
+
+You are a very strict evaluator: judge based on **semantic understanding**, not just word overlap. Answers like "The answer is the answer" are meaningless and should be rated as 'again'.
+
+**Return only one word of: 'again', 'hard', 'good', or 'easy'. Do not return anything else.**
+""".strip()
+
+    MAX_ATTEMPTS = 3
+
+    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, end: bool):
+        self.llm = llm
+        self.llm_communicator = LLMCommunicator(llm)
+        self.user_prompt = user_prompt
+        self.srs = srs
+        self.end = end
+
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+        card = self.srs.cards_to_be_learned[self.srs.card_index_currently_being_learned]
+        message = self._prompt_template.format(
+            user_answer=self.user_prompt, card_question=card.question, card_answer=card.answer
+        )
+
+        for attempt in range(self.MAX_ATTEMPTS):
+            response = self.llm_communicator.send_message(message)
+            response = remove_block(response, "think").replace('"', "").replace("'", "").replace(".", "").strip()
+            try:
+                self.srs.set_memory_grade(card.id, response)
+                msg_to_user = f"Your answer to the previous card was rated as: {response}.\n"
+
+                if self.srs.card_index_currently_being_learned == len(self.srs.cards_to_be_learned) - 1:
+                    msg_to_user += "Congratulations on learning all the cards!"
+                    self.srs.study_mode = False
+                    return StateFinishedLearn(msg_to_user)
+                elif self.end:
+                    msg_to_user += "Exit learning process."
+                    self.srs.study_mode = False
+                    return StateFinishedLearn(msg_to_user)
+                else:
+                    self.srs.card_index_currently_being_learned += 1
+                    next_card = self.srs.cards_to_be_learned[self.srs.card_index_currently_being_learned]
+                    next_card_question = f"Question: {next_card.question}"
+                    msg_to_user += next_card_question
+                    return StateFinishedLearn(msg_to_user)
+            except:  # noqa: E722
+                pass
+
+            message = "Return only one of: 'again', 'hard', 'good', or 'easy'. Do not return anything else."
+
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
+
+
+class StateFinishedLearn(AbstractActionState):
+
+    def __init__(self, message: str):
+        self.message = message
+
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         return None
