@@ -66,7 +66,7 @@ class CloudLectureTranslatorASR(AbstractASR):
         )
         if res.status_code != 200:
             if res.status_code == 401:
-                logging.debug(
+                logging.error(
                     "You are not authorized. "
                     """Either authenticate with --url https://$username:$password@$server
                       or with --token $token where you get the token from """
@@ -75,12 +75,12 @@ class CloudLectureTranslatorASR(AbstractASR):
                 )
             else:
                 logging.debug(f"Status: {res.status_code}, Text: {res.text}")
-                logging.debug("ERROR in requesting default graph for ASR")
+                logging.error("ERROR in requesting default graph for ASR")
             sys.exit(1)
         try:
             self.session_id, self.stream_id = res.text.split()
         except ValueError:
-            logging.warning("Not authorized - update token")
+            logging.error("Not authorized - update token")
             sys.exit(1)
 
         logging.debug("Setting properties")

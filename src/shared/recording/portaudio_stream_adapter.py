@@ -79,6 +79,7 @@ class PortaudioStream(BaseAdapter):
             self.input_id = id
         except (ValueError, KeyError):
             self.print_all_devices()
+            logging.error(f"No audio device with id {id} found.")
             sys.exit(1)
 
     def get_audio_devices(self) -> dict[int, str]:

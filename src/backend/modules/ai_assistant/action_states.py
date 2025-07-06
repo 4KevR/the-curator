@@ -917,7 +917,7 @@ If you want to execute one or more functions, return them inside a json array.
 
 Please answer only with the filled-in, valid json.
 """.strip()
-    MAX_ATTEMPTS = 10
+    MAX_ATTEMPTS = 3
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
         self.llm = llm
