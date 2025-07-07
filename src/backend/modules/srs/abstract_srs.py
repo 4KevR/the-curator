@@ -2,7 +2,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, ClassVar, Generic, TypeVar
+from typing import Any, ClassVar, Generic, Optional, TypeVar
 
 from overrides.final import final
 from typeguard import typechecked
@@ -167,6 +167,10 @@ class MissingDeckException(Exception):
 class AbstractSRS(Generic[TCard, TDeck], ABC):
     """Abstract class for a spaced repetition system (SRS), such as Anki."""
 
+    study_mode: bool = False
+    cards_to_be_learned: Optional[list[TCard]] = None  # ugly.. just initial ideas
+    card_index_currently_being_learned: int = -1  # ugly.. just initial ideas
+
     # Decks
     @abstractmethod
     def add_deck(self, deck_name: str) -> TDeck:
@@ -289,3 +293,16 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
         Delete a card.
         Raises a ValueError if the card is not present in any deck.
         """
+
+    def set_memory_grade(self, card_id: CardID, ease: str) -> None:
+        """
+        Simulate user memory feedback. (no card scheduling.)
+        """
+        grade_map = {
+            "again": 0,
+            "hard": 1,
+            "good": 2,
+            "easy": 3,
+        }
+        if ease not in grade_map:
+            raise ValueError("The memory level must be: again / hard / good / easy.")

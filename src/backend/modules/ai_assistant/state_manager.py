@@ -5,6 +5,7 @@ from src.backend.modules.ai_assistant.action_states import (
     AbstractActionState,
     StateAction,
     StateAnswer,
+    StateFinishedLearn,
     StateFinishedTask,
 )
 from src.backend.modules.llm.abstract_llm import AbstractLLM
@@ -57,9 +58,13 @@ class StateManager:
             next_state = self._current_state.act(self.progress_callback)
             if next_state is None:
                 # now we know that we are in one of the end states.
-                # Only end states are: StateFinishedTask and StateAnswer.
+                # Only end states are: StateAnswer, StateFinishedTask and StateFinishedLearn.
                 answer = self._current_state.answer if isinstance(self._current_state, StateAnswer) else None
-                task_msg = self._current_state.message if isinstance(self._current_state, StateFinishedTask) else None
+                task_msg = (
+                    self._current_state.message
+                    if isinstance(self._current_state, (StateFinishedTask, StateFinishedLearn))
+                    else None
+                )
                 return ExecutionResult(task_msg, answer, self.state_history, self.logging_llm.get_log())
 
             if self.max_states is not None and n_states + 1 > self.max_states:
