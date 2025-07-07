@@ -35,13 +35,36 @@ asr_to_use: str = "local_whisper_medium"
 max_levenshtein_distance: int | None = 8
 max_levenshtein_ratio: float | None = 0.201  # more than 1/5
 
-default_temperature: float = 0.05
-default_max_tokens: int = 2048
+default_temperature: float = 0.0
+default_max_tokens: int = 1000
+
+# set a maximum number of states to visit. Use this to test if the early states work well without having to wait for
+# later states.
+max_states: int | None = None
 
 # If dry run: Only output the final test sample, do not actually run tests. No log file created.
 dry_run: bool = False
 
 # ==================================================================================================================
+
+print(
+    f"""The configuration is:
+random_state: {random_state}
+query_filter: {query_filter}
+name_filter: {name_filter}
+subset_indexes: {subset_indexes}
+iterations: {iterations}
+llms_to_use: {llms_to_use}
+audio_file_path: {audio_file_path}
+asr_to_use: {asr_to_use}
+max_levenshtein_distance: {max_levenshtein_distance}
+max_levenshtein_ratio: {max_levenshtein_ratio}
+default_temperature: {default_temperature}
+default_max_tokens: {default_max_tokens}
+max_states: {max_states}
+dry_run: {dry_run}
+"""
+)
 
 import time  # noqa E402
 
@@ -115,6 +138,7 @@ eval_pipeline = EvaluationPipeline(
     llm_judge=comparison_llm,
     max_levenshtein_distance=max_levenshtein_distance,
     max_levenshtein_ratio=max_levenshtein_ratio,
+    max_states=max_states,
     audio_recording_dir_path=audio_file_path,
     verbose_task_execution=False,
     print_progress=True,

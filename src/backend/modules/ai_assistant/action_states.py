@@ -87,7 +87,7 @@ Do not answer anything else.
             if resp is True:
                 return StateQuestion(self.user_prompt, self.llm, self.llama_index_executor)
             elif resp is False:
-                return StateTask(self.user_prompt, self.llm, self.srs)
+                return StateRewriteTask(self.user_prompt, self.llm, self.srs)
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
@@ -127,36 +127,62 @@ class StateAnswer(AbstractActionState):
         return None  # final state
 
 
+class StateRewriteTask(AbstractActionState):
+    _prompt_template = """
+You are an AI assistant for a flashcard management system. The flashcard manager contains decks of flashcards (cards).
+The user wants you to execute a task (adding, modifying or deleting cards or decks).
+Please rewrite the following user input so that a LLM will understand it better.
+
+Please make sure that you satisfy the following requirements:
+* Do not change the content!
+* The output should be approximately the same length as the input.
+* Do not refer to the original task; include all necessary information in your output.
+* The input is transcribed from voice, so please try to correct speech recognition errors like double words or miss-spelling.
+
+The raw input is:
+{user_input}
+
+Only answer with the new task description!
+""".strip()
+
+    MIN_LENGTH_REWRITE = 250
+
+    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
+        self.llm = llm
+        self.llm_communicator = LLMCommunicator(llm)
+        self.user_prompt = user_prompt
+        self.srs = srs
+
+    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+
+        if len(self.user_prompt) >= self.MIN_LENGTH_REWRITE:
+            message = self._prompt_template.format(user_input=self.user_prompt)
+            response = self.llm_communicator.send_message(message)
+            return StateTask(response, self.llm, self.srs)
+        else:
+            return StateTask(self.user_prompt, self.llm, self.srs)
+
+
 class StateTask(AbstractActionState):
     _prompt_template = """You are an assistant of a flashcard management system. You assist a user in executing tasks.
 The flashcard management system consists of decks consisting of cards.
 
-The user gave the following input:
+Given the user input, please select the best fitting task type.
 
+1: Create a new, empty deck.
+2: Create new flashcards from the user-provided information.
+3: Renaming one or multiple decks.
+4: Delete one or more existing decks.
+5: Searching for cards and add found cards to a new or existing deck.
+6: Searching for cards and edit found cards.
+7: Searching for cards and delete found cards.
+8: Create a new deck out of cards **that already are in the system**!.
+
+The user gave the following input:
 {user_input}
 
-There are two categories of tasks:
-
-Category 'search' contains the following tasks:
-Searching for cards (by keyword or by content) and
-
-* editing found cards or
-* deleting found cards or
-* adding existing, found cards to new or existing decks.
-
-Creating a new deck and adding existing cards to it is 'search' too.
-
-
-Category 'global' contains the following tasks:
-
-* Adding new, empty decks.
-* Adding new cards to existing decks.
-* Renaming decks.
-* Deleting decks.
-* Creating new cards and adding them to a deck.
-
-Is the user prompt a 'search' or 'global' task? Please **only** answer with 'search' or 'global' and **nothing else**.
-""".strip()  # TODO: I could add the option here to find impossible tasks.
+Which task type fits the best? Only output the number!
+""".strip()
 
     MAX_ATTEMPTS = 3
 
@@ -166,34 +192,30 @@ Is the user prompt a 'search' or 'global' task? Please **only** answer with 'sea
         self.user_prompt = user_prompt
         self.srs = srs
 
-    def preprocess_user_task(self, raw_task) -> str:
-        """
-        Preprocess the user task. Currently quite minimal, but could be expanded.
-        """
-        # TODO: Maybe even own state? Update: Definitely add own state that only fixes the task.
-        # currently only quotation marks. They cant be transcribed anyways.
-
-        return raw_task  # .replace('"', "").replace("'", "")
-
     def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
-            cleaned_user_prompt = self.preprocess_user_task(self.user_prompt)
-
             if attempt == 0:
-                message = self._prompt_template.format(user_input=cleaned_user_prompt)
+                message = self._prompt_template.format(user_input=self.user_prompt)
             else:
-                message = "Your answer must be either 'search' or 'global'."
+                message = "Please just respond with a the number of the best fitting task type."
 
+            # TODO: Set max_tokens here. Everything but 1 token is wrong anyways -> can cap like 10 tokens.
             response = self.llm_communicator.send_message(message)
 
             response = remove_block(response, "think")
             response = response.replace('"', "").replace("'", "")
-            resp = find_substring_in_llm_response_or_null(response, "search", "global", True)
+            response = response.strip()
 
-            if resp is True:
-                return StateTaskSearchDecks(cleaned_user_prompt, self.llm, self.srs)
-            elif resp is False:
-                return StateTaskNoSearch(cleaned_user_prompt, self.llm, self.srs)
+            try:
+                response_int = int(response)
+
+                # 1,2,3,4 -> no search. 5,6,7,8 -> search
+                if 1 <= response_int <= 4:
+                    return StateTaskNoSearch(self.user_prompt, self.llm, self.srs)
+                elif 5 <= response_int <= 8:
+                    return StateTaskSearchDecks(self.user_prompt, self.llm, self.srs)
+            except ValueError:
+                pass
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
@@ -616,17 +638,16 @@ class StateTaskWorkOnFoundCards(AbstractActionState):
 You are an assistant of a flashcard management system. You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
 
 The user gave the following input:
-
 {user_input}
 
-You decided to search for cards, and found {amount_cards} fitting cards. Nothing has been done with these cards yet. Now you have to decide what to do with the cards you found. You have the following options:
+After searching, what should the system do?
 
-* You can delete all cards you found from the system. ('delete_all')
-* You can copy all cards you found to a deck. You will be asked to specify the name of the target deck. This also allows you to create a new deck and add all found cards to it. ('copy_to_deck')
-* You can be presented every single card and you can decide individually what to do with each card (options are editing the card, deleting the card, or doing nothing with the card). This is the only way to edit the found cards. ('stream_cards')
+1: Add all found cards to an existing or newly created deck.
+2: Delete all found cards.
+3: Edit all or some of the found cards.
+4: Delete some of the found cards.
 
-Please answer only with the operation you want to perform, and nothing else. Again, the operations are:
-delete_all, copy_to_deck, stream_cards
+Please **only** respond with the number of the operation that fits the user's query the best.
 """.strip()
     MAX_ATTEMPTS = 3
     SAMPLE_SIZE = 3
@@ -664,16 +685,16 @@ delete_all, copy_to_deck, stream_cards
             response = response.replace('"', "").replace("'", "")
             response = response.lower().strip()
 
-            if response == "delete_all":
+            if response == "2":
                 for card in self.found_cards:
                     self.srs.delete_card(card)
 
                 return StateFinishedTask(f"{len(self.found_cards)} cards deleted.")
 
-            if response == "copy_to_deck":
+            if response == "1":
                 return StateSearchCopyToDeck(self.user_prompt, self.llm, self.srs, self.found_cards)
 
-            if response == "stream_cards":
+            if response in "34":
                 return StateStreamFoundCards(
                     self.user_prompt, self.llm, self.decks_to_search_in, self.srs, self.found_cards
                 )
@@ -701,7 +722,6 @@ Now please decide which deck to add the cards to.
 
 Now please answer the name of the deck that the search result should be saved to. Please answer only with the name of the deck, and nothing else.
 """.strip()
-    MAX_ATTEMPTS = 3
 
     def __init__(
         self,
@@ -717,26 +737,23 @@ Now please answer the name of the deck that the search result should be saved to
         self.found_cards = found_cards
 
     def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> Optional["AbstractActionState"]:
-        for attempt in range(self.MAX_ATTEMPTS):
-            deck_list = "\n".join([f" * {it.name}" for it in self.srs.get_all_decks()])
-            prompt = self._prompt_template.format(deck_list=deck_list, user_input=self.user_prompt)
-            deck_name = self.llm_communicator.send_message(prompt)
+        deck_list = "\n".join([f" * {it.name}" for it in self.srs.get_all_decks()])
+        prompt = self._prompt_template.format(deck_list=deck_list, user_input=self.user_prompt)
+        deck_name = self.llm_communicator.send_message(prompt)
 
-            deck_created = False
-            deck = self.srs.get_deck_by_name_or_none(deck_name)
-            if deck is None:
-                deck = self.srs.add_deck(deck_name)
-                deck_created = True
+        deck_created = False
+        deck = self.srs.get_deck_by_name_or_none(deck_name)
+        if deck is None:
+            deck = self.srs.add_deck(deck_name)
+            deck_created = True
 
-            for card in self.found_cards:
-                self.srs.copy_card_to(card, deck)
+        for card in self.found_cards:
+            self.srs.copy_card_to(card, deck)
 
-            if deck_created:
-                return StateFinishedTask(f"{len(self.found_cards)} cards copied to newly created deck {deck_name}.")
-            else:
-                return StateFinishedTask(f"{len(self.found_cards)} cards copied to existing deck {deck_name}.")
-
-        raise ExceedingMaxAttemptsError(self.__class__.__name__)
+        if deck_created:
+            return StateFinishedTask(f"{len(self.found_cards)} cards copied to newly created deck {deck_name}.")
+        else:
+            return StateFinishedTask(f"{len(self.found_cards)} cards copied to existing deck {deck_name}.")
 
 
 class StateStreamFoundCards(AbstractActionState):
@@ -1062,7 +1079,7 @@ Please answer only with the filled-in, valid json.
                 for command in parsed:
                     self._execute_command(command, progress_callback)
 
-                return StateFinishedTask("No more tasks to execute.")  # TODO command count.
+                return StateFinishedTask(f"Executed {len(parsed)} commands.")
                 # TODO Now, there is only one iterations - all commands must be sent the first time.
                 #        Llama was absolutely unable to use [] to finish command execution.
                 # message = (

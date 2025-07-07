@@ -29,6 +29,7 @@ class EvaluationPipeline:
         llm_judge: AbstractLLM,
         max_levenshtein_distance: int | None = None,
         max_levenshtein_ratio: float | None = None,
+        max_states: int | None = None,
         audio_recording_dir_path: str | None = None,
         verbose_task_execution: bool = False,
         print_progress: bool = False,
@@ -40,6 +41,7 @@ class EvaluationPipeline:
         self.llm_judge = LLMSimilarityJudge(llm_judge)
         self.max_levenshtein_distance = max_levenshtein_distance
         self.max_levenshtein_ratio = max_levenshtein_ratio
+        self.max_states = max_states
         self.audio_recording_dir_path = audio_recording_dir_path
         self.verbose_task_execution = verbose_task_execution
         self.print_progress = print_progress
@@ -57,7 +59,7 @@ class EvaluationPipeline:
 
         evaluation = []
         prompts = []
-        sm = StateManager(self.task_llm, fcm, test.llama_index_executor)
+        sm = StateManager(self.task_llm, fcm, test.llama_index_executor, max_states=self.max_states)
 
         if self.audio_recording_dir_path is not None:
             audio_files = [

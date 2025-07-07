@@ -21,6 +21,8 @@ class AbstractLLM(ABC):
     def get_description(self) -> str:
         """Get a description of the LLM."""
 
-    def generate_single(self, message: str, role: str = "user") -> str:
+    def generate_single(
+        self, message: str, role: str = "user", temperature: float | None = None, max_tokens: int | None = None
+    ) -> str:
         """Shorthand for generating a response from a single message."""
-        return self.generate([{"role": role, "content": message}])
+        return self.generate([{"role": role, "content": message}], temperature, max_tokens)
