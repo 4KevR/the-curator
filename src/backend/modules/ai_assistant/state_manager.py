@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Callable, Optional
 
 from src.backend.modules.ai_assistant.learning_states import StateFinishedLearn
+from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
 from src.backend.modules.ai_assistant.question_states import StateAnswer
 from src.backend.modules.ai_assistant.states import AbstractActionState, StateAction
 from src.backend.modules.ai_assistant.task_states import StateFinishedTask
@@ -28,7 +28,7 @@ class StateManager:
         task_llm: AbstractLLM,
         srs: AbstractSRS,
         llama_index_executor: LlamaIndexExecutor,
-        progress_callback: Callable[[str, Optional[bool]], None] | None = None,
+        progress_callback: ProgressCallback,
         max_states: int | None = None,
     ):
         self.logging_llm = LoggingLLM(task_llm)
@@ -39,20 +39,19 @@ class StateManager:
         self.progress_callback = progress_callback
         self.max_states = max_states
 
-    def run(self, user_prompt: str, log_states: bool = False) -> ExecutionResult:
+    def run(self, user_prompt: str) -> ExecutionResult:
 
-        self._current_state = StateAction(user_prompt, self.logging_llm, self.srs, self.llama_index_executor)
+        self._current_state = StateAction(
+            user_prompt, self.logging_llm, self.srs, self.llama_index_executor, self.progress_callback
+        )
         self.state_history.append(str(self._current_state))
 
         n_states = 1
 
         while True:
-            if log_states:
-                print(f"Current state: {self._current_state}")
-            if self.progress_callback:
-                self.progress_callback(f"Current State: {str(self._current_state)}")
+            self.progress_callback.handle(f"Current State: {str(self._current_state)}")
 
-            next_state = self._current_state.act(self.progress_callback)
+            next_state = self._current_state.act()
             if next_state is None:
                 # now we know that we are in one of the end states.
                 # Only end states are: StateAnswer, StateFinishedTask and StateFinishedLearn.

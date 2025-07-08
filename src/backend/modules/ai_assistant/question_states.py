@@ -1,5 +1,3 @@
-from typing import Callable, Optional
-
 from src.backend.modules.ai_assistant.states import AbstractActionState
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.llm.llm_communicator import LLMCommunicator
@@ -23,7 +21,7 @@ class StateQuestion(AbstractActionState):
         self.user_prompt = user_prompt
         self.llama_index_executor = llama_index_executor
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         fitting_nodes = self.llama_index_executor.search_cards(self.user_prompt)
         fitting_nodes = sorted(fitting_nodes, key=lambda x: x[1], reverse=True)[:5]
         fitting_nodes = "\n".join(fn[0] for fn in fitting_nodes)
@@ -37,5 +35,5 @@ class StateAnswer(AbstractActionState):
     def __init__(self, answer: str):
         self.answer = answer
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> None:
+    def act(self) -> None:
         return None  # final state

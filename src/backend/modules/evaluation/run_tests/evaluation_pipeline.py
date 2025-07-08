@@ -6,7 +6,8 @@ from dataclasses import asdict
 
 from typeguard import typechecked
 
-from src.backend.modules.ai_assistant.state_manager import StateManager
+from src.backend.modules.ai_assistant.progress_callback import NoProgressCallback
+from src.backend.modules.ai_assistant.state_manager import ProgressCallback, StateManager
 from src.backend.modules.asr.abstract_asr import AbstractASR
 from src.backend.modules.evaluation.load_test_data.load_test_data import (
     EvaluationTests,
@@ -59,7 +60,19 @@ class EvaluationPipeline:
 
         evaluation = []
         prompts = []
-        sm = StateManager(self.task_llm, fcm, test.llama_index_executor, max_states=self.max_states)
+
+        class PrintProgress(ProgressCallback):
+            def handle(self, message: str, is_srs_action: bool = False):
+                if not is_srs_action:
+                    print(message)
+
+        sm = StateManager(
+            self.task_llm,
+            fcm,
+            test.llama_index_executor,
+            max_states=self.max_states,
+            progress_callback=PrintProgress() if self.verbose_task_execution else NoProgressCallback(),
+        )
 
         if self.audio_recording_dir_path is not None:
             audio_files = [
@@ -101,7 +114,7 @@ class EvaluationPipeline:
                     log_messages=[[("user", "SKIPPED")]],
                 )
 
-            eval_res = sm.run(prompts[0], self.verbose_task_execution)
+            eval_res = sm.run(prompts[0])
 
             # Now find out if the test passed -> different for q_a or interaction test.
             if isinstance(test, QuestionAnsweringTest):

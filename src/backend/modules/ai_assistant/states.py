@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from typing import Optional
 
+from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
 from src.backend.modules.helpers.string_util import find_substring_in_llm_response_or_null, remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.llm.llm_communicator import LLMCommunicator
@@ -11,9 +12,7 @@ from src.backend.modules.srs.abstract_srs import AbstractSRS
 class AbstractActionState(ABC):
 
     @abstractmethod
-    def act(
-        self, progress_callback: Callable[[str, Optional[bool]], None] | None = None
-    ) -> Optional["AbstractActionState"]:
+    def act(self) -> Optional["AbstractActionState"]:
         """
         Returns
         * A (different) ActionState if the llm is now in another state.
@@ -53,18 +52,26 @@ Do not answer anything else.
 """
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, llama_index_executor: LlamaIndexExecutor):
+    def __init__(
+        self,
+        user_prompt: str,
+        llm: AbstractLLM,
+        srs: AbstractSRS,
+        llama_index_executor: LlamaIndexExecutor,
+        progress_callback: ProgressCallback,
+    ):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
         self.srs = srs
         self.llama_index_executor = llama_index_executor
+        self.progress_callback = progress_callback
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         # believe me I hate that this is necessary, but else we get circular imports.
         from src.backend.modules.ai_assistant.learning_states import StateClassify, StateStartLearn
         from src.backend.modules.ai_assistant.question_states import StateQuestion
-        from src.backend.modules.ai_assistant.task_states import StateTask
+        from src.backend.modules.ai_assistant.task_states import StateRewriteTask
 
         if self.srs.study_mode is True:
             return StateClassify(self.user_prompt, self.llm, self.srs)
@@ -84,7 +91,9 @@ Do not answer anything else.
                 if resp is True:
                     return StateQuestion(self.user_prompt, self.llm, self.llama_index_executor)
                 elif resp is False:
-                    return StateTask(self.user_prompt, self.llm, self.srs, self.llama_index_executor)
+                    return StateRewriteTask(
+                        self.user_prompt, self.llm, self.srs, self.llama_index_executor, self.progress_callback
+                    )
                 elif resp is None:
                     if "study" in response.lower():
                         return StateStartLearn(self.user_prompt, self.llm, self.srs)

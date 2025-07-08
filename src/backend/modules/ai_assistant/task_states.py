@@ -1,10 +1,12 @@
 import json
+from dataclasses import dataclass
 from json import JSONDecodeError
-from typing import Any, Callable, Optional
+from typing import Any, Optional
 
 import pandas as pd
 from rapidfuzz.distance import Levenshtein
 
+from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
 from src.backend.modules.ai_assistant.states import AbstractActionState, ExceedingMaxAttemptsError
 from src.backend.modules.helpers.string_util import find_substring_in_llm_response_or_null, remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
@@ -21,6 +23,15 @@ from src.backend.modules.srs.abstract_srs import (
     Flag,
     MissingDeckException,
 )
+
+
+@dataclass(frozen=True)
+class TaskInfo:
+    original_prompt: str
+    llm: AbstractLLM
+    srs: AbstractSRS
+    llama_index: LlamaIndexExecutor
+    progress_callback: ProgressCallback
 
 
 class StateRewriteTask(AbstractActionState):
@@ -43,20 +54,25 @@ Only answer with the new task description!
 
     MIN_LENGTH_REWRITE = 250
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
-        self.llm = llm
+    def __init__(
+        self,
+        user_prompt: str,
+        llm: AbstractLLM,
+        srs: AbstractSRS,
+        llama_index: LlamaIndexExecutor,
+        progress_callback: ProgressCallback,
+    ):
+        self.info = TaskInfo(user_prompt, llm, srs, llama_index, progress_callback)
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
-        self.srs = srs
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
-
+    def act(self) -> AbstractActionState | None:
         if len(self.user_prompt) >= self.MIN_LENGTH_REWRITE:
             message = self._prompt_template.format(user_input=self.user_prompt)
             response = self.llm_communicator.send_message(message)
-            return StateTask(response, self.llm, self.srs)
+            return StateTask(self.info, response)
         else:
-            return StateTask(self.user_prompt, self.llm, self.srs)
+            return StateTask(self.info, self.user_prompt)
 
 
 class StateTask(AbstractActionState):
@@ -82,14 +98,12 @@ Which task type fits the best? Only output the number!
 
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, llama_index_executor: LlamaIndexExecutor):
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
+    def __init__(self, info: TaskInfo, user_prompt: str):
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
-        self.srs = srs
-        self.llama_index_executor = llama_index_executor
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
             if attempt == 0:
                 message = self._prompt_template.format(user_input=self.user_prompt)
@@ -108,9 +122,9 @@ Which task type fits the best? Only output the number!
 
                 # 1,2,3,4 -> no search. 5,6,7,8 -> search
                 if 1 <= response_int <= 4:
-                    return StateTaskNoSearch(self.user_prompt, self.llm, self.srs)
+                    return StateTaskNoSearch(self.info, self.user_prompt)
                 elif 5 <= response_int <= 8:
-                    return StateTaskSearchDecks(self.user_prompt, self.llm, self.srs, self.llama_index_executor)
+                    return StateTaskSearchDecks(self.info, self.user_prompt)
             except ValueError:
                 pass
 
@@ -141,18 +155,17 @@ Make sure to exactly match the deck names.
 """.strip()
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, llama_index_executor: LlamaIndexExecutor):
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
-        self.srs = srs
+    def __init__(self, info: TaskInfo, user_prompt: str):
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
-        self.possible_decks = self.srs.get_all_decks()
-        self.possible_deck_names = {deck.name for deck in self.possible_decks}
-        self.llama_index_executor = llama_index_executor
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
+        possible_decks = self.info.srs.get_all_decks()
+        possible_deck_names = {deck.name for deck in possible_decks}
+
         message = self._prompt_template.format(
-            user_input=self.user_prompt, decks=[str(it) for it in self.srs.get_all_decks()]
+            user_input=self.user_prompt, decks=[str(it) for it in self.info.srs.get_all_decks()]
         )
 
         for attempt in range(self.MAX_ATTEMPTS):
@@ -162,16 +175,14 @@ Make sure to exactly match the deck names.
             response = response.strip()
 
             if response == "all":
-                return StateTaskSearch(
-                    self.user_prompt, self.llm, self.possible_decks, self.srs, self.llama_index_executor
-                )
+                return StateTaskSearch(self.info, self.user_prompt, possible_decks)
             else:
                 deck_strings = {s.strip() for s in response.split(",")}
-                unknown_deck_strings = deck_strings - self.possible_deck_names
+                unknown_deck_strings = deck_strings - possible_deck_names
 
                 if len(unknown_deck_strings) == 0:
-                    decks = [it for it in self.possible_decks if it.name in deck_strings]
-                    return StateTaskSearch(self.user_prompt, self.llm, decks, self.srs, self.llama_index_executor)
+                    decks = [it for it in possible_decks if it.name in deck_strings]
+                    return StateTaskSearch(self.info, self.user_prompt, decks)
 
                 message = (
                     f"The following deck names are unknown: {', '.join(unknown_deck_strings)}.\n"
@@ -209,22 +220,13 @@ Please answer "exact", "fuzzy" or "content", and **nothing else**. All other det
 """.strip()
     MAX_ATTEMPTS = 3
 
-    def __init__(
-        self,
-        user_prompt: str,
-        llm: AbstractLLM,
-        decks_to_search_in: list[AbstractDeck],
-        srs: AbstractSRS,
-        llama_index_executor: LlamaIndexExecutor,
-    ):
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
+    def __init__(self, info: TaskInfo, user_prompt: str, decks_to_search_in: list[AbstractDeck]):
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
         self.decks_to_search_in = decks_to_search_in
-        self.srs = srs
-        self.llama_index_executor = llama_index_executor
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
             if attempt == 0:
                 message = self._prompt_template.format(user_input=self.user_prompt)
@@ -238,13 +240,11 @@ Please answer "exact", "fuzzy" or "content", and **nothing else**. All other det
             response = response.lower().strip()
 
             if response == "exact":
-                return StateKeywordSearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs)
+                return StateKeywordSearch(self.info, self.user_prompt, self.decks_to_search_in)
             if response == "fuzzy":
-                return StateFuzzySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs)
+                return StateFuzzySearch(self.info, self.user_prompt, self.decks_to_search_in)
             if response == "content":
-                return StateContentSearch(
-                    self.user_prompt, self.llm, self.decks_to_search_in, self.srs, self.llama_index_executor
-                )
+                return StateContentSearch(self.info, self.user_prompt, self.decks_to_search_in)
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
@@ -278,14 +278,13 @@ Please answer only with the json list of filled-in, valid json object as describ
 """.strip()
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
+    def __init__(self, info: TaskInfo, user_prompt: str, decks_to_search_in: list[AbstractDeck]):
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
         self.decks_to_search_in = decks_to_search_in
-        self.srs = srs
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         message = self._prompt_template.format(user_input=self.user_prompt)
         for attempt in range(self.MAX_ATTEMPTS):
             try:
@@ -322,7 +321,7 @@ Please answer only with the json list of filled-in, valid json object as describ
                     )
                     searchers.append(searcher)
 
-                return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, searchers)
+                return StateVerifySearch(self.info, self.user_prompt, self.decks_to_search_in, searchers)
 
             except JSONDecodeError as jde:
                 message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
@@ -365,14 +364,13 @@ Please answer only with the json list of filled-in, valid json object as describ
 """.strip()
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
+    def __init__(self, info: TaskInfo, user_prompt: str, decks_to_search_in: list[AbstractDeck]):
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
         self.decks_to_search_in = decks_to_search_in
-        self.srs = srs
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         message = self._prompt_template.format(user_input=self.user_prompt)
         for attempt in range(self.MAX_ATTEMPTS):
             try:
@@ -413,7 +411,7 @@ Please answer only with the json list of filled-in, valid json object as describ
                     )
                     searchers.append(searcher)
 
-                return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, searchers)
+                return StateVerifySearch(self.info, self.user_prompt, self.decks_to_search_in, searchers)
 
             except JSONDecodeError as jde:
                 message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
@@ -442,22 +440,13 @@ Please answer only with the filled-in, valid json.
 """.strip()
     MAX_ATTEMPTS = 3
 
-    def __init__(
-        self,
-        user_prompt: str,
-        llm: AbstractLLM,
-        decks_to_search_in: list[AbstractDeck],
-        srs: AbstractSRS,
-        llama_index_executor: LlamaIndexExecutor,
-    ):
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
+    def __init__(self, info: TaskInfo, user_prompt: str, decks_to_search_in: list[AbstractDeck]):
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
         self.decks_to_search_in = decks_to_search_in
-        self.srs = srs
-        self.llama_index_executor = llama_index_executor
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         message = self._prompt_template.format(user_input=self.user_prompt)
         for attempt in range(self.MAX_ATTEMPTS):
             try:
@@ -470,8 +459,8 @@ Please answer only with the filled-in, valid json.
                 if not isinstance(parsed["search_prompt"], str):
                     raise ValueError("search_prompt must be a string")
 
-                searcher = LlamaIndexSearcher(executor=self.llama_index_executor, prompt=parsed["search_prompt"])
-                return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, [searcher])
+                searcher = LlamaIndexSearcher(executor=self.info.llama_index, prompt=parsed["search_prompt"])
+                return StateVerifySearch(self.info, self.user_prompt, self.decks_to_search_in, [searcher])
 
             except JSONDecodeError as jde:
                 message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
@@ -501,34 +490,33 @@ class StateVerifySearch(AbstractActionState):
 
     def __init__(
         self,
+        info: TaskInfo,
         user_prompt: str,
-        llm: AbstractLLM,
         decks_to_search_in: list[AbstractDeck],
-        srs: AbstractSRS,
         searchers: list[AbstractCardSearcher],
     ):
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
         self.decks_to_search_in = decks_to_search_in
-        self.srs = srs
         self.searchers = searchers
-        self.all_cards: list[AbstractCard] = [
-            card for deck in self.decks_to_search_in for card in self.srs.get_cards_in_deck(deck)
-        ]
-        self.found_cards = AbstractCardSearcher.union_search_all(searchers, self.all_cards)
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
+        all_cards: list[AbstractCard] = [
+            card for deck in self.decks_to_search_in for card in self.info.srs.get_cards_in_deck(deck)
+        ]
+        found_cards = AbstractCardSearcher.union_search_all(self.searchers, all_cards)
+
         for attempt in range(self.MAX_ATTEMPTS):
             if attempt == 0:
-                if len(self.found_cards) <= self.SAMPLE_SIZE:
-                    sample = self.found_cards
+                if len(found_cards) <= self.SAMPLE_SIZE:
+                    sample = found_cards
                 else:
-                    sample = pd.Series(self.found_cards).sample(self.SAMPLE_SIZE).to_list()
+                    sample = pd.Series(found_cards).sample(self.SAMPLE_SIZE).to_list()
 
                 message = self._prompt_template.format(
                     user_input=self.user_prompt,
-                    amount_cards=len(self.found_cards),
+                    amount_cards=len(found_cards),
                     cards_sample="\n\n".join(str(it) for it in sample),
                 )
             else:
@@ -540,10 +528,10 @@ class StateVerifySearch(AbstractActionState):
             response = response.replace('"', "").replace("'", "")
             resp = find_substring_in_llm_response_or_null(response, "yes", "no", True)
 
+            # no you can not change this to resp == true.
+            # noinspection PySimplifyBooleanCheck
             if resp is True:
-                return StateTaskWorkOnFoundCards(
-                    self.user_prompt, self.llm, self.decks_to_search_in, self.srs, self.found_cards
-                )
+                return StateTaskWorkOnFoundCards(self.info, self.user_prompt, self.decks_to_search_in, found_cards)
             elif resp is False:
                 raise NotImplementedError()  # TODO! Add a *one-time-only* loopback here.
 
@@ -571,20 +559,19 @@ Please **only** respond with the number of the operation that fits the user's qu
 
     def __init__(
         self,
+        info: TaskInfo,
         user_prompt: str,
-        llm: AbstractLLM,
         decks_to_search_in: list[AbstractDeck],
-        srs: AbstractSRS,
         found_cards: list[AbstractCard],
     ):
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
+        self.user_prompt = user_prompt
         self.user_prompt = user_prompt
         self.decks_to_search_in = decks_to_search_in
-        self.srs = srs
         self.found_cards = found_cards
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
             if attempt == 0:
                 message = self._prompt_template.format(
@@ -604,17 +591,15 @@ Please **only** respond with the number of the operation that fits the user's qu
 
             if response == "2":
                 for card in self.found_cards:
-                    self.srs.delete_card(card)
+                    self.info.srs.delete_card(card)
 
                 return StateFinishedTask(f"{len(self.found_cards)} cards deleted.")
 
             if response == "1":
-                return StateSearchCopyToDeck(self.user_prompt, self.llm, self.srs, self.found_cards)
+                return StateSearchCopyToDeck(self.info, self.user_prompt, self.found_cards)
 
             if response in "34":
-                return StateStreamFoundCards(
-                    self.user_prompt, self.llm, self.decks_to_search_in, self.srs, self.found_cards
-                )
+                return StateStreamFoundCards(self.info, self.user_prompt, self.found_cards)
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
@@ -642,30 +627,28 @@ Now please answer the name of the deck that the search result should be saved to
 
     def __init__(
         self,
+        info: TaskInfo,
         user_prompt: str,
-        llm: AbstractLLM,
-        srs: AbstractSRS,
         found_cards: list[AbstractCard],
     ):
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
-        self.srs = srs
         self.found_cards = found_cards
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> Optional["AbstractActionState"]:
-        deck_list = "\n".join([f" * {it.name}" for it in self.srs.get_all_decks()])
+    def act(self) -> Optional["AbstractActionState"]:
+        deck_list = "\n".join([f" * {it.name}" for it in self.info.srs.get_all_decks()])
         prompt = self._prompt_template.format(deck_list=deck_list, user_input=self.user_prompt)
         deck_name = self.llm_communicator.send_message(prompt)
 
         deck_created = False
-        deck = self.srs.get_deck_by_name_or_none(deck_name)
+        deck = self.info.srs.get_deck_by_name_or_none(deck_name)
         if deck is None:
-            deck = self.srs.add_deck(deck_name)
+            deck = self.info.srs.add_deck(deck_name)
             deck_created = True
 
         for card in self.found_cards:
-            self.srs.copy_card_to(card, deck)
+            self.info.srs.copy_card_to(card, deck)
 
         if deck_created:
             return StateFinishedTask(f"{len(self.found_cards)} cards copied to newly created deck {deck_name}.")
@@ -715,30 +698,23 @@ Please answer only with the operation you want to perform in the given format, a
 
     def __init__(
         self,
+        info: TaskInfo,
         user_prompt: str,
-        llm: AbstractLLM,
-        decks_to_search_in: list[AbstractDeck],
-        srs: AbstractSRS,
         found_cards: list[AbstractCard],
     ):
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
-        self.decks_to_search_in = decks_to_search_in
-        self.srs = srs
         self.found_cards = found_cards
 
-    def _execute_command(
-        self, response: str, card: AbstractCard, progress_callback: Callable[[str, Optional[bool]], None] | None = None
-    ):
+    def _execute_command(self, response: str, card: AbstractCard):
         response = response.strip()
 
         if response == "do_nothing":
             return
         if response == "delete_card":
-            self.srs.delete_card(card)
-            if progress_callback:
-                progress_callback(f"Deleted card: {card.question} - {card.answer}", True)
+            self.info.srs.delete_card(card)
+            self.info.progress_callback.handle(f"Deleted card: {card.question} - {card.answer}", True)
             return
 
         # only editing or wrong input left.
@@ -763,29 +739,31 @@ Please answer only with the operation you want to perform in the given format, a
 
         # edit card
         if "question" in parsed and parsed["question"] != card.question:
-            self.srs.edit_card_question(card, parsed["question"])
-            if progress_callback:
-                progress_callback(
-                    f"Edited question of card: {card.question} - {card.answer} to {parsed['question']}", True
-                )
+            self.info.srs.edit_card_question(card, parsed["question"])
+            self.info.progress_callback.handle(
+                f"Edited question of card: {card.question} - {card.answer} to {parsed['question']}", True
+            )
         if "answer" in parsed and parsed["answer"] != card.answer:
-            self.srs.edit_card_answer(card, parsed["answer"])
-            if progress_callback:
-                progress_callback(f"Edited answer of card: {card.question} - {card.answer} to {parsed['answer']}", True)
+            self.info.srs.edit_card_answer(card, parsed["answer"])
+            self.info.progress_callback.handle(
+                f"Edited answer of card: {card.question} - {card.answer} to {parsed['answer']}", True
+            )
         if "flag" in parsed and parsed["flag"] != card.flag:
             flag = Flag.from_str(parsed["flag"])
-            self.srs.edit_card_flag(card, flag)
-            if progress_callback:
-                progress_callback(f"Set flag of card: {card.question} - {card.answer} to {parsed['flag']}", True)
+            self.info.srs.edit_card_flag(card, flag)
+            self.info.progress_callback.handle(
+                f"Set flag of card: {card.question} - {card.answer} to {parsed['flag']}", True
+            )
         if "state" in parsed and parsed["state"] != card.state:
             state = CardState.from_str(parsed["state"])
-            self.srs.edit_card_state(card, state)
-            if progress_callback:
-                progress_callback(f"Set state of card: {card.question} - {card.answer} to {parsed['state']}", True)
+            self.info.srs.edit_card_state(card, state)
+            self.info.progress_callback.handle(
+                f"Set state of card: {card.question} - {card.answer} to {parsed['state']}", True
+            )
 
         return
 
-    def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         for card in self.found_cards:
             message = self._prompt_template.format(
                 user_task=self.user_prompt,
@@ -799,7 +777,7 @@ Please answer only with the operation you want to perform in the given format, a
             for attempt in range(self.MAX_ATTEMPTS_PER_CARD):
                 response = self.llm_communicator.send_message(message)
                 try:
-                    self._execute_command(response, card, progress_callback)
+                    self._execute_command(response, card)
                     break  # if the command executed successfully
                 except JSONDecodeError as jde:
                     message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
@@ -853,10 +831,9 @@ Please answer only with the filled-in, valid json.
 """.strip()
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
-        self.llm = llm
-        self.llm_communicator = LLMCommunicator(llm)
-        self.srs = srs
+    def __init__(self, info: TaskInfo, user_prompt: str):
+        self.info = info
+        self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
 
     @staticmethod
@@ -926,41 +903,36 @@ Please answer only with the filled-in, valid json.
 
         return parsed
 
-    def _execute_command(
-        self, cmd_dict: dict[Any, Any], progress_callback: Callable[[str, Optional[bool]], None] | None = None
-    ) -> None:
+    def _execute_command(self, cmd_dict: dict[Any, Any]) -> None:
         # execute tasks
         if cmd_dict["task"] == "create_deck":
             deck_name = cmd_dict["name"]
-            deck = self.srs.get_deck_by_name_or_none(deck_name)
+            deck = self.info.srs.get_deck_by_name_or_none(deck_name)
             if deck is not None:
                 raise ValueError("Deck already exists")
-            self.srs.add_deck(deck_name)
-            if progress_callback:
-                progress_callback(f"Created deck: {cmd_dict['name']}", True)
+            self.info.srs.add_deck(deck_name)
+            self.info.progress_callback.handle(f"Created deck: {cmd_dict['name']}", True)
             return
 
         if cmd_dict["task"] == "rename_deck":
             old_name = cmd_dict["old_name"]
             new_name = cmd_dict["new_name"]
-            deck = self.srs.get_deck_by_name_or_none(old_name)
+            deck = self.info.srs.get_deck_by_name_or_none(old_name)
             if deck is None:
                 raise MissingDeckException(old_name)
-            if self.srs.get_deck_by_name_or_none(new_name) is not None:
+            if self.info.srs.get_deck_by_name_or_none(new_name) is not None:
                 raise ValueError(f"New name {new_name} already exists")
-            self.srs.rename_deck(deck, new_name)
-            if progress_callback:
-                progress_callback(f"Renamed deck: {old_name} to {new_name}", True)
+            self.info.srs.rename_deck(deck, new_name)
+            self.info.progress_callback.handle(f"Renamed deck: {old_name} to {new_name}", True)
             return
 
         if cmd_dict["task"] == "delete_deck":
             name = cmd_dict["name"]
-            deck = self.srs.get_deck_by_name_or_none(name)
+            deck = self.info.srs.get_deck_by_name_or_none(name)
             if deck is None:
                 raise MissingDeckException(name)
-            self.srs.delete_deck(deck)
-            if progress_callback:
-                progress_callback(f"Deleted deck: {name}", True)
+            self.info.srs.delete_deck(deck)
+            self.info.progress_callback.handle(f"Deleted deck: {name}", True)
             return
 
         if cmd_dict["task"] == "add_card":
@@ -971,20 +943,22 @@ Please answer only with the filled-in, valid json.
             flag = cmd_dict["flag"]
             state = CardState.from_str(state)
             flag = Flag.from_str(flag)
-            deck = self.srs.get_deck_by_name_or_none(deck_name)
+            deck = self.info.srs.get_deck_by_name_or_none(deck_name)
             if deck is None:
                 raise MissingDeckException(deck_name)
 
-            self.srs.add_card(deck, question, answer, flag, state)
-            if progress_callback:
-                progress_callback(f"Added card to deck {deck_name}: {question} - {answer} (flag: {flag})", True)
+            self.info.srs.add_card(deck, question, answer, flag, state)
+            self.info.progress_callback.handle(
+                f"Added card to deck {deck_name}: {question} - {answer} (flag: {flag})", True
+            )
             return
 
         raise AssertionError("Unreachable.")
 
-    def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         deck_info = [
-            f'name: "{it.name}", cards: {len(self.srs.get_cards_in_deck(it))}' for it in self.srs.get_all_decks()
+            f'name: "{it.name}", cards: {len(self.info.srs.get_cards_in_deck(it))}'
+            for it in self.info.srs.get_all_decks()
         ]
 
         message = self._prompt_template.format(user_input=self.user_prompt, current_decks="\n".join(deck_info))
@@ -994,7 +968,7 @@ Please answer only with the filled-in, valid json.
                 parsed = self._parse_commands(response)
 
                 for command in parsed:
-                    self._execute_command(command, progress_callback)
+                    self._execute_command(command)
 
                 return StateFinishedTask(f"Executed {len(parsed)} commands.")
                 # TODO Now, there is only one iterations - all commands must be sent the first time.
@@ -1009,7 +983,7 @@ Please answer only with the filled-in, valid json.
                 if mde.deck_name is None:
                     message = "You must provide a deck name."
                 else:
-                    deck_names = [deck.name for deck in self.srs.get_all_decks()]
+                    deck_names = [deck.name for deck in self.info.srs.get_all_decks()]
                     similar_deck_names = "\n".join(
                         f"* {deck_name}"
                         for deck_name in sorted(deck_names, key=lambda x: Levenshtein.distance(x, mde.deck_name))[:2]
@@ -1031,5 +1005,5 @@ class StateFinishedTask(AbstractActionState):
     def __init__(self, message: str):
         self.message = message
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         return None
