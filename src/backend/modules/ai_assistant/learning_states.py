@@ -31,13 +31,20 @@ If no reasonable match is found, respond with "None".
 """.strip()
     MAX_ATTEMPTS = 5
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
+    def __init__(
+        self,
+        user_prompt: str,
+        llm: AbstractLLM,
+        srs: AbstractSRS,
+        progress_callback: Callable[[str, Optional[bool]], None] | None = None,
+    ):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.srs = srs
         self.user_prompt = user_prompt
+        self.progress_callback = progress_callback
 
-    def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         deck_info = [
             f'name: "{it.name}", cards: {len(self.srs.get_cards_in_deck(it))}' for it in self.srs.get_all_decks()
         ]
@@ -64,8 +71,8 @@ If no reasonable match is found, respond with "None".
                         self.srs.init_learning_state(deck, cards)
                         first_card_question = self.srs.get_current_learning_card().question
 
-                        if progress_callback:
-                            progress_callback(
+                        if self.progress_callback:
+                            self.progress_callback(
                                 f"Learning session for deck '{deck.name}' initialized successfully.", True
                             )
 
@@ -106,13 +113,20 @@ Examples:
 """.strip()
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
+    def __init__(
+        self,
+        user_prompt: str,
+        llm: AbstractLLM,
+        srs: AbstractSRS,
+        progress_callback: Callable[[str, Optional[bool]], None] | None = None,
+    ):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
         self.srs = srs
+        self.progress_callback = progress_callback
 
-    def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         card_question = self.srs.get_current_learning_card().question
         message = self._prompt_template.format(user_input=self.user_prompt, card_question=card_question)
 
@@ -122,15 +136,15 @@ Examples:
             resp = find_substring_in_llm_response_or_null(response, "answer", "end", True)
 
             if resp is True:
-                return StateJudgeAnswer(self.user_prompt, self.llm, self.srs, False)
+                return StateJudgeAnswer(self.user_prompt, self.llm, self.srs, False, self.progress_callback)
             elif resp is False:
                 self.srs.study_mode = False
-                if progress_callback:
-                    progress_callback("Exit study mode.", True)
+                if self.progress_callback:
+                    self.progress_callback("Exit study mode.", True)
                 return StateFinishedLearn("Exit study mode.")
             elif resp is None:
                 if "both" in response.lower():
-                    return StateExtractAnswer(self.user_prompt, self.llm, self.srs)
+                    return StateExtractAnswer(self.user_prompt, self.llm, self.srs, self.progress_callback)
 
             message = "Return only one of the following: 'answer'', 'end', or 'both'. Do not return anything else."
 
@@ -158,13 +172,20 @@ Do not modify, correct, or interpret the content. Just return the answer exactly
 
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
+    def __init__(
+        self,
+        user_prompt: str,
+        llm: AbstractLLM,
+        srs: AbstractSRS,
+        progress_callback: Callable[[str, Optional[bool]], None] | None = None,
+    ):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
         self.srs = srs
+        self.progress_callback = progress_callback
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         message = self._prompt_template.format(user_input=self.user_prompt)
 
         for attempt in range(self.MAX_ATTEMPTS):
@@ -172,7 +193,7 @@ Do not modify, correct, or interpret the content. Just return the answer exactly
             response = remove_block(response, "think").strip()
             if response != "":  # not always stable
                 self.user_prompt = response
-                return StateJudgeAnswer(self.user_prompt, self.llm, self.srs, True)
+                return StateJudgeAnswer(self.user_prompt, self.llm, self.srs, True, self.progress_callback)
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
@@ -254,14 +275,22 @@ The user gave the following answers to the questions on the card:
 
     MAX_ATTEMPTS = 5
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, end: bool):
+    def __init__(
+        self,
+        user_prompt: str,
+        llm: AbstractLLM,
+        srs: AbstractSRS,
+        end: bool,
+        progress_callback: Callable[[str, Optional[bool]], None] | None = None,
+    ):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
         self.srs = srs
         self.end = end
+        self.progress_callback = progress_callback
 
-    def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         card = self.srs.get_current_learning_card()
         message = self._prompt_template.format(
             user_answer=self.user_prompt, card_question=card.question, card_answer=card.answer
@@ -286,14 +315,14 @@ The user gave the following answers to the questions on the card:
                 if next_card is None:
                     msg_to_user += "Congratulations! You have finished this deck for now."
                     self.srs.study_mode = False
-                    if progress_callback:
-                        progress_callback("Exit study mode.", True)
+                    if self.progress_callback:
+                        self.progress_callback("Exit study mode.", True)
                     return StateFinishedLearn(msg_to_user)
                 elif self.end:
                     msg_to_user += "Exit study mode."
                     self.srs.study_mode = False
-                    if progress_callback:
-                        progress_callback("Exit study mode.", True)
+                    if self.progress_callback:
+                        self.progress_callback("Exit study mode.", True)
                     return StateFinishedLearn(msg_to_user)
                 else:
                     msg_to_user += f"Question: {next_card.question}"
@@ -311,5 +340,5 @@ class StateFinishedLearn(AbstractActionState):
     def __init__(self, message: str):
         self.message = message
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self) -> AbstractActionState | None:
         return None

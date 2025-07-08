@@ -73,29 +73,29 @@ Do not answer anything else.
         from src.backend.modules.ai_assistant.question_states import StateQuestion
         from src.backend.modules.ai_assistant.task_states import StateRewriteTask
 
-        if self.srs.study_mode is True:
-            return StateClassify(self.user_prompt, self.llm, self.srs)
-        else:
-            for attempt in range(self.MAX_ATTEMPTS):
-                if attempt == 0:
-                    message = self._prompt_template.format(user_input=self.user_prompt)
-                else:
-                    message = "Your answer must be either 'question', 'task' or 'study'."
+        if self.srs.study_mode:
+            return StateClassify(self.user_prompt, self.llm, self.srs, self.progress_callback.handle)
 
-                response = self.llm_communicator.send_message(message)
+        for attempt in range(self.MAX_ATTEMPTS):
+            if attempt == 0:
+                message = self._prompt_template.format(user_input=self.user_prompt)
+            else:
+                message = "Your answer must be either 'question', 'task' or 'study'."
 
-                response = remove_block(response, "think")
-                response = response.replace('"', "").replace("'", "")
-                resp = find_substring_in_llm_response_or_null(response, "question", "task", True)
+            response = self.llm_communicator.send_message(message)
 
-                if resp is True:
-                    return StateQuestion(self.user_prompt, self.llm, self.llama_index_executor)
-                elif resp is False:
-                    return StateRewriteTask(
-                        self.user_prompt, self.llm, self.srs, self.llama_index_executor, self.progress_callback
-                    )
-                elif resp is None:
-                    if "study" in response.lower():
-                        return StateStartLearn(self.user_prompt, self.llm, self.srs)
+            response = remove_block(response, "think")
+            response = response.replace('"', "").replace("'", "")
+            resp = find_substring_in_llm_response_or_null(response, "question", "task", True)
 
-            raise ExceedingMaxAttemptsError(self.__class__.__name__)
+            if resp is True:
+                return StateQuestion(self.user_prompt, self.llm, self.llama_index_executor)
+            elif resp is False:
+                return StateRewriteTask(
+                    self.user_prompt, self.llm, self.srs, self.llama_index_executor, self.progress_callback
+                )
+            elif resp is None:
+                if "study" in response.lower():
+                    return StateStartLearn(self.user_prompt, self.llm, self.srs, self.progress_callback.handle)
+
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
