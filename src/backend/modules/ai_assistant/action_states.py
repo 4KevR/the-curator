@@ -1157,7 +1157,7 @@ If no reasonable match is found, respond with "None".
         self.srs = srs
         self.user_prompt = user_prompt
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         deck_info = [
             f'name: "{it.name}", cards: {len(self.srs.get_cards_in_deck(it))}' for it in self.srs.get_all_decks()
         ]
@@ -1188,11 +1188,11 @@ If no reasonable match is found, respond with "None".
                             self.srs.card_index_currently_being_learned
                         ].question
 
-                        msg_to_user = (
-                            f"Learning session for deck '{deck.name}' initialized successfully.\n"
-                            f"Enjoy your learning!\n\n"
-                            f"Question: {first_card_question}"
-                        )
+                        if progress_callback:
+                            progress_callback(
+                                f"Learning session for deck '{deck.name}' initialized successfully.", True
+                            )
+                        msg_to_user = f"Enjoy your learning!\n Question: {first_card_question}\n"
                         return StateFinishedLearn(msg_to_user)
                 else:
                     message = f"""No matching deck was found based on your previous response: '{deck_name}'.
@@ -1235,7 +1235,7 @@ Examples:
         self.user_prompt = user_prompt
         self.srs = srs
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         card_question = self.srs.cards_to_be_learned[self.srs.card_index_currently_being_learned].question
         message = self._prompt_template.format(user_input=self.user_prompt, card_question=card_question)
 
@@ -1248,7 +1248,9 @@ Examples:
                 return StateJudgeAnswer(self.user_prompt, self.llm, self.srs, False)
             elif resp is False:
                 self.srs.study_mode = False
-                return StateFinishedLearn("Exit learning process.")
+                if progress_callback:
+                    progress_callback("Exit study mode.", True)
+                return StateFinishedLearn("Exit study mode.")
             elif resp is None:
                 if "both" in response.lower():
                     return StateExtractAnswer(self.user_prompt, self.llm, self.srs)
@@ -1306,19 +1308,23 @@ The current flashcard is as follows:
 - Question: {card_question}
 - Correct Answer: {card_answer}
 
-
 The user gave the following answers to the questions on the card:
 
 {user_answer}
 
-Your task is to evaluate the user's answer based on the correct answer above and return one of the following:
+
+Your task is to evaluate the user's answer based primarily on the correct answer above, considering the following principles:
+
+1. The correct answer is the most important criterion. Semantic correctness and alignment with the intended meaning are crucial.
+2. Minor spelling or grammatical mistakes can be ignored as long as the meaning is clearly conveyed.
+3. Answers must demonstrate real understanding. Vague or generic responses like "The answer is the answer" are not acceptable.
+
+Based on this, return only one of the following evaluations:
 
 - 'again': the user clearly did not remember the answer and should try again.
 - 'hard': the user struggled or was mostly incorrect, but showed partial understanding.
 - 'good': the user remembered the answer reasonably well with minor issues.
 - 'easy': the user recalled the answer very easily and accurately.
-
-You are a very strict evaluator: judge based on **semantic understanding**, not just word overlap. Answers like "The answer is the answer" are meaningless and should be rated as 'again'.
 
 **Return only one word of: 'again', 'hard', 'good', or 'easy'. Do not return anything else.**
 """.strip()
@@ -1332,7 +1338,7 @@ You are a very strict evaluator: judge based on **semantic understanding**, not 
         self.srs = srs
         self.end = end
 
-    def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
+    def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         card = self.srs.cards_to_be_learned[self.srs.card_index_currently_being_learned]
         message = self._prompt_template.format(
             user_answer=self.user_prompt, card_question=card.question, card_answer=card.answer
@@ -1348,10 +1354,14 @@ You are a very strict evaluator: judge based on **semantic understanding**, not 
                 if self.srs.card_index_currently_being_learned == len(self.srs.cards_to_be_learned) - 1:
                     msg_to_user += "Congratulations on learning all the cards!"
                     self.srs.study_mode = False
+                    if progress_callback:
+                        progress_callback("Exit study mode.", True)
                     return StateFinishedLearn(msg_to_user)
                 elif self.end:
-                    msg_to_user += "Exit learning process."
+                    msg_to_user += "Exit study mode."
                     self.srs.study_mode = False
+                    if progress_callback:
+                        progress_callback("Exit study mode.", True)
                     return StateFinishedLearn(msg_to_user)
                 else:
                     self.srs.card_index_currently_being_learned += 1
