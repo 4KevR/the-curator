@@ -1,13 +1,10 @@
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from src.backend.modules.ai_assistant.action_states import (
-    AbstractActionState,
-    StateAction,
-    StateAnswer,
-    StateFinishedLearn,
-    StateFinishedTask,
-)
+from src.backend.modules.ai_assistant.learning_states import StateFinishedLearn
+from src.backend.modules.ai_assistant.question_states import StateAnswer
+from src.backend.modules.ai_assistant.states import AbstractActionState, StateAction
+from src.backend.modules.ai_assistant.task_states import StateFinishedTask
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.llm.logging_llm import LoggingLLM
 from src.backend.modules.search.llama_index import LlamaIndexExecutor
