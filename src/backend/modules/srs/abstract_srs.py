@@ -2,7 +2,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, ClassVar, Generic, Optional, TypeVar
+from typing import Any, ClassVar, Generic, TypeVar
 
 from overrides.final import final
 from typeguard import typechecked
@@ -109,6 +109,22 @@ class CardState(Enum):
         raise ValueError(f"{s} is not a valid state.")
 
 
+@typechecked
+class MemoryGrade(Enum):
+    AGAIN = "again"
+    HARD = "hard"
+    GOOD = "good"
+    EASY = "easy"
+
+    @staticmethod
+    def from_str(s: str):
+        s = s.lower()
+        for grade in MemoryGrade:
+            if grade.value == s:
+                return grade
+        raise ValueError(f"{s} is not a valid memory grade.")
+
+
 class AbstractDeck(ABC):
     """A deck in a spaced repetition system."""
 
@@ -167,9 +183,8 @@ class MissingDeckException(Exception):
 class AbstractSRS(Generic[TCard, TDeck], ABC):
     """Abstract class for a spaced repetition system (SRS), such as Anki."""
 
-    study_mode: bool = False
-    cards_to_be_learned: Optional[list[TCard]] = None  # ugly.. just initial ideas
-    card_index_currently_being_learned: int = -1  # ugly.. just initial ideas
+    def __init__(self):
+        self._study_mode: bool = False
 
     # Decks
     @abstractmethod
@@ -294,15 +309,43 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
         Raises a ValueError if the card is not present in any deck.
         """
 
-    def set_memory_grade(self, card_id: CardID, ease: str) -> None:
+    # Learn
+    def init_learning_state(self, deck: TDeck, cards: list[TCard]) -> None:
+        self.study_mode = True
+        self._deck_to_be_learned = deck
+        self._cards_to_be_learned = cards
+        self._card_index_currently_being_learned = 0
+
+    @property
+    def study_mode(self) -> bool:
+        return self._study_mode
+
+    @study_mode.setter
+    def study_mode(self, mode: bool) -> None:
+        self._study_mode = mode
+
+    def get_current_learning_card(self) -> TCard:
+        return self._cards_to_be_learned[self._card_index_currently_being_learned]
+
+    def get_next_learning_card(self) -> TCard | None:
+        self._card_index_currently_being_learned += 1
+        if self._card_index_currently_being_learned < len(self._cards_to_be_learned):
+            return self._cards_to_be_learned[self._card_index_currently_being_learned]
+        else:
+            return None
+
+    def repeat_learning_card(self, once: bool = False) -> None:
+        current_card = self.get_current_learning_card()
+        if once:
+            for i in range(self._card_index_currently_being_learned):
+                if self._cards_to_be_learned[i].id == current_card.id:
+                    return
+            self._cards_to_be_learned.append(current_card)
+        else:
+            self._cards_to_be_learned.append(current_card)
+
+    @abstractmethod
+    def set_memory_grade(self, card: TCard, memory_grade: MemoryGrade) -> None:
         """
-        Simulate user memory feedback. (no card scheduling.)
+        Simulate user memory feedback.
         """
-        grade_map = {
-            "again": 0,
-            "hard": 1,
-            "good": 2,
-            "easy": 3,
-        }
-        if ease not in grade_map:
-            raise ValueError("The memory level must be: again / hard / good / easy.")

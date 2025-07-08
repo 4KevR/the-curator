@@ -13,6 +13,7 @@ from src.backend.modules.srs.abstract_srs import (
     CardState,
     DeckID,
     Flag,
+    MemoryGrade,
     MissingDeckException,
 )
 
@@ -328,3 +329,12 @@ class TestFlashcardManager(AbstractSRS[TestCard, TestDeck]):
         else:
             deck_str = "\n".join(["* " + str(deck) for deck in self.get_all_decks()])
             return f"Flashcard Manager with the following decks:\n{deck_str}\n"
+
+    @override
+    def set_memory_grade(self, card: TestCard, memory_grade: MemoryGrade) -> None:
+        # Here is a hacky method: just 'pass', actually we don't do anything.
+        # We *pretend* that we have performed the set_memory_grade operation
+        # as long as the type check does not raise an error.
+        # In this way, TestSRS can also perform the learning steps.
+        # raise NotImplementedError, if you don't like it. :)
+        pass

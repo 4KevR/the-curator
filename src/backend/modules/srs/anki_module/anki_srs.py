@@ -31,7 +31,7 @@ from anki.notes import Note, NoteId
 from overrides import override
 from typeguard import typechecked
 
-from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS, CardState, Flag
+from src.backend.modules.srs.abstract_srs import AbstractCard, AbstractDeck, AbstractSRS, CardState, Flag, MemoryGrade
 from src.backend.modules.srs.abstract_srs import CardID as LocalCardID
 from src.backend.modules.srs.abstract_srs import DeckID as LocalDeckID
 
@@ -104,6 +104,13 @@ class AnkiCard(AbstractCard):
     }
 
     _flag_map_rev = {__v: __k for (__k, __v) in _flag_map.items()}  # map is exhaustive
+
+    _memory_grade_map = {
+        MemoryGrade.AGAIN: 1,
+        MemoryGrade.HARD: 2,
+        MemoryGrade.GOOD: 3,
+        MemoryGrade.EASY: 4,
+    }
 
     @staticmethod  # needed for constructor
     def __get_flag_raw(raw_card: Card):
@@ -207,6 +214,8 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         If the directory for the given user does not exist, it will be created.
         A new or existing Anki collection (collection.anki2) will be loaded from this path.
         """
+        super().__init__()
+
         if anki_user == "":
             raise ValueError("anki_user cannot be empty string.")
 
@@ -573,26 +582,17 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         return card_ids
 
     @override
-    def set_memory_grade(self, card_id: LocalCardID, ease: str) -> None:
+    def set_memory_grade(self, card: AnkiCard, memory_grade: MemoryGrade) -> None:
         """
         Simulate user memory feedback:
         - 'again': can't remember (try again)
         - 'hard': difficult
         - 'good': remember (normal)
         - 'easy': very easy
-
-        (only simulate click, no scheduling.)
         """
-        grade_map = {
-            "again": 0,
-            "hard": 1,
-            "good": 2,
-            "easy": 3,
-        }
-        if ease not in grade_map:
-            raise ValueError("The memory level must be: again / hard / good / easy.")
-
-        card = self.col.get_card(CardId(card_id.numeric_id))
-        card.answer = grade_map[ease]
-        logger.debug(f"Set CardID_{card.id} memory grade: {ease}")
+        ease = AnkiCard._memory_grade_map[memory_grade]
+        card = self.col.get_card(CardId(card.id.numeric_id))
+        card.start_timer()
+        self.col.sched.answerCard(card, ease)
+        logger.debug(f"Set CardID_{card.id} memory grade: {memory_grade}")
         self.col.update_card(card)

@@ -4,7 +4,7 @@ from src.backend.modules.ai_assistant.states import AbstractActionState, Exceedi
 from src.backend.modules.helpers.string_util import find_substring_in_llm_response_or_null, remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.llm.llm_communicator import LLMCommunicator
-from src.backend.modules.srs.abstract_srs import AbstractSRS
+from src.backend.modules.srs.abstract_srs import AbstractSRS, MemoryGrade
 
 
 class StateStartLearn(AbstractActionState):
@@ -61,17 +61,14 @@ If no reasonable match is found, respond with "None".
                     if len(cards) == 0:
                         return StateFinishedLearn("The deck you want to learn is empty.")
                     else:
-                        self.srs.study_mode = True
-                        self.srs.cards_to_be_learned = cards
-                        self.srs.card_index_currently_being_learned = 0
-                        first_card_question = self.srs.cards_to_be_learned[
-                            self.srs.card_index_currently_being_learned
-                        ].question
+                        self.srs.init_learning_state(deck, cards)
+                        first_card_question = self.srs.get_current_learning_card().question
 
                         if progress_callback:
                             progress_callback(
                                 f"Learning session for deck '{deck.name}' initialized successfully.", True
                             )
+
                         msg_to_user = f"Enjoy your learning!\n Question: {first_card_question}\n"
                         return StateFinishedLearn(msg_to_user)
                 else:
@@ -116,7 +113,7 @@ Examples:
         self.srs = srs
 
     def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
-        card_question = self.srs.cards_to_be_learned[self.srs.card_index_currently_being_learned].question
+        card_question = self.srs.get_current_learning_card().question
         message = self._prompt_template.format(user_input=self.user_prompt, card_question=card_question)
 
         for attempt in range(self.MAX_ATTEMPTS):
@@ -182,34 +179,80 @@ Do not modify, correct, or interpret the content. Just return the answer exactly
 
 class StateJudgeAnswer(AbstractActionState):
     _prompt_template = """
-You are an assistant of a flashcard study system. Please evaluate the user's answer.
+You are the answer evaluator for a flashcard system. You help users objectively and impartially evaluate the accuracy of their answers to flashcard questions.
+
+Your task is to evaluate the user's answer based primarily on the correct answer above, considering the following principles:
+0. **Capitalization is not a criterion. Minor spelling or grammatical mistakes can be ignored as long as the meaning is clearly conveyed.**
+1. **Trivial-repetition check**: If the user's answer exactly matches the pattern “<term> is <term>” (case-insensitive, with optional period) without any explanatory content, immediately return 'again'.
+2. **No relation**: If the user's answer has no semantic relation to the correct answer (completely off-topic or nonsense), you must return 'again'.
+3. **Incompleteness**: Missing part of the answer, missing key points of the answer, or the answer is vague, return 'hard'.
+4. **Uncertainty**: If the user actively expresses uncertainty about the answer, return 'hard'.
+5. **Partial understanding**: If the user's answer is partial semantically consistent with the correct answer, return 'good'.
+6. **Mostly correct**: If the user's answer conveys essentially the full meaning of the correct answer with only minor wording differences, return 'easy'.
+
+Please return only one of the following evaluations:
+- 'again': the user clearly did not remember the answer and should try again.
+- 'hard': the user struggled or was mostly incorrect, but showed partial understanding.
+- 'good': the user remembered the answer reasonably well with minor issues.
+- 'easy': the user recalled the answer very easily and accurately.
+
+Here are some examples:
+Example 1:
+- Question: What is UFO?
+- Correct Answer: Unidentified Flying Object
+- User Answer: UFO is UFO
+→ again (Trivial-repetition check failed)
+
+Example 2:
+- Question: What is UFO?
+- Correct Answer: Unidentified Flying Object
+- User Answer: ufo is unidentified flying object
+→ easy (Capitalization is not a criterion, the meaning is clearly conveyed)
+
+Example 3:
+- Question: What is UFO?
+- Correct Answer: Unidentified Flying Object
+- User Answer: ufo is Unidentified Flying
+→ hard (Missing part of the answer "Object")
+
+Example 4:
+- Question: What is encapsulation?
+- Correct Answer: Encapsulation is the bundling of data and methods with controlled access, enforced via access modifiers like private and public.
+- User Answer: encapsulation is the bundling of data and methods with controlled access, enforced via access modifiers like private and public.
+→ easy (answer is semantically and lexically identical to the correct answer (apart from minor punctuation or case))
+
+Example 5:
+- Question: What is encapsulation?
+- Correct Answer: Encapsulation is the bundling of data and methods with controlled access, enforced via access modifiers like private and public.
+- User Answer: It's when you put stuff inside a capsule.
+→ again (No relation)
+
+Example 6:
+- Question: What is a hash table?
+- Correct Answer: A hash table is a data structure that uses a hash function to map keys to indices in an array of buckets, providing average-case O(1) lookup, insertion, and deletion.
+- User Answer: A hash table stores key-value pairs in an array and applies a hash function to compute an index, achieving average constant-time operations.
+→ good (Partial understanding)
+
+Example 7:
+- Question: Define polymorphism.
+- Correct Answer: Polymorphism allows objects of different classes to be treated through a common interface, with each class providing its own implementation of the shared methods.
+- User Answer: It means many forms, but I'm not sure how it actually works in code.
+→ hard (The user clearly expressed uncertainty)
+
+
+Please rate the user's answer to the current flashcard:
 
 The current flashcard is as follows:
 - Question: {card_question}
 - Correct Answer: {card_answer}
 
 The user gave the following answers to the questions on the card:
-
 {user_answer}
-
-
-Your task is to evaluate the user's answer based primarily on the correct answer above, considering the following principles:
-
-1. The correct answer is the most important criterion. Semantic correctness and alignment with the intended meaning are crucial.
-2. Minor spelling or grammatical mistakes can be ignored as long as the meaning is clearly conveyed.
-3. Answers must demonstrate real understanding. Vague or generic responses like "The answer is the answer" are not acceptable.
-
-Based on this, return only one of the following evaluations:
-
-- 'again': the user clearly did not remember the answer and should try again.
-- 'hard': the user struggled or was mostly incorrect, but showed partial understanding.
-- 'good': the user remembered the answer reasonably well with minor issues.
-- 'easy': the user recalled the answer very easily and accurately.
 
 **Return only one word of: 'again', 'hard', 'good', or 'easy'. Do not return anything else.**
 """.strip()
 
-    MAX_ATTEMPTS = 3
+    MAX_ATTEMPTS = 5
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, end: bool):
         self.llm = llm
@@ -219,7 +262,7 @@ Based on this, return only one of the following evaluations:
         self.end = end
 
     def act(self, progress_callback: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
-        card = self.srs.cards_to_be_learned[self.srs.card_index_currently_being_learned]
+        card = self.srs.get_current_learning_card()
         message = self._prompt_template.format(
             user_answer=self.user_prompt, card_question=card.question, card_answer=card.answer
         )
@@ -228,11 +271,20 @@ Based on this, return only one of the following evaluations:
             response = self.llm_communicator.send_message(message)
             response = remove_block(response, "think").replace('"', "").replace("'", "").replace(".", "").strip()
             try:
-                self.srs.set_memory_grade(card.id, response)
-                msg_to_user = f"Your answer to the previous card was rated as: {response}.\n"
+                self.srs.set_memory_grade(card, MemoryGrade.from_str(response))
 
-                if self.srs.card_index_currently_being_learned == len(self.srs.cards_to_be_learned) - 1:
-                    msg_to_user += "Congratulations on learning all the cards!"
+                msg_to_user = (
+                    f"Your answer to the previous card was rated as: {response}.\n" f"Correct Answer: {card.answer}\n"
+                )
+
+                if response == "again" or response == "hard":
+                    self.srs.repeat_learning_card()
+                elif response == "good":
+                    self.srs.repeat_learning_card(once=True)
+
+                next_card = self.srs.get_next_learning_card()
+                if next_card is None:
+                    msg_to_user += "Congratulations! You have finished this deck for now."
                     self.srs.study_mode = False
                     if progress_callback:
                         progress_callback("Exit study mode.", True)
@@ -244,10 +296,7 @@ Based on this, return only one of the following evaluations:
                         progress_callback("Exit study mode.", True)
                     return StateFinishedLearn(msg_to_user)
                 else:
-                    self.srs.card_index_currently_being_learned += 1
-                    next_card = self.srs.cards_to_be_learned[self.srs.card_index_currently_being_learned]
-                    next_card_question = f"Question: {next_card.question}"
-                    msg_to_user += next_card_question
+                    msg_to_user += f"Question: {next_card.question}"
                     return StateFinishedLearn(msg_to_user)
             except:  # noqa: E722
                 pass
