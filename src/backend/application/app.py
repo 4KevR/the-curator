@@ -98,6 +98,7 @@ def handle_submit_action_file(data):
 def handle_start_audio_streaming(data):
     user = data.get("user")
     lecture_translator_asr[user] = CloudLectureTranslatorASR()
+    lecture_translator_asr[user]._send_white_noise()
     emit("acknowledged_stream_start", {"user": user})
     logger.info(f"Started audio streaming for user: {user}")
     temporary_user_data[user] = ""

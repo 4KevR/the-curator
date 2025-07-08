@@ -172,8 +172,8 @@ class LlamaIndexExecutor:
 
 
 class LlamaIndexSearcher(AbstractCardSearcher):
-    def __init__(self, prompt: str):
-        self._llama_result = LlamaIndexExecutor().search_cards(prompt)
+    def __init__(self, executor: LlamaIndexExecutor, prompt: str):
+        self._llama_result = executor.search_cards(prompt)
 
     def _search(self, card: C) -> bool:
         for index_card, _ in self._llama_result:

@@ -94,7 +94,7 @@ Do not answer anything else.
                 if resp is True:
                     return StateQuestion(self.user_prompt, self.llm, self.llama_index_executor)
                 elif resp is False:
-                    return StateTask(self.user_prompt, self.llm, self.srs)
+                    return StateTask(self.user_prompt, self.llm, self.srs, self.llama_index_executor)
                 elif resp is None:
                     if "study" in response.lower():
                         return StateStartLearn(self.user_prompt, self.llm, self.srs)
@@ -196,11 +196,12 @@ Which task type fits the best? Only output the number!
 
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
+    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, llama_index_executor: LlamaIndexExecutor):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
         self.srs = srs
+        self.llama_index_executor = llama_index_executor
 
     def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
@@ -223,7 +224,7 @@ Which task type fits the best? Only output the number!
                 if 1 <= response_int <= 4:
                     return StateTaskNoSearch(self.user_prompt, self.llm, self.srs)
                 elif 5 <= response_int <= 8:
-                    return StateTaskSearchDecks(self.user_prompt, self.llm, self.srs)
+                    return StateTaskSearchDecks(self.user_prompt, self.llm, self.srs, self.llama_index_executor)
             except ValueError:
                 pass
 
@@ -254,13 +255,14 @@ Make sure to exactly match the deck names.
 """.strip()
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS):
+    def __init__(self, user_prompt: str, llm: AbstractLLM, srs: AbstractSRS, llama_index_executor: LlamaIndexExecutor):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.srs = srs
         self.user_prompt = user_prompt
         self.possible_decks = self.srs.get_all_decks()
         self.possible_deck_names = {deck.name for deck in self.possible_decks}
+        self.llama_index_executor = llama_index_executor
 
     def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         message = self._prompt_template.format(
@@ -274,14 +276,16 @@ Make sure to exactly match the deck names.
             response = response.strip()
 
             if response == "all":
-                return StateTaskSearch(self.user_prompt, self.llm, self.possible_decks, self.srs)
+                return StateTaskSearch(
+                    self.user_prompt, self.llm, self.possible_decks, self.srs, self.llama_index_executor
+                )
             else:
                 deck_strings = {s.strip() for s in response.split(",")}
                 unknown_deck_strings = deck_strings - self.possible_deck_names
 
                 if len(unknown_deck_strings) == 0:
                     decks = [it for it in self.possible_decks if it.name in deck_strings]
-                    return StateTaskSearch(self.user_prompt, self.llm, decks, self.srs)
+                    return StateTaskSearch(self.user_prompt, self.llm, decks, self.srs, self.llama_index_executor)
 
                 message = (
                     f"The following deck names are unknown: {', '.join(unknown_deck_strings)}.\n"
@@ -319,12 +323,20 @@ Please answer "exact", "fuzzy" or "content", and **nothing else**. All other det
 """.strip()
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
+    def __init__(
+        self,
+        user_prompt: str,
+        llm: AbstractLLM,
+        decks_to_search_in: list[AbstractDeck],
+        srs: AbstractSRS,
+        llama_index_executor: LlamaIndexExecutor,
+    ):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
         self.decks_to_search_in = decks_to_search_in
         self.srs = srs
+        self.llama_index_executor = llama_index_executor
 
     def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
@@ -344,7 +356,9 @@ Please answer "exact", "fuzzy" or "content", and **nothing else**. All other det
             if response == "fuzzy":
                 return StateFuzzySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs)
             if response == "content":
-                return StateContentSearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs)
+                return StateContentSearch(
+                    self.user_prompt, self.llm, self.decks_to_search_in, self.srs, self.llama_index_executor
+                )
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
@@ -542,12 +556,20 @@ Please answer only with the filled-in, valid json.
 """.strip()
     MAX_ATTEMPTS = 3
 
-    def __init__(self, user_prompt: str, llm: AbstractLLM, decks_to_search_in: list[AbstractDeck], srs: AbstractSRS):
+    def __init__(
+        self,
+        user_prompt: str,
+        llm: AbstractLLM,
+        decks_to_search_in: list[AbstractDeck],
+        srs: AbstractSRS,
+        llama_index_executor: LlamaIndexExecutor,
+    ):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
         self.decks_to_search_in = decks_to_search_in
         self.srs = srs
+        self.llama_index_executor = llama_index_executor
 
     def act(self, _: Callable[[str, Optional[bool]], None] | None = None) -> AbstractActionState | None:
         message = self._prompt_template.format(user_input=self.user_prompt)
@@ -562,7 +584,7 @@ Please answer only with the filled-in, valid json.
                 if not isinstance(parsed["search_prompt"], str):
                     raise ValueError("search_prompt must be a string")
 
-                searcher = LlamaIndexSearcher(prompt=parsed["search_prompt"])
+                searcher = LlamaIndexSearcher(executor=self.llama_index_executor, prompt=parsed["search_prompt"])
                 return StateVerifySearch(self.user_prompt, self.llm, self.decks_to_search_in, self.srs, [searcher])
 
             except JSONDecodeError as jde:
