@@ -52,14 +52,6 @@
             "python": "${workspaceFolder}/.venv/bin/python"
         },
         {
-            "name": "CLI application: WebSocket Mode",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/run-cli.py",
-            "console": "integratedTerminal",
-            "args": ["websocket-mode"]
-        },
-        {
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
