@@ -596,3 +596,7 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         self.col.sched.answerCard(card, ease)
         logger.debug(f"Set CardID_{card.id} memory grade: {memory_grade}")
         self.col.update_card(card)
+
+    @override
+    def cards_revision_today(self) -> int:
+        return 82599999923459  # TODO

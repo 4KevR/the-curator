@@ -349,3 +349,10 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
         """
         Simulate user memory feedback.
         """
+
+    @abstractmethod
+    def cards_revision_today(self) -> int:
+        """
+        Returns the number of cards that are scheduled for revision today.
+        If a due card is revised, this count decreases.
+        """

@@ -1,4 +1,5 @@
 import os
+import random
 from dataclasses import dataclass
 from typing import Any
 
@@ -336,5 +337,9 @@ class TestFlashcardManager(AbstractSRS[TestCard, TestDeck]):
         # We *pretend* that we have performed the set_memory_grade operation
         # as long as the type check does not raise an error.
         # In this way, TestSRS can also perform the learning steps.
-        # raise NotImplementedError, if you don't like it. :)
-        pass
+        raise NotImplementedError
+
+    @override
+    def cards_revision_today(self) -> int:
+        num_cards = sum(len(it.cards) for it in self.get_all_decks())
+        return random.randint(0, num_cards)
