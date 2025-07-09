@@ -5,8 +5,8 @@ import requests
 from dotenv import load_dotenv
 
 from src.cli.cli_socket import main as websocket_main
+from src.cli.recording.recording_client import RecordingClient
 from src.cli.tts import tts_and_play
-from src.shared.recording.recording_client import RecordingClient
 
 load_dotenv(".env.local")
 

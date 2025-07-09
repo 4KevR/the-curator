@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 
-from src.backend.modules.ai_assistant.learning_states import StateFinishedLearn
+from src.backend.modules.ai_assistant.learning_states import (
+    StateFinishedLearnWithTermination,
+    StateFinishedSingleLearnStep,
+)
 from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
 from src.backend.modules.ai_assistant.question_states import StateAnswer
 from src.backend.modules.ai_assistant.states import AbstractActionState, StateAction
@@ -17,6 +20,7 @@ class ExecutionResult:
     question_answer: str | None
     state_history: list[str]
     llm_history: list[list[tuple[str, str]]]
+    finish_state: AbstractActionState | None = None
 
 
 class StateManager:
@@ -54,14 +58,19 @@ class StateManager:
             next_state = self._current_state.act()
             if next_state is None:
                 # now we know that we are in one of the end states.
-                # Only end states are: StateAnswer, StateFinishedTask and StateFinishedLearn.
+                # Only end states are: StateAnswer, StateFinishedTask, StateFinishedSingleLearnStep and StateFinishedLearnWithTermination.
                 answer = self._current_state.answer if isinstance(self._current_state, StateAnswer) else None
                 task_msg = (
                     self._current_state.message
-                    if isinstance(self._current_state, (StateFinishedTask, StateFinishedLearn))
+                    if isinstance(
+                        self._current_state,
+                        (StateFinishedTask, StateFinishedSingleLearnStep, StateFinishedLearnWithTermination),
+                    )
                     else None
                 )
-                return ExecutionResult(task_msg, answer, self.state_history, self.logging_llm.get_log())
+                return ExecutionResult(
+                    task_msg, answer, self.state_history, self.logging_llm.get_log(), finish_state=self._current_state
+                )
 
             if self.max_states is not None and n_states + 1 > self.max_states:
                 return ExecutionResult("Reached max states.", None, self.state_history, self.logging_llm.get_log())

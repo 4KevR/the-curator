@@ -11,6 +11,8 @@ from flask_socketio import SocketIO, emit
 from src.backend.controllers.action import action_blueprint
 from src.backend.controllers.speech import speech_blueprint
 from src.backend.modules.ai_assistant import StateManager
+from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
+from src.backend.modules.ai_assistant.state_manager import StateFinishedSingleLearnStep
 from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR
 from src.backend.modules.asr.local_whisper_asr import LocalWhisperASR
 from src.backend.modules.llm.kit_llm_req import KitLLMReq
@@ -40,6 +42,11 @@ def get_adapters(user_name):
     return anki_srs_adapters[user_name], llama_index_executors[user_name]
 
 
+class SocketIOProgressCallback(ProgressCallback):
+    def handle(self, message, is_srs_action=False):
+        emit("action_progress", {"message": message, "is_srs_action": is_srs_action})
+
+
 @socketio.on("submit_action")
 def handle_submit_action(data):
     user = data.get("user")
@@ -48,15 +55,18 @@ def handle_submit_action(data):
         emit("action_error", {"error": "User and transcription required."})
         return
     anki_adapter, llama_executor = get_adapters(user)
-
-    def progress_callback(msg: str, is_srs_action: bool = False):
-        emit("action_progress", {"message": msg, "is_srs_action": is_srs_action})
-
     try:
-        result = StateManager(llm, anki_adapter, llama_executor, progress_callback=progress_callback).run(
-            transcription, True
+        result = StateManager(llm, anki_adapter, llama_executor, progress_callback=SocketIOProgressCallback()).run(
+            transcription
         )
-        emit("action_result", {"result": result.__dict__})
+        if type(result.finish_state) is StateFinishedSingleLearnStep:
+            emit_event = "action_single_result"
+        else:
+            emit_event = "action_result"
+        emit(
+            emit_event,
+            {"task_finish_message": result.task_finish_message, "question_answer": result.question_answer},
+        )
     except Exception as e:
         emit("action_error", {"error": str(e)})
 
@@ -80,14 +90,17 @@ def handle_submit_action_file(data):
         emit("action_progress", {"message": f"User message: {transcription}"})
         os.remove(tmp_path)
         anki_adapter, llama_executor = get_adapters(user)
-
-        def progress_callback(msg: str, is_srs_action: bool = False):
-            emit("action_progress", {"message": msg, "is_srs_action": is_srs_action})
-
-        result = StateManager(llm, anki_adapter, llama_executor, progress_callback=progress_callback).run(
-            transcription, True
+        result = StateManager(llm, anki_adapter, llama_executor, progress_callback=SocketIOProgressCallback()).run(
+            transcription
         )
-        emit("action_result", {"result": result.__dict__})
+        if type(result.finish_state) is StateFinishedSingleLearnStep:
+            emit_event = "action_single_result"
+        else:
+            emit_event = "action_result"
+        emit(
+            emit_event,
+            {"task_finish_message": result.task_finish_message, "question_answer": result.question_answer},
+        )
     except Exception as e:
         emit("action_error", {"error": str(e)})
         if os.path.exists(tmp_path):
@@ -128,11 +141,14 @@ def handle_submit_stream_batch(data):
         emit("received_complete_sentence", {"sentence": complete_sentences[0]})
         temporary_user_data[user] = ""
         anki_adapter, llama_executor = get_adapters(user)
-
-        def progress_callback(msg: str, is_srs_action: bool = False):
-            emit("action_progress", {"message": msg, "is_srs_action": is_srs_action})
-
-        result = StateManager(llm, anki_adapter, llama_executor, progress_callback=progress_callback).run(
-            complete_sentences[0], True
+        result = StateManager(llm, anki_adapter, llama_executor, progress_callback=SocketIOProgressCallback()).run(
+            complete_sentences[0]
         )
-        emit("action_result", {"result": result.__dict__})
+        if type(result.finish_state) is StateFinishedSingleLearnStep:
+            emit_event = "action_single_result"
+        else:
+            emit_event = "action_result"
+        emit(
+            emit_event,
+            {"task_finish_message": result.task_finish_message, "question_answer": result.question_answer},
+        )

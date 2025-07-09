@@ -38,11 +38,11 @@ class TerminalManager:
         self.user = TerminalPrinter.print_user_input_request("Enter your name")
 
     def print_and_execute_path_selection_screen(
-        self, selection_query: str, path: str, srs_actions: list[str] = None
+        self, selection_query: str, path: str, srs_actions: list[str] = None, reset_view: bool = True
     ) -> str:
         while True:
-            TerminalPrinter.clear()
-            self.print_heading(srs_actions=srs_actions)
+            if reset_view:
+                self._reset_view(srs_actions=srs_actions)
             TerminalPrinter.print_question(selection_query)
             if not os.path.exists(path):
                 TerminalPrinter.print_error(f"Directory {path} does not exist.")
@@ -66,8 +66,8 @@ class TerminalManager:
             if not os.path.isfile(file_path):
                 TerminalPrinter.print_error("File does not exist.")
                 continue
-            TerminalPrinter.clear()
-            self.print_heading(srs_actions=srs_actions)
+            if reset_view:
+                self._reset_view(srs_actions=srs_actions)
             TerminalPrinter.print_client_action(f"Selected file: {file_path}")
             break
         return file_path
@@ -76,8 +76,7 @@ class TerminalManager:
         self, selection_query: str, options: Enum, srs_actions: list[str] = None
     ) -> Enum:
         while True:
-            TerminalPrinter.clear()
-            self.print_heading(srs_actions=srs_actions)
+            self._reset_view(srs_actions=srs_actions)
             TerminalPrinter.print_question(selection_query)
             mode_input = TerminalPrinter.print_enum_selection_block(options)
             if mode_input.isdigit() and 1 <= int(mode_input) <= len(options):
@@ -85,14 +84,14 @@ class TerminalManager:
             else:
                 TerminalPrinter.print_error("Invalid option. Please choose a valid number.")
 
-    def print_whisper_screen(self, srs_actions: list[str] = None):
-        TerminalPrinter.clear()
-        self.print_heading(srs_actions=srs_actions)
+    def print_whisper_screen(self, srs_actions: list[str] = None, reset_view: bool = True):
+        if reset_view:
+            self._reset_view(srs_actions=srs_actions)
         TerminalPrinter.print_client_action("Microphone input (whisper) selected.")
 
-    def print_lt_screen(self, srs_actions: list[str] = None):
-        TerminalPrinter.clear()
-        self.print_heading(srs_actions=srs_actions)
+    def print_lt_screen(self, srs_actions: list[str] = None, reset_view: bool = True):
+        if reset_view:
+            self._reset_view(srs_actions=srs_actions)
         TerminalPrinter.print_client_action("Microphone input (LT) selected.")
 
     def print_goodbye(self):
@@ -102,8 +101,9 @@ class TerminalManager:
         TerminalPrinter.clear()
         self.print_heading(srs_actions=srs_actions)
 
-    def execute_text_input(self, srs_actions: list[str] = None) -> str:
-        self._reset_view(srs_actions=srs_actions)
+    def execute_text_input(self, srs_actions: list[str] = None, reset_view: bool = True) -> str:
+        if reset_view:
+            self._reset_view(srs_actions=srs_actions)
         return TerminalPrinter.print_user_input_request("Enter your message")
 
 
@@ -171,7 +171,6 @@ class TerminalPrinter:
     @staticmethod
     def print_error(msg: str):
         print(f"{ANSI.RED.value}[Error]{ANSI.RESET.value} {msg}")
-        TerminalPrinter.wait_for_enter()
 
     @staticmethod
     def wait_for_enter():

@@ -1,7 +1,7 @@
 import os
 
+from src.cli.recording.portaudio_stream_adapter import PortaudioStream
 from src.shared.recording.ffmpeg_stream_adapter import FfmpegStream
-from src.shared.recording.portaudio_stream_adapter import PortaudioStream
 
 
 class RecordingClient:

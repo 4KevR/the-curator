@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 
 from src.backend.modules.helpers import check_for_environment_variables
-from src.shared.recording.portaudio_stream_adapter import NoAudioDeviceException, PortaudioStream
+from src.cli.recording.portaudio_stream_adapter import NoAudioDeviceException, PortaudioStream
 
 load_dotenv(".env.local")
 

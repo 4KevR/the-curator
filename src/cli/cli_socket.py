@@ -8,9 +8,8 @@ from enum import Enum
 import socketio
 
 from src.cli.cli_print import TerminalManager, TerminalPrinter
-from src.shared.recording.recording_client import RecordingClient
-
-from .tts import tts_and_play
+from src.cli.recording.recording_client import RecordingClient
+from src.cli.tts import tts_and_play
 
 
 class SocketAction(Enum):
@@ -28,6 +27,7 @@ srs_actions = []
 current_actions = []
 action_event = threading.Event()
 sentence_complete_event = threading.Event()
+continue_single_cycle = True
 
 
 @sio.on("action_progress")
@@ -43,17 +43,25 @@ def on_action_progress(data):
 
 @sio.on("action_result")
 def on_action_result(data):
-    result_data = data.get("result", {})
-    task_finish_message = result_data.get("task_finish_message", None)
+    task_finish_message = data.get("task_finish_message", None)
     if task_finish_message:
         TerminalPrinter.print_result(task_finish_message)
-    quesion_answer = result_data.get("question_answer", None)
+    quesion_answer = data.get("question_answer", None)
     if quesion_answer:
         TerminalPrinter.print_result(quesion_answer)
         tts_and_play(quesion_answer)
     # Add any pending SRS actions to the persistent list
     srs_actions.extend(current_actions)
     current_actions.clear()
+    action_event.set()
+
+
+@sio.on("action_single_result")
+def on_action_single_result(data):
+    task_finish_message = data.get("task_finish_message", None)
+    TerminalPrinter.print_result(task_finish_message)
+    global continue_single_cycle
+    continue_single_cycle = True
     action_event.set()
 
 
@@ -99,7 +107,6 @@ def on_acknowledged_stream_start(data):
 
 
 def action_processor(user: str, mode: SocketAction, value=None):
-    action_event.clear()
     if mode == SocketAction.TEXT:
         sio.emit("submit_action", {"user": user, "transcription": value})
     elif mode == SocketAction.FILE:
@@ -132,36 +139,51 @@ def action_processor(user: str, mode: SocketAction, value=None):
         TerminalPrinter.print_client_action("Listening for audio input...")
         TerminalPrinter.print_transcription_start()
         sio.emit("start_audio_streaming", {"user": user})
-    action_event.wait()
-    TerminalPrinter.wait_for_enter()
 
 
 def main():
     server_url = "http://127.0.0.1:5000"
     sio.connect(server_url)
     terminal_manager = TerminalManager()
-    while True:
+    exit = False
+    while not exit:
         try:
             mode = terminal_manager.print_and_execute_selection_screen(
                 "Choose interaction type:", SocketAction, srs_actions
             )
-            if mode == SocketAction.END:
-                terminal_manager.print_goodbye()
-                break
-            elif mode == SocketAction.TEXT:
-                text = terminal_manager.execute_text_input(srs_actions)
-                action_processor(terminal_manager.user, mode, text)
-            elif mode == SocketAction.FILE:
-                file_path = terminal_manager.print_and_execute_path_selection_screen(
-                    "Select an audio file or enter a custom path:", "./data/recording_data/combined", srs_actions
-                )
-                action_processor(terminal_manager.user, mode, file_path)
-            elif mode == SocketAction.MIC_WHISPER:
-                terminal_manager.print_whisper_screen(srs_actions=srs_actions)
-                action_processor(terminal_manager.user, mode)
-            elif mode == SocketAction.MIC_LT:
-                terminal_manager.print_lt_screen(srs_actions=srs_actions)
-                action_processor(terminal_manager.user, mode)
+            action_event.clear()
+            global continue_single_cycle
+            continue_single_cycle = True
+            reset_view = True
+            while continue_single_cycle:
+                continue_single_cycle = False
+                if mode == SocketAction.END:
+                    terminal_manager.print_goodbye()
+                    exit = True
+                    break
+                elif mode == SocketAction.TEXT:
+                    text = terminal_manager.execute_text_input(srs_actions, reset_view)
+                    action_processor(terminal_manager.user, mode, text)
+                elif mode == SocketAction.FILE:
+                    file_path = terminal_manager.print_and_execute_path_selection_screen(
+                        "Select an audio file or enter a custom path:",
+                        "./data/recording_data/combined",
+                        srs_actions,
+                        reset_view,
+                    )
+                    action_processor(terminal_manager.user, mode, file_path)
+                elif mode == SocketAction.MIC_WHISPER:
+                    terminal_manager.print_whisper_screen(srs_actions, reset_view)
+                    action_processor(terminal_manager.user, mode)
+                elif mode == SocketAction.MIC_LT:
+                    terminal_manager.print_lt_screen(srs_actions, reset_view)
+                    action_processor(terminal_manager.user, mode)
+                action_event.wait()
+                if continue_single_cycle:
+                    action_event.clear()
+                    reset_view = False
+            if not exit:
+                TerminalPrinter.wait_for_enter()
         except KeyboardInterrupt:
             terminal_manager.print_goodbye()
             break

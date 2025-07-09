@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR  # noqa: E402
-from src.shared.recording.recording_client import RecordingClient  # noqa: E402
+from src.cli.recording.recording_client import RecordingClient  # noqa: E402
 
 if __name__ == "__main__":
     load_dotenv(".env")

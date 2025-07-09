@@ -58,7 +58,7 @@ If no reasonable match is found, respond with "None".
             deck_name = response
 
             if deck_name == "None":
-                return StateFinishedLearn(
+                return StateFinishedLearnWithTermination(
                     "The deck you want to learn is not found. Please check the name and try again."
                 )
             else:
@@ -66,7 +66,7 @@ If no reasonable match is found, respond with "None".
                 if deck is not None:
                     cards = self.srs.get_cards_in_deck(deck)
                     if len(cards) == 0:
-                        return StateFinishedLearn("The deck you want to learn is empty.")
+                        return StateFinishedLearnWithTermination("The deck you want to learn is empty.")
                     else:
                         self.srs.init_learning_state(deck, cards)
                         first_card_question = self.srs.get_current_learning_card().question
@@ -77,7 +77,7 @@ If no reasonable match is found, respond with "None".
                             )
 
                         msg_to_user = f"Enjoy your learning!\n Question: {first_card_question}\n"
-                        return StateFinishedLearn(msg_to_user)
+                        return StateFinishedSingleLearnStep(msg_to_user)
                 else:
                     message = f"""No matching deck was found based on your previous response: '{deck_name}'.
                         **Return only the exact name of the selected deck, or "None". Do not respond with anything else.**"""
@@ -141,7 +141,7 @@ Examples:
                 self.srs.study_mode = False
                 if self.progress_callback:
                     self.progress_callback("Exit study mode.", True)
-                return StateFinishedLearn("Exit study mode.")
+                return StateFinishedLearnWithTermination("Exit study mode.")
             elif resp is None:
                 if "both" in response.lower():
                     return StateExtractAnswer(self.user_prompt, self.llm, self.srs, self.progress_callback)
@@ -317,16 +317,16 @@ The user gave the following answers to the questions on the card:
                     self.srs.study_mode = False
                     if self.progress_callback:
                         self.progress_callback("Exit study mode.", True)
-                    return StateFinishedLearn(msg_to_user)
+                    return StateFinishedLearnWithTermination(msg_to_user)
                 elif self.end:
                     msg_to_user += "Exit study mode."
                     self.srs.study_mode = False
                     if self.progress_callback:
                         self.progress_callback("Exit study mode.", True)
-                    return StateFinishedLearn(msg_to_user)
+                    return StateFinishedLearnWithTermination(msg_to_user)
                 else:
                     msg_to_user += f"Question: {next_card.question}"
-                    return StateFinishedLearn(msg_to_user)
+                    return StateFinishedSingleLearnStep(msg_to_user)
             except:  # noqa: E722
                 pass
 
@@ -335,10 +335,14 @@ The user gave the following answers to the questions on the card:
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
-class StateFinishedLearn(AbstractActionState):
+class StateFinishedSingleLearnStep(AbstractActionState):
 
     def __init__(self, message: str):
         self.message = message
 
     def act(self) -> AbstractActionState | None:
         return None
+
+
+class StateFinishedLearnWithTermination(StateFinishedSingleLearnStep):
+    pass
