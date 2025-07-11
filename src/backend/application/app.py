@@ -10,9 +10,10 @@ from flask_socketio import SocketIO, emit
 
 from src.backend.controllers.action import action_blueprint
 from src.backend.controllers.speech import speech_blueprint
-from src.backend.modules.ai_assistant import StateManager
+from src.backend.modules.ai_assistant.conversation_manager import ConversationManager
 from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
 from src.backend.modules.ai_assistant.state_manager import StateFinishedSingleLearnStep
+from src.backend.modules.ai_assistant.task_states import StateFinishedDueToMissingInformation
 from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR
 from src.backend.modules.asr.local_whisper_asr import LocalWhisperASR
 from src.backend.modules.llm.kit_llm_req import KitLLMReq
@@ -32,19 +33,28 @@ lecture_translator_asr: dict[str, CloudLectureTranslatorASR] = {}
 anki_srs_adapters: dict[str, AnkiSRS] = {}
 llama_index_executors: dict[str, LlamaIndexExecutor] = {}
 temporary_user_data: dict[str, str] = defaultdict(str)
-
-
-def get_adapters(user_name):
-    if user_name not in anki_srs_adapters:
-        anki_srs_adapters[user_name] = AnkiSRS(user_name)
-    if user_name not in llama_index_executors:
-        llama_index_executors[user_name] = LlamaIndexExecutor(user_name)
-    return anki_srs_adapters[user_name], llama_index_executors[user_name]
+user_conversations: dict[str, ConversationManager] = {}
 
 
 class SocketIOProgressCallback(ProgressCallback):
     def handle(self, message, is_srs_action=False):
         emit("action_progress", {"message": message, "is_srs_action": is_srs_action})
+
+
+socketio_progress_callback = SocketIOProgressCallback()
+
+
+def get_conversation_manager(user_name):
+    if user_name in user_conversations:
+        return user_conversations[user_name]
+    if user_name not in anki_srs_adapters:
+        anki_srs_adapters[user_name] = AnkiSRS(user_name)
+    if user_name not in llama_index_executors:
+        llama_index_executors[user_name] = LlamaIndexExecutor(user_name)
+    user_conversations[user_name] = ConversationManager(
+        llm, anki_srs_adapters[user_name], llama_index_executors[user_name], socketio_progress_callback
+    )
+    return user_conversations[user_name]
 
 
 @socketio.on("submit_action")
@@ -54,12 +64,13 @@ def handle_submit_action(data):
     if not user or not transcription:
         emit("action_error", {"error": "User and transcription required."})
         return
-    anki_adapter, llama_executor = get_adapters(user)
+    conversation_manager = get_conversation_manager(user)
     try:
-        result = StateManager(llm, anki_adapter, llama_executor, progress_callback=SocketIOProgressCallback()).run(
-            transcription
-        )
-        if type(result.finish_state) is StateFinishedSingleLearnStep:
+        result = conversation_manager.process_query(transcription)
+        if (
+            type(result.finish_state) is StateFinishedSingleLearnStep
+            or type(result.finish_state) is StateFinishedDueToMissingInformation
+        ):
             emit_event = "action_single_result"
         else:
             emit_event = "action_result"
@@ -89,11 +100,12 @@ def handle_submit_action_file(data):
         emit("action_progress", {"message": "Transcription completed."})
         emit("action_progress", {"message": f"User message: {transcription}"})
         os.remove(tmp_path)
-        anki_adapter, llama_executor = get_adapters(user)
-        result = StateManager(llm, anki_adapter, llama_executor, progress_callback=SocketIOProgressCallback()).run(
-            transcription
-        )
-        if type(result.finish_state) is StateFinishedSingleLearnStep:
+        conversation_manager = get_conversation_manager(user)
+        result = conversation_manager.process_query(transcription)
+        if (
+            type(result.finish_state) is StateFinishedSingleLearnStep
+            or type(result.finish_state) is StateFinishedDueToMissingInformation
+        ):
             emit_event = "action_single_result"
         else:
             emit_event = "action_result"
@@ -140,15 +152,19 @@ def handle_submit_stream_batch(data):
     if complete_sentences:
         emit("received_complete_sentence", {"sentence": complete_sentences[0]})
         temporary_user_data[user] = ""
-        anki_adapter, llama_executor = get_adapters(user)
-        result = StateManager(llm, anki_adapter, llama_executor, progress_callback=SocketIOProgressCallback()).run(
-            complete_sentences[0]
-        )
-        if type(result.finish_state) is StateFinishedSingleLearnStep:
-            emit_event = "action_single_result"
-        else:
-            emit_event = "action_result"
-        emit(
-            emit_event,
-            {"task_finish_message": result.task_finish_message, "question_answer": result.question_answer},
-        )
+        conversation_manager = get_conversation_manager(user)
+        try:
+            result = conversation_manager.process_query(complete_sentences[0])
+            if (
+                type(result.finish_state) is StateFinishedSingleLearnStep
+                or type(result.finish_state) is StateFinishedDueToMissingInformation
+            ):
+                emit_event = "action_single_result"
+            else:
+                emit_event = "action_result"
+            emit(
+                emit_event,
+                {"task_finish_message": result.task_finish_message, "question_answer": result.question_answer},
+            )
+        except Exception as e:
+            emit("action_error", {"error": str(e)})

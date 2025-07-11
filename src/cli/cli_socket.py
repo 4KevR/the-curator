@@ -82,12 +82,13 @@ def on_received_complete_sentence(data):
 @sio.on("action_error")
 def on_action_error(data):
     TerminalPrinter.print_error(data.get("error", ""))
-    sio.disconnect()
     action_event.set()
 
 
 @sio.on("acknowledged_stream_start")
 def on_acknowledged_stream_start(data):
+    TerminalPrinter.print_client_action("Audio transcription stream started.")
+    TerminalPrinter.print_transcription_start()
     user = data.get("user")
     batch = b""
     client = RecordingClient()
@@ -136,8 +137,7 @@ def action_processor(user: str, mode: SocketAction, value=None):
         sio.emit("submit_action_file", {"user": user, "file_b64": file_b64})
         os.remove(tmp_wav_path)
     elif mode == SocketAction.MIC_LT:
-        TerminalPrinter.print_client_action("Listening for audio input...")
-        TerminalPrinter.print_transcription_start()
+        TerminalPrinter.print_client_action("Waiting for stream initialization...")
         sio.emit("start_audio_streaming", {"user": user})
 
 

@@ -6,6 +6,7 @@ from typing import Any, Optional
 import pandas as pd
 from rapidfuzz.distance import Levenshtein
 
+from src.backend.modules.ai_assistant.history_manager import HistoryManager, SrsAction
 from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
 from src.backend.modules.ai_assistant.states import AbstractActionState, ExceedingMaxAttemptsError
 from src.backend.modules.helpers.string_util import find_substring_in_llm_response_or_null, remove_block
@@ -32,6 +33,7 @@ class TaskInfo:
     srs: AbstractSRS
     llama_index: LlamaIndexExecutor
     progress_callback: ProgressCallback
+    history_manager: HistoryManager
 
 
 class StateRewriteTask(AbstractActionState):
@@ -39,12 +41,20 @@ class StateRewriteTask(AbstractActionState):
 You are an AI assistant for a flashcard management system. The flashcard manager contains decks of flashcards (cards).
 The user wants you to execute a task (adding, modifying or deleting cards or decks).
 Please rewrite the following user input so that a LLM will understand it better.
+You are given the history of user queries and the latest srs actions that were executed by the system.
+It is now your task to update the user input to contain all necessary information for the LLM to execute the new single task.
 
 Please make sure that you satisfy the following requirements:
 * Do not change the content!
 * The output should be approximately the same length as the input.
 * Do not refer to the original task; include all necessary information in your output.
 * The input is transcribed from voice, so please try to correct speech recognition errors like double words or miss-spelling.
+
+This is the history of user queries:
+{history}
+
+This is the history of executed srs actions:
+{actions}
 
 The raw input is:
 {user_input}
@@ -61,18 +71,21 @@ Only answer with the new task description!
         srs: AbstractSRS,
         llama_index: LlamaIndexExecutor,
         progress_callback: ProgressCallback,
+        history_manager: HistoryManager,
     ):
-        self.info = TaskInfo(user_prompt, llm, srs, llama_index, progress_callback)
+        self.info = TaskInfo(user_prompt, llm, srs, llama_index, progress_callback, history_manager)
         self.llm_communicator = LLMCommunicator(llm)
         self.user_prompt = user_prompt
+        self.history_manager = history_manager
 
     def act(self) -> AbstractActionState | None:
-        if len(self.user_prompt) >= self.MIN_LENGTH_REWRITE:
-            message = self._prompt_template.format(user_input=self.user_prompt)
-            response = self.llm_communicator.send_message(message)
-            return StateTask(self.info, response)
-        else:
-            return StateTask(self.info, self.user_prompt)
+        message = self._prompt_template.format(
+            history=str(self.history_manager.latest_queries),
+            actions=self.history_manager.get_string_history(),
+            user_input=self.user_prompt,
+        )
+        response = self.llm_communicator.send_message(message)
+        return StateTask(self.info, response)
 
 
 class StateTask(AbstractActionState):
@@ -89,6 +102,7 @@ Given the user input, please select the best fitting task type.
 6: Searching for cards and edit found cards.
 7: Searching for cards and delete found cards.
 8: Create a new deck out of cards **that already are in the system**!.
+9: Use previously created cards which need to be modified or deleted (this is often the case when users want to change existing cards they created in the same session - referring to questions and answers).
 
 The user gave the following input:
 {user_input}
@@ -106,7 +120,9 @@ Which task type fits the best? Only output the number!
     def act(self) -> AbstractActionState | None:
         for attempt in range(self.MAX_ATTEMPTS):
             if attempt == 0:
-                message = self._prompt_template.format(user_input=self.user_prompt)
+                message = self._prompt_template.format(
+                    history=str(self.info.history_manager.latest_queries), user_input=self.user_prompt
+                )
             else:
                 message = "Please just respond with a the number of the best fitting task type."
 
@@ -125,6 +141,8 @@ Which task type fits the best? Only output the number!
                     return StateTaskNoSearch(self.info, self.user_prompt)
                 elif 5 <= response_int <= 8:
                     return StateTaskSearchDecks(self.info, self.user_prompt)
+                elif response_int == 9:
+                    return StateTaskReferencePreviousCards(self.info, self.user_prompt)
             except ValueError:
                 pass
 
@@ -193,6 +211,33 @@ Make sure to exactly match the deck names.
                 )
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
+
+
+class StateTaskReferencePreviousCards(AbstractActionState):
+    def __init__(self, info: TaskInfo, user_prompt: str):
+        self.info = info
+        self.user_prompt = user_prompt
+
+    def act(self) -> AbstractActionState | None:
+        previous_cards: list[AbstractCard] = []
+        seen_card_ids = set()
+        for action in self.info.history_manager.srs_action_history:
+            if isinstance(action.result_object, AbstractCard):
+                card = action.result_object
+                if card.id not in seen_card_ids:
+                    try:
+                        retrieved_card = self.info.srs.get_card(card.id)
+                    except ValueError:
+                        continue
+                    previous_cards.append(retrieved_card)
+                    seen_card_ids.add(card.id)
+
+        if not previous_cards:
+            raise ExceedingMaxAttemptsError(
+                "No previous cards found in SRS history to reference for modification or deletion."
+            )
+
+        return StateStreamFoundCards(self.info, self.user_prompt, previous_cards)
 
 
 class StateTaskSearch(AbstractActionState):
@@ -591,7 +636,9 @@ Please **only** respond with the number of the operation that fits the user's qu
 
             if response == "2":
                 for card in self.found_cards:
-                    self.info.srs.delete_card(card)
+                    action = SrsAction.delete_card(self.info.srs, card)
+                    self.info.history_manager.add_action(action)
+                    self.info.progress_callback.handle(action.description, True)
 
                 return StateFinishedTask(f"{len(self.found_cards)} cards deleted.")
 
@@ -645,10 +692,15 @@ Now please answer the name of the deck that the search result should be saved to
         deck = self.info.srs.get_deck_by_name_or_none(deck_name)
         if deck is None:
             deck = self.info.srs.add_deck(deck_name)
+            action = SrsAction.add_deck(self.info.srs, deck)
+            self.info.progress_callback.handle(action.description, True)
+            self.info.history_manager.add_action(action)
             deck_created = True
 
         for card in self.found_cards:
-            self.info.srs.copy_card_to(card, deck)
+            action = SrsAction.copy_card_to(self.info.srs, card, deck)
+            self.info.progress_callback.handle(action.description, True)
+            self.info.history_manager.add_action(action)
 
         if deck_created:
             return StateFinishedTask(f"{len(self.found_cards)} cards copied to newly created deck {deck_name}.")
@@ -713,8 +765,8 @@ Please answer only with the operation you want to perform in the given format, a
         if response == "do_nothing":
             return
         if response == "delete_card":
-            self.info.srs.delete_card(card)
-            self.info.progress_callback.handle(f"Deleted card: {card.question} - {card.answer}", True)
+            actor = SrsAction.delete_card(self.info.srs, card)
+            self.info.progress_callback.handle(actor.description, True)
             return
 
         # only editing or wrong input left.
@@ -739,27 +791,25 @@ Please answer only with the operation you want to perform in the given format, a
 
         # edit card
         if "question" in parsed and parsed["question"] != card.question:
-            self.info.srs.edit_card_question(card, parsed["question"])
-            self.info.progress_callback.handle(
-                f"Edited question of card: {card.question} - {card.answer} to {parsed['question']}", True
-            )
+            action = SrsAction.edit_card_question(self.info.srs, card, parsed["question"])
+            self.info.history_manager.add_action(action)
+            self.info.progress_callback.handle(action.description, True)
         if "answer" in parsed and parsed["answer"] != card.answer:
-            self.info.srs.edit_card_answer(card, parsed["answer"])
-            self.info.progress_callback.handle(
-                f"Edited answer of card: {card.question} - {card.answer} to {parsed['answer']}", True
-            )
-        if "flag" in parsed and parsed["flag"] != card.flag:
+            action = SrsAction.edit_card_answer(self.info.srs, card, parsed["answer"])
+            self.info.history_manager.add_action(action)
+            self.info.progress_callback.handle(action.description, True)
+        if "flag" in parsed:
             flag = Flag.from_str(parsed["flag"])
-            self.info.srs.edit_card_flag(card, flag)
-            self.info.progress_callback.handle(
-                f"Set flag of card: {card.question} - {card.answer} to {parsed['flag']}", True
-            )
-        if "state" in parsed and parsed["state"] != card.state:
+            if flag != card.flag:
+                action = SrsAction.edit_card_flag(self.info.srs, card, flag)
+                self.info.history_manager.add_action(action)
+                self.info.progress_callback.handle(action.description, True)
+        if "state" in parsed:
             state = CardState.from_str(parsed["state"])
-            self.info.srs.edit_card_state(card, state)
-            self.info.progress_callback.handle(
-                f"Set state of card: {card.question} - {card.answer} to {parsed['state']}", True
-            )
+            if state != card.state:
+                action = SrsAction.edit_card_state(self.info.srs, card, state)
+                self.info.history_manager.add_action(action)
+                self.info.progress_callback.handle(action.description, True)
 
         return
 
@@ -802,6 +852,11 @@ The following decks currently exist:
 
 {current_decks}
 
+These were the user's last srs actions, you can use information from them to execute the task if nessary.
+Often, users have the intention to work on previoulsly created decks or cards.
+
+{last_actions}
+
 You now have to call zero, one or more of the following functions:
 
 * create_deck: {{"task": "create_deck", "name": "<deck name here>"}}
@@ -824,10 +879,12 @@ The user input has speech-to-text errors, so please fix capitalization in questi
 Valid flags are: ['none', 'red', 'orange', 'green', 'blue', 'pink', 'turquoise', 'purple']
 Valid card states are: ['new', 'learning', 'review', 'suspended', 'buried']
 
-If you want to execute no function, return an empty list [].
 If you want to execute one or more functions, return them inside a json array.
 
-Please answer only with the filled-in, valid json.
+Please answer only with the filled-in, valid json but to not a markdown prefix for the json.
+
+Rather use the missing_information task than to guess the user's intention for fill-in fields.
+Do not generate any text for the fields that are not present in the user input. Leave the respective fields empty.
 """.strip()
     MAX_ATTEMPTS = 3
 
@@ -898,62 +955,67 @@ Please answer only with the filled-in, valid json.
                     raise ValueError(f"Command {cmd_dict}: State must be a string")
                 if not isinstance(flag, str):
                     raise ValueError(f"Command {cmd_dict}: Flag must be a string")
-                CardState.from_str(state)
-                Flag.from_str(flag)  # run to test if it throws an error
 
         return parsed
 
-    def _execute_command(self, cmd_dict: dict[Any, Any]) -> None:
+    def _execute_command(self, cmd_dict: dict[Any, Any]) -> Optional[AbstractActionState]:
         # execute tasks
         if cmd_dict["task"] == "create_deck":
             deck_name = cmd_dict["name"]
+            if not deck_name:
+                return StateFinishedDueToMissingInformation("You must provide a deck name.")
             deck = self.info.srs.get_deck_by_name_or_none(deck_name)
             if deck is not None:
                 raise ValueError("Deck already exists")
-            self.info.srs.add_deck(deck_name)
-            self.info.progress_callback.handle(f"Created deck: {cmd_dict['name']}", True)
-            return
-
-        if cmd_dict["task"] == "rename_deck":
+            action = SrsAction.add_deck(self.info.srs, deck_name)
+        elif cmd_dict["task"] == "rename_deck":
             old_name = cmd_dict["old_name"]
             new_name = cmd_dict["new_name"]
+            if not old_name or not new_name:
+                return StateFinishedDueToMissingInformation("You must provide both old and new deck names.")
             deck = self.info.srs.get_deck_by_name_or_none(old_name)
             if deck is None:
                 raise MissingDeckException(old_name)
             if self.info.srs.get_deck_by_name_or_none(new_name) is not None:
                 raise ValueError(f"New name {new_name} already exists")
-            self.info.srs.rename_deck(deck, new_name)
-            self.info.progress_callback.handle(f"Renamed deck: {old_name} to {new_name}", True)
-            return
-
-        if cmd_dict["task"] == "delete_deck":
+            action = SrsAction.rename_deck(self.info.srs, deck, new_name)
+        elif cmd_dict["task"] == "delete_deck":
             name = cmd_dict["name"]
+            if not name:
+                return StateFinishedDueToMissingInformation("You must provide a deck name to delete.")
             deck = self.info.srs.get_deck_by_name_or_none(name)
             if deck is None:
                 raise MissingDeckException(name)
-            self.info.srs.delete_deck(deck)
-            self.info.progress_callback.handle(f"Deleted deck: {name}", True)
-            return
-
-        if cmd_dict["task"] == "add_card":
+            action = SrsAction.delete_deck(self.info.srs, deck)
+        elif cmd_dict["task"] == "add_card":
             deck_name = cmd_dict["deck_name"]
+            if not deck_name:
+                return StateFinishedDueToMissingInformation("You must provide a deck name to add the card to.")
             question = cmd_dict["question"]
+            if not question:
+                return StateFinishedDueToMissingInformation("You must provide a question for the card.")
             answer = cmd_dict["answer"]
+            if not answer:
+                return StateFinishedDueToMissingInformation("You must provide an answer for the card.")
             state = cmd_dict["state"]
+            if not state:
+                state = CardState.NEW
+            else:
+                state = CardState.from_str(state)
             flag = cmd_dict["flag"]
-            state = CardState.from_str(state)
-            flag = Flag.from_str(flag)
+            if not flag:
+                flag = Flag.NONE
+            else:
+                flag = Flag.from_str(flag)
             deck = self.info.srs.get_deck_by_name_or_none(deck_name)
             if deck is None:
                 raise MissingDeckException(deck_name)
-
-            self.info.srs.add_card(deck, question, answer, flag, state)
-            self.info.progress_callback.handle(
-                f"Added card to deck {deck_name}: {question} - {answer} (flag: {flag})", True
-            )
-            return
-
-        raise AssertionError("Unreachable.")
+            action = SrsAction.add_card(self.info.srs, deck, question, answer, flag, state)
+        else:
+            raise AssertionError("Unreachable.")
+        self.info.history_manager.add_action(action)
+        self.info.progress_callback.handle(action.description, True)
+        return None
 
     def act(self) -> AbstractActionState | None:
         deck_info = [
@@ -961,14 +1023,20 @@ Please answer only with the filled-in, valid json.
             for it in self.info.srs.get_all_decks()
         ]
 
-        message = self._prompt_template.format(user_input=self.user_prompt, current_decks="\n".join(deck_info))
+        message = self._prompt_template.format(
+            user_input=self.user_prompt,
+            current_decks="\n".join(deck_info),
+            last_actions=self.info.history_manager.get_string_history(),
+        )
         for attempt in range(self.MAX_ATTEMPTS):
             try:
                 response = self.llm_communicator.send_message(message)
                 parsed = self._parse_commands(response)
 
                 for command in parsed:
-                    self._execute_command(command)
+                    result_state = self._execute_command(command)
+                    if result_state:  # If a state is returned (e.g., missing_information)
+                        return result_state
 
                 return StateFinishedTask(f"Executed {len(parsed)} commands.")
                 # TODO Now, there is only one iterations - all commands must be sent the first time.
@@ -1002,6 +1070,14 @@ Please answer only with the filled-in, valid json.
 
 class StateFinishedTask(AbstractActionState):
 
+    def __init__(self, message: str):
+        self.message = message
+
+    def act(self) -> AbstractActionState | None:
+        return None
+
+
+class StateFinishedDueToMissingInformation(AbstractActionState):
     def __init__(self, message: str):
         self.message = message
 

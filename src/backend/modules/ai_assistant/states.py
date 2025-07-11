@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from src.backend.modules.ai_assistant.history_manager import HistoryManager
 from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
 from src.backend.modules.helpers.string_util import find_substring_in_llm_response_or_null, remove_block
 from src.backend.modules.llm.abstract_llm import AbstractLLM
@@ -59,6 +60,7 @@ Do not answer anything else.
         srs: AbstractSRS,
         llama_index_executor: LlamaIndexExecutor,
         progress_callback: ProgressCallback,
+        history_manager: HistoryManager,
     ):
         self.llm = llm
         self.llm_communicator = LLMCommunicator(llm)
@@ -66,6 +68,7 @@ Do not answer anything else.
         self.srs = srs
         self.llama_index_executor = llama_index_executor
         self.progress_callback = progress_callback
+        self.history_manager = history_manager
 
     def act(self) -> AbstractActionState | None:
         # believe me I hate that this is necessary, but else we get circular imports.
@@ -92,7 +95,12 @@ Do not answer anything else.
                 return StateQuestion(self.user_prompt, self.llm, self.llama_index_executor)
             elif resp is False:
                 return StateRewriteTask(
-                    self.user_prompt, self.llm, self.srs, self.llama_index_executor, self.progress_callback
+                    self.user_prompt,
+                    self.llm,
+                    self.srs,
+                    self.llama_index_executor,
+                    self.progress_callback,
+                    self.history_manager,
                 )
             elif resp is None:
                 if "study" in response.lower():

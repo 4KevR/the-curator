@@ -6,8 +6,9 @@ from dataclasses import asdict
 
 from typeguard import typechecked
 
+from src.backend.modules.ai_assistant.conversation_manager import ConversationManager
 from src.backend.modules.ai_assistant.progress_callback import NoProgressCallback
-from src.backend.modules.ai_assistant.state_manager import ProgressCallback, StateManager
+from src.backend.modules.ai_assistant.state_manager import ProgressCallback
 from src.backend.modules.asr.abstract_asr import AbstractASR
 from src.backend.modules.evaluation.load_test_data.load_test_data import (
     EvaluationTests,
@@ -66,7 +67,7 @@ class EvaluationPipeline:
                 if not is_srs_action:
                     print(message)
 
-        sm = StateManager(
+        conversation_manager = ConversationManager(
             self.task_llm,
             fcm,
             test.llama_index_executor,
@@ -92,29 +93,8 @@ class EvaluationPipeline:
             else:
                 prompts = list(test.queries)
 
-            if len(prompts) != 1:  # TODO remove!!!
-                return TestEvalResult(
-                    passed=True,
-                    crashed=False,
-                    asr_name=self.asr.get_description(),
-                    task_llm_name=self.task_llm.get_description(),
-                    fuzzy_matching_llm_name=self.llm_for_fuzzy_matching.get_description(),
-                    llm_judge_name=self.llm_judge.judge_llm.get_description(),
-                    max_levenshtein_distance=self.max_levenshtein_distance,
-                    max_levenshtein_factor=self.max_levenshtein_ratio,
-                    time_taken_s=time.time() - start_time,
-                    name=test.name,
-                    audio_files_available=all_files_exist,
-                    error_messages=test.queries,
-                    original_queries=prompts,
-                    transcribed_queries=None,
-                    question_answer=None,
-                    task_finish_message=None,
-                    state_history=["SKIPPED"],
-                    log_messages=[[("user", "SKIPPED")]],
-                )
-
-            eval_res = sm.run(prompts[0])
+            for prompt in prompts:
+                eval_res = conversation_manager.process_query(prompt)
 
             # Now find out if the test passed -> different for q_a or interaction test.
             if isinstance(test, QuestionAnsweringTest):
@@ -175,8 +155,8 @@ class EvaluationPipeline:
                 transcribed_queries=prompts if all_files_exist else None,
                 question_answer=None,
                 task_finish_message=None,
-                state_history=sm.state_history,
-                log_messages=sm.logging_llm.get_log(),
+                state_history=conversation_manager.state_manager.state_history,
+                log_messages=conversation_manager.state_manager.logging_llm.get_log(),
             )
 
     def _evaluate_tests(self, tests: list[InteractionTest | QuestionAnsweringTest]) -> list[TestEvalResult]:

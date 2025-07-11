@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from src.backend.modules.ai_assistant.history_manager import HistoryManager
 from src.backend.modules.ai_assistant.learning_states import (
     StateFinishedLearnWithTermination,
     StateFinishedSingleLearnStep,
@@ -7,7 +8,7 @@ from src.backend.modules.ai_assistant.learning_states import (
 from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
 from src.backend.modules.ai_assistant.question_states import StateAnswer
 from src.backend.modules.ai_assistant.states import AbstractActionState, StateAction
-from src.backend.modules.ai_assistant.task_states import StateFinishedTask
+from src.backend.modules.ai_assistant.task_states import StateFinishedDueToMissingInformation, StateFinishedTask
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.llm.logging_llm import LoggingLLM
 from src.backend.modules.search.llama_index import LlamaIndexExecutor
@@ -33,6 +34,7 @@ class StateManager:
         srs: AbstractSRS,
         llama_index_executor: LlamaIndexExecutor,
         progress_callback: ProgressCallback,
+        history_manager: HistoryManager,
         max_states: int | None = None,
     ):
         self.logging_llm = LoggingLLM(task_llm)
@@ -42,11 +44,17 @@ class StateManager:
         self.llama_index_executor = llama_index_executor
         self.progress_callback = progress_callback
         self.max_states = max_states
+        self.history_manager = history_manager
 
     def run(self, user_prompt: str) -> ExecutionResult:
 
         self._current_state = StateAction(
-            user_prompt, self.logging_llm, self.srs, self.llama_index_executor, self.progress_callback
+            user_prompt,
+            self.logging_llm,
+            self.srs,
+            self.llama_index_executor,
+            self.progress_callback,
+            self.history_manager,
         )
         self.state_history.append(str(self._current_state))
 
@@ -64,7 +72,12 @@ class StateManager:
                     self._current_state.message
                     if isinstance(
                         self._current_state,
-                        (StateFinishedTask, StateFinishedSingleLearnStep, StateFinishedLearnWithTermination),
+                        (
+                            StateFinishedTask,
+                            StateFinishedSingleLearnStep,
+                            StateFinishedLearnWithTermination,
+                            StateFinishedDueToMissingInformation,
+                        ),
                     )
                     else None
                 )
