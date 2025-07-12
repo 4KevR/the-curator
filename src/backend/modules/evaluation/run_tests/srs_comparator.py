@@ -100,12 +100,10 @@ class SRSComparator:
             levenshtein_factor: If set, the maximum ratio (levenshtein distance / max(question length, answer length)
                      to be considered a match. Should be in the range [0, 1].
         """
-        (matched, unmatched_expected, unmatched_actual) = match_by_key(
+        (matched, unmatched_expected, unmatched_actual) = match_by_equals(
             expected.get_all_decks(),
             actual.get_all_decks(),
-            equals=(lambda x, y: x.name == y.name),  # checking by name is sufficient, as names must be unique
-            left_key=lambda l_k: l_k.name,
-            right_key=lambda r_k: r_k.name,
+            equals=(lambda x, y: x.name.lower() == y.name.lower()),
         )
 
         errors: list[str] = []

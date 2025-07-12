@@ -87,6 +87,7 @@ Only answer with the new task description!
             user_input=self.user_prompt,
         )
         response = self.llm_communicator.send_message(message)
+        response = response.replace("'", "").replace('"', "")
         return StateTask(self.info, response)
 
 
@@ -216,11 +217,28 @@ Make sure to exactly match the deck names.
 
 
 class StateTaskReferencePreviousCards(AbstractActionState):
+    _prompt_template = """
+You are an assistant of a flashcard management system.
+You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+
+The user wants you to execute this task:
+
+{user_input}
+
+The user has previously worked on the following cards:
+
+{previous_cards}
+
+Please tell me the ids of the cards that are relevant for the user's task. Only respond with a json array of integers, and nothing else.
+""".strip()
+    MAX_ATTEMPTS = 3
+
     def __init__(self, info: TaskInfo, user_prompt: str):
         self.info = info
         self.user_prompt = user_prompt
+        self.llm_communicator = LLMCommunicator(info.llm)
 
-    def act(self) -> AbstractActionState | None:
+    def _get_previous_cards(self) -> list[AbstractCard]:
         previous_cards: list[AbstractCard] = []
         seen_card_ids = set()
         for action in self.info.history_manager.srs_action_history:
@@ -235,11 +253,41 @@ class StateTaskReferencePreviousCards(AbstractActionState):
                     seen_card_ids.add(card.id)
 
         if not previous_cards:
-            raise ExceedingMaxAttemptsError(
-                "No previous cards found in SRS history to reference for modification or deletion."
-            )
+            raise ValueError("No previous cards found in SRS history to reference for modification or deletion.")
 
-        return StateStreamFoundCards(self.info, self.user_prompt, previous_cards)
+        return previous_cards
+
+    def act(self) -> AbstractActionState | None:
+        previous_cards = self._get_previous_cards()
+
+        for attempt in range(self.MAX_ATTEMPTS):
+            if attempt == 0:
+                card_strings = "\n\n".join(
+                    (
+                        f"Card {it.id.numeric_id} in deck {it.deck.name} with flag {it.flag.value} and state {it.state.value}:\n"
+                        f"**Question**: {it.question.replace('\n', '')}\n"
+                        f"**Answer**: {it.answer.replace('\n', '')}"
+                    )
+                    for it in previous_cards
+                )
+                message = self._prompt_template.format(user_input=self.user_prompt, previous_cards=card_strings)
+            else:
+                message = "Your answer must be a json list […] of integers."
+
+            response = self.llm_communicator.send_message(message)
+
+            response = remove_block(response, "think")
+            response = response.replace('"', "").replace("'", "")
+            response = response.lower().strip()
+
+            res = json.loads(response)
+            if isinstance(res, list):
+                if all(isinstance(it, int) for it in res):
+                    numeric_ids = set(res)
+                    filtered_cards = [it for it in previous_cards if it.id.numeric_id in numeric_ids]
+                    return StateStreamFoundCards(self.info, self.user_prompt, filtered_cards)
+
+        raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
 
 class StateTaskSearch(AbstractActionState):
@@ -626,9 +674,7 @@ Please **only** respond with the number of the operation that fits the user's qu
                     amount_cards=len(self.found_cards),
                 )
             else:
-                message = (
-                    'Your answer must be either "delete_all", "copy_to_deck" or "stream_cards", **and nothing else**.'
-                )
+                message = "Your answer must be 1, 2, 3, or 4."
 
             response = self.llm_communicator.send_message(message)
 
@@ -854,11 +900,6 @@ The following decks currently exist:
 
 {current_decks}
 
-These were the user's last srs actions, you can use information from them to execute the task if nessary.
-Often, users have the intention to work on previoulsly created decks or cards.
-
-{last_actions}
-
 You now have to call zero, one or more of the following functions:
 
 * create_deck: {{"task": "create_deck", "name": "<deck name here>"}}
@@ -888,7 +929,7 @@ Please answer only with the filled-in, valid json but to not a markdown prefix f
 Rather use the missing_information task than to guess the user's intention for fill-in fields.
 Do not generate any text for the fields that are not present in the user input. Leave the respective fields empty.
 """.strip()
-    MAX_ATTEMPTS = 3
+    MAX_ATTEMPTS = 6
 
     def __init__(self, info: TaskInfo, user_prompt: str):
         self.info = info
@@ -947,15 +988,15 @@ Do not generate any text for the fields that are not present in the user input. 
                 answer = cmd_dict.get("answer", None)
                 state = cmd_dict.get("state", None)
                 flag = cmd_dict.get("flag", None)
-                if not isinstance(deck_name, str):
+                if deck_name is not None and not isinstance(deck_name, str):
                     raise ValueError(f"Command {cmd_dict}: Name must be a string")
-                if not isinstance(question, str):
+                if question is not None and not isinstance(question, str):
                     raise ValueError(f"Command {cmd_dict}: Question must be a string")
-                if not isinstance(answer, str):
+                if answer is not None and not isinstance(answer, str):
                     raise ValueError(f"Command {cmd_dict}: Answer must be a string")
-                if not isinstance(state, str):
+                if state is not None and not isinstance(state, str):
                     raise ValueError(f"Command {cmd_dict}: State must be a string")
-                if not isinstance(flag, str):
+                if flag is not None and not isinstance(flag, str):
                     raise ValueError(f"Command {cmd_dict}: Flag must be a string")
 
         return parsed
@@ -1028,13 +1069,16 @@ Do not generate any text for the fields that are not present in the user input. 
         message = self._prompt_template.format(
             user_input=self.user_prompt,
             current_decks="\n".join(deck_info),
-            last_actions=self.info.history_manager.get_string_history(),
         )
         for attempt in range(self.MAX_ATTEMPTS):
             try:
                 response = self.llm_communicator.send_message(message)
                 parsed = self._parse_commands(response)
 
+                # TODO: Rollback
+                # srs.start_transaction()
+                # srs.commit()
+                # srs.rollback()
                 for command in parsed:
                     result_state = self._execute_command(command)
                     if result_state:  # If a state is returned (e.g., missing_information)
