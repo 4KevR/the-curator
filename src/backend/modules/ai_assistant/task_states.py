@@ -79,6 +79,8 @@ Only answer with the new task description!
         self.history_manager = history_manager
 
     def act(self) -> AbstractActionState | None:
+        if len(self.history_manager.latest_queries) == 0:
+            return StateTask(self.info, self.user_prompt)
         message = self._prompt_template.format(
             history=str(self.history_manager.latest_queries),
             actions=self.history_manager.get_string_history(),

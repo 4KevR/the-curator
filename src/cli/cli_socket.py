@@ -19,6 +19,8 @@ class SocketAction(Enum):
     FILE = "file"
     MIC_WHISPER = "mic (whisper)"
     MIC_LT = "mic (LT)"
+    NEW_CONVERSATION = "new conversation"
+    CHANGE_USER = "change user"
     END = "end"
 
 
@@ -146,6 +148,7 @@ def main():
     sio.connect(server_url)
     terminal_manager = TerminalManager()
     exit = False
+    global srs_actions
     while not exit:
         try:
             mode = terminal_manager.print_and_execute_selection_screen(
@@ -155,6 +158,7 @@ def main():
             global continue_single_cycle
             continue_single_cycle = True
             reset_view = True
+            skip_enter = False
             while continue_single_cycle:
                 continue_single_cycle = False
                 if mode == SocketAction.END:
@@ -178,11 +182,22 @@ def main():
                 elif mode == SocketAction.MIC_LT:
                     terminal_manager.print_lt_screen(srs_actions, reset_view)
                     action_processor(terminal_manager.user, mode)
+                elif mode == SocketAction.NEW_CONVERSATION:
+                    TerminalPrinter.print_client_action("Starting a new conversation...")
+                    sio.emit("new_conversation", {"user": terminal_manager.user})
+                    srs_actions = []
+                    action_event.set()
+                elif mode == SocketAction.CHANGE_USER:
+                    sio.emit("new_conversation", {"user": terminal_manager.user})
+                    terminal_manager.print_and_execute_user_selection()
+                    srs_actions = []
+                    action_event.set()
+                    skip_enter = True
                 action_event.wait()
                 if continue_single_cycle:
                     action_event.clear()
                     reset_view = False
-            if not exit:
+            if not exit and not skip_enter:
                 TerminalPrinter.wait_for_enter()
         except KeyboardInterrupt:
             terminal_manager.print_goodbye()
