@@ -691,8 +691,8 @@ Now please answer the name of the deck that the search result should be saved to
         deck_created = False
         deck = self.info.srs.get_deck_by_name_or_none(deck_name)
         if deck is None:
-            deck = self.info.srs.add_deck(deck_name)
-            action = SrsAction.add_deck(self.info.srs, deck)
+            action = SrsAction.add_deck(self.info.srs, deck_name)
+            deck = action.result_object
             self.info.progress_callback.handle(action.description, True)
             self.info.history_manager.add_action(action)
             deck_created = True
