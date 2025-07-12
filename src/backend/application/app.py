@@ -168,3 +168,13 @@ def handle_submit_stream_batch(data):
             )
         except Exception as e:
             emit("action_error", {"error": str(e)})
+
+
+@socketio.on("new_conversation")
+def handle_new_conversation(data):
+    user = data.get("user")
+    if not user:
+        emit("action_error", {"error": "User required."})
+        return
+    conversation_manager = get_conversation_manager(user)
+    conversation_manager.history_manager.clear_history()

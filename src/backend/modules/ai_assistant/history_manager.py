@@ -105,3 +105,8 @@ class HistoryManager:
         for action in self.srs_action_history:
             combined_actions.append({"description": action.description, "result_object": str(action.result_object)})
         return str(combined_actions)
+
+    def clear_history(self):
+        self.srs_action_history = []
+        self.latest_queries = []
+        self.latest_execution_result = []
