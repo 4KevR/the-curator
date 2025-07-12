@@ -2,7 +2,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, ClassVar, Generic, TypeVar
+from typing import Any, ClassVar, Generic, Optional, TypeVar
 
 from overrides.final import final
 from typeguard import typechecked
@@ -185,6 +185,9 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
 
     def __init__(self):
         self._study_mode: bool = False
+        self._deck_to_be_learned: Optional[TDeck] = None
+        self._cards_to_be_learned: Optional[list[TCard]] = None
+        self._card_index_currently_being_learned: int = -1
 
     # Decks
     @abstractmethod
@@ -351,8 +354,12 @@ class AbstractSRS(Generic[TCard, TDeck], ABC):
         """
 
     @abstractmethod
-    def cards_revision_today(self) -> int:
+    def cards_to_be_learned_today(self, deck: Optional[TDeck] = None) -> list[TCard]:
         """
-        Returns the number of cards that are scheduled for revision today.
-        If a due card is revised, this count decreases.
+        Returns the total number of cards scheduled for study today,
+        including new cards, learning cards, and due review cards.
+        This count decreases as cards are studied throughout the day.
+
+        If a deck name is specified, only cards in that deck are counted;
+        otherwise, cards from all decks are included.
         """

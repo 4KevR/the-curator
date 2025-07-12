@@ -1,7 +1,7 @@
 import os
 import random
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 from overrides import override
 from typeguard import typechecked
@@ -340,6 +340,11 @@ class TestFlashcardManager(AbstractSRS[TestCard, TestDeck]):
         raise NotImplementedError
 
     @override
-    def cards_revision_today(self) -> int:
-        num_cards = sum(len(it.cards) for it in self.get_all_decks())
-        return random.randint(0, num_cards)
+    def cards_to_be_learned_today(self, deck: Optional[TestDeck] = None) -> list[TestCard]:
+        if deck:
+            cards = self.get_cards_in_deck(deck)
+        else:
+            cards = [card for deck in self.get_all_decks() for card in deck.cards]
+
+        random.shuffle(cards)
+        return cards[: random.randint(3, 20)]

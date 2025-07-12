@@ -9,7 +9,7 @@ if os.path.basename(os.path.abspath(".")) != "the-curator":
     raise RuntimeError("This script must be run from the 'the-curator' directory.")
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from src.backend.modules.srs.abstract_srs import CardState, Flag  # noqa: E402
+from src.backend.modules.srs.abstract_srs import CardID, CardState, Flag, MemoryGrade  # noqa: F401, E402
 from src.backend.modules.srs.anki_module.anki_srs import AnkiSRS  # noqa: E402
 
 if __name__ == "__main__":

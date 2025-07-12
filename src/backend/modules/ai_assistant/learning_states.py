@@ -64,9 +64,9 @@ If no reasonable match is found, respond with "None".
             else:
                 deck = self.srs.get_deck_by_name_or_none(deck_name)
                 if deck is not None:
-                    cards = self.srs.get_cards_in_deck(deck)
+                    cards = self.srs.cards_to_be_learned_today(deck)
                     if len(cards) == 0:
-                        return StateFinishedLearnWithTermination("The deck you want to learn is empty.")
+                        return StateFinishedLearnWithTermination("This deck has no cards to study.")
                     else:
                         self.srs.init_learning_state(deck, cards)
                         first_card_question = self.srs.get_current_learning_card().question
@@ -262,13 +262,13 @@ Example 7:
 
 
 Please rate the user's answer to the current flashcard:
-
-The current flashcard is as follows:
-- Question: {card_question}
-- Correct Answer: {card_answer}
-
-The user gave the following answers to the questions on the card:
-{user_answer}
+[
+{{
+"Question": "{card_question}",
+"Correct Answer": "{card_answer}",
+"User Answer": "{user_answer}"
+}}
+]
 
 **Return only one word of: 'again', 'hard', 'good', or 'easy'. Do not return anything else.**
 """.strip()

@@ -4,7 +4,7 @@ import logging
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 
 from anki.collection import Collection  # Must be placed at the top, or circular import will occur.
 from anki.cards import Card, CardId
@@ -61,8 +61,8 @@ class AnkiCard(AbstractCard):
         CardState.LEARNING: CARD_TYPE_LRN,
         CardState.REVIEW: CARD_TYPE_REV,
         CardState.RELEARN: CARD_TYPE_RELEARNING,
-        CardState.BURIED: CARD_TYPE_NEW,  # should do it
-        CardState.SUSPENDED: CARD_TYPE_NEW,  # should do it
+        CardState.BURIED: CARD_TYPE_NEW,  # for the consistency of the system
+        CardState.SUSPENDED: CARD_TYPE_NEW,  # for the consistency of the system
     }
 
     _type_map_rev = {  # map is exhaustive; there are no other internal card types.
@@ -78,7 +78,7 @@ class AnkiCard(AbstractCard):
         CardState.NEW: QUEUE_TYPE_NEW,
         CardState.LEARNING: QUEUE_TYPE_LRN,
         CardState.REVIEW: QUEUE_TYPE_REV,
-        CardState.RELEARN: QUEUE_TYPE_DAY_LEARN_RELEARN,
+        CardState.RELEARN: QUEUE_TYPE_LRN,  # Anki puts RELEARN cards into the learning queue
     }
 
     _queue_map_rev = {
@@ -86,9 +86,9 @@ class AnkiCard(AbstractCard):
         QUEUE_TYPE_SIBLING_BURIED: CardState.BURIED,
         QUEUE_TYPE_SUSPENDED: CardState.SUSPENDED,
         QUEUE_TYPE_NEW: CardState.NEW,
-        QUEUE_TYPE_LRN: CardState.LEARNING,
+        QUEUE_TYPE_LRN: CardState.LEARNING,  # should be fine, return TYPE instead of QUEUE as long as TYPE==RELEARN
         QUEUE_TYPE_REV: CardState.REVIEW,
-        QUEUE_TYPE_DAY_LEARN_RELEARN: CardState.RELEARN,
+        QUEUE_TYPE_DAY_LEARN_RELEARN: CardState.RELEARN,  # Only seen once, QUEUE_TYPE_DAY_LEARN_RELEARN with CardState.LEARNING
         QUEUE_TYPE_PREVIEW: CardState.NEW,  # should be fine
     }
 
@@ -131,11 +131,10 @@ class AnkiCard(AbstractCard):
         if queue_state == type_state:
             return queue_state
 
-        # queue state is more specific
-        if type_state not in {CardState.LEARNING, CardState.REVIEW}:
-            return queue_state
+        if type_state == CardState.RELEARN:
+            return type_state
 
-        raise RuntimeError(f"Internal states are incompatible: Raw queue {queue_state} and raw type {type_state}.")
+        return queue_state  # queue state is more specific
 
     def get_state(self) -> CardState:
         return self.__get_state_raw(self.raw_card)
@@ -598,5 +597,34 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         self.col.update_card(card)
 
     @override
-    def cards_revision_today(self) -> int:
-        return 82599999923459  # TODO
+    def cards_to_be_learned_today(self, deck: Optional[AnkiDeck] = None) -> list[AnkiCard]:
+        deck_clause = f"AND did = {deck.id.numeric_id}" if deck else ""
+
+        # New cards (queue=0)
+        new_ids = self.col.db.list(f"SELECT id FROM cards WHERE queue = 0 {deck_clause}")
+
+        # Learn cards (queue=1), for simplicity.
+        learning_ids = self.col.db.list(f"SELECT id FROM cards WHERE queue = 1 {deck_clause}")
+        # If you want to count cards that are due as of the current second (i.e., due <= now), use Unix Timestamp:
+        # import time
+        # learning_cards = self.col.db.scalar(
+        #     f"SELECT COUNT(*) FROM cards WHERE queue IN (1, 3) AND due <= ? {deck_clause}", int(time.time())
+        # )
+
+        # Review cards (type=2 and due)
+        review_ids = self.col.db.list(
+            f"SELECT id FROM cards WHERE queue = 2 AND due <= ? {deck_clause}",
+            self.col.sched.today,
+        )
+
+        # Pack into AnkiCards
+        all_ids = new_ids + learning_ids + review_ids
+        cards_to_be_learned = []
+        for id in all_ids:
+            raw_card = self.col.get_card(id)
+            deck_dict = self.col.decks.get(raw_card.did)
+            deck = AnkiDeck(LocalDeckID(deck_dict["id"]), deck_dict["name"])
+            note = self.col.get_note(raw_card.nid)
+            cards_to_be_learned.append(AnkiCard(note, deck, raw_card))
+
+        return cards_to_be_learned
