@@ -265,10 +265,12 @@ Please tell me the ids of the cards that are relevant for the user's task. Only 
                 card_strings = "\n\n".join(
                     (
                         f"Card {it.id.numeric_id} in deck {it.deck.name} with flag {it.flag.value} and state {it.state.value}:\n"
-                        f"**Question**: {it.question.replace('\n', '')}\n"
-                        f"**Answer**: {it.answer.replace('\n', '')}"
+                        f"**Question**: {clean_q}\n"
+                        f"**Answer**: {clean_a}"
                     )
                     for it in previous_cards
+                    for clean_q in [it.question.replace("\n", "")]
+                    for clean_a in [it.answer.replace("\n", "")]
                 )
                 message = self._prompt_template.format(user_input=self.user_prompt, previous_cards=card_strings)
             else:
