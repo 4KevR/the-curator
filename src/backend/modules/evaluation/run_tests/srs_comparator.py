@@ -52,12 +52,17 @@ class SRSComparator:
                 dist_question = Levenshtein.distance(l.question, r.question)
                 dist_answer = Levenshtein.distance(l.answer, r.answer)
 
+                if max(dist_question, dist_answer) <= 1:
+                    return True
+
                 if levenshtein_distance is not None:
                     if dist_question > levenshtein_distance or dist_answer > levenshtein_distance:
                         return False
                 if levenshtein_factor is not None:
-                    max_len = max(len(l.question), len(r.question))
-                    ratios = [dist_question / max_len > levenshtein_factor, dist_answer / max_len > levenshtein_factor]
+                    ratios = [
+                        dist_question / max(len(l.question), len(r.question)) > levenshtein_factor,
+                        dist_answer / max(len(l.answer), len(r.answer)) > levenshtein_factor,
+                    ]
                     if any(ratios):
                         return False
                 return True

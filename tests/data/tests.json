@@ -1600,8 +1600,8 @@
       "environment": "programming",
       "queries": [
         [
-          "Delete the deck Java Programmieren 10'. Also, delete the deck 'python'.",
-          "Please delete all decks but Java Programmieren.",
+          "Delete the deck Java Programming 10'. Also, delete the deck 'python'.",
+          "Please delete all decks but Java Programming.",
           "Please delete the python deck and the smaller java deck."
         ]
       ],
@@ -1699,7 +1699,7 @@
       "environment": "programming",
       "queries": [
         [
-          "In the deck Java Programming 10, edit the card with question 'What is the difference between '==' and 'equals()' in Java?' to have the answer reflect that equals needs to be overridden to compare values.",
+          "In the deck Java Programming 10, edit the card with question 'What is the difference between '==' and 'equals()' in Java?' to have the answer also reflect that equals needs to be overridden to compare values.",
           "In the smaller Java Programming Deck, edit the card asking about the difference between == and equals in java to have the answer that the == compares references, while equals() needs to be overridden to compare values.'"
         ]
       ],
@@ -2279,7 +2279,11 @@
                 "question": "What is 'static'?",
                 "answer": "Belongs to the class rather than instances of it.",
                 "flag": "None",
-                "cardState": "New"
+                "cardState": "New",
+                "__fuzzymatch": [
+                  "question",
+                  "answer"
+                ]
               },
               {
                 "question": "What is the difference between 'public', 'protected', and 'private' access?",

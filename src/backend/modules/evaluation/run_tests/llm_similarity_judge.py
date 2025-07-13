@@ -1,4 +1,4 @@
-from src.backend.modules.helpers.string_util import find_substring_in_llm_response
+from src.backend.modules.helpers.string_util import find_substring_in_llm_response, remove_quots
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.srs.testsrs.testsrs import TestCard
 
@@ -40,28 +40,28 @@ Remember to only respond with 'true' or 'false'.
         required = [
             expected_card.state == actual_card.state,
             expected_card.flag == actual_card.flag,
-            expected_card.fuzzymatch_question or expected_card.question == actual_card.question,
-            expected_card.fuzzymatch_answer or expected_card.answer == actual_card.answer,
+            expected_card.fuzzymatch_question
+            or remove_quots(expected_card.question) == remove_quots(actual_card.question),
+            expected_card.fuzzymatch_answer or remove_quots(expected_card.answer) == remove_quots(actual_card.answer),
         ]
         if not all(required):
             return False
 
         prompt = f"""Please evaluate the following two flashcards, and tell me if they have the same content.
-        It is fine if the spelling, the grammar, the length and the wording differs,
-        as long as the cards contain roughly the same information.
-        Punctuation or enclosing quotation marks are irrelevant.
-        If these cards are quite similar, please end your response with "true",
-        else with "false" (without quotation marks). Only the last word of your response will be evaluated.
+It is fine if the spelling, the grammar, the length and the wording differs, as long as the cards contain roughly the same information.
+Punctuation is irrelevant.
 
 Card 1:
-Question: {expected_card.question}
-Answer: {expected_card.answer}
+Question: {remove_quots(expected_card.question)}
+Answer: {remove_quots(expected_card.answer)}
 
 Card 2:
-Question: {actual_card.question}
-Answer: {actual_card.answer}
+Question: {remove_quots(actual_card.question)}
+Answer: {remove_quots(actual_card.answer)}
 
-Remember to only respond with 'true' or 'false'.
+Answer true if the cards have similar content. Also answer true if Card 2 has more content than card 1.
+
+Only respond with 'true' or 'false'!
 """
         response = self.judge_llm.generate_single(prompt)
 
