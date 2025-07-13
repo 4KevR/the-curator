@@ -1600,8 +1600,8 @@
       "environment": "programming",
       "queries": [
         [
-          "Delete the deck Java Programmieren 10'. Also, delete the deck 'python'.",
-          "Please delete all decks but Java Programmieren.",
+          "Delete the deck Java Programming 10'. Also, delete the deck 'python'.",
+          "Please delete all decks but Java Programming.",
           "Please delete the python deck and the smaller java deck."
         ]
       ],

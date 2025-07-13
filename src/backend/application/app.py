@@ -27,7 +27,7 @@ app.register_blueprint(action_blueprint)
 app.register_blueprint(speech_blueprint)
 socketio = SocketIO(app)
 
-llm = KitLLMReq(os.getenv("LLM_URL"), 0.05, 2048)
+llm = KitLLMReq(os.getenv("LLM_URL"), 0.0, 2048)
 whisper_asr = LocalWhisperASR("openai/whisper-medium")
 lecture_translator_asr: dict[str, CloudLectureTranslatorASR] = {}
 anki_srs_adapters: dict[str, AnkiSRS] = {}

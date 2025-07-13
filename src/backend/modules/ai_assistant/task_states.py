@@ -1,4 +1,5 @@
 import json
+import re
 from dataclasses import dataclass
 from json import JSONDecodeError
 from typing import Any, Optional
@@ -80,7 +81,8 @@ Only answer with the new task description!
 
     def act(self) -> AbstractActionState | None:
         if len(self.history_manager.latest_queries) == 0:
-            return StateTask(self.info, self.user_prompt)
+            return StateTask(self.info, self.user_prompt.replace("'", "").replace('"', ""))
+
         message = self._prompt_template.format(
             history=str(self.history_manager.latest_queries),
             actions=self.history_manager.get_string_history(),
@@ -105,7 +107,7 @@ Given the user input, please select the best fitting task type.
 6: Searching for cards and edit found cards.
 7: Searching for cards and delete found cards.
 8: Create a new deck out of cards **that already are in the system**!.
-9: Use previously created cards which need to be modified or deleted (this is often the case when users want to change existing cards they created in the same session - referring to questions and answers).
+9: Edit or delete cards that have been created/edit very recently by the user, usually in the same session.
 
 The user gave the following input:
 {user_input}
@@ -153,26 +155,40 @@ Which task type fits the best? Only output the number!
 
 
 class StateTaskSearchDecks(AbstractActionState):
+    # AI notice: Used OpenAI gpt-4o to improve a human version of this prompt.
     _prompt_template = """
 You are an assistant of a flashcard management system.
-You assist a user in executing tasks (creating/modifying/deleting cards/decks etc.).
+
+Your job is to evaluate which of the existing decks to search in.
 
 The user gave the following input:
-
 {user_input}
 
-You already decided that you have to search for cards. Now you have to decide in which decks you want to search.
-The following decks are available:
+Currently, the following decks exist:
+{deck_names}
 
-{decks}
+You have the following options:
 
-If you want to search in all decks, answer "all". If you want to search in a specific deck, answer the name of the deck.
-If you want to search in multiple, specific decks, answer a comma-separated list of deck names.
-If you are unsure, rather include than exclude a deck.
-If you have no information about which decks to search in, answer "all".
+**All Decks**
+If the user did not specify at all which decks to search in, or if the user explicitly wants you to search in all
+available decks, please answer "all".
 
-Make sure to exactly match the deck names.
-**Do not answer anything else**!
+**Decks by name**
+If the user named the decks to search in specifically, and these decks exist (see list above), please answer with a comma-separated list of the names of the decks to search in.
+
+{decks_by_size}
+**Important notice**
+Sometimes the user wants the flashcard system to create a new deck out of the found cards. **Ignore that part!**
+Only look for the decks to search in!
+If the user only specifies the name of the newly created deck, but no deck names for the decks to search in, answer all!
+
+Only answer with the specified output, and nothing else.
+""".strip()
+    _decks_by_size = """
+**Decks by size**
+If the user told you to use the smaller/smallest/bigger/biggest of some decks, please use the following syntax:
+* `smallestOf(<deck_name_1>, <deck_name_2>, ..., <deck_name_n>)` or
+* `largestOf(<deck_name_1>, <deck_name_2>, ..., <deck_name_n>)` or
 """.strip()
     MAX_ATTEMPTS = 3
 
@@ -180,13 +196,55 @@ Make sure to exactly match the deck names.
         self.info = info
         self.llm_communicator = LLMCommunicator(info.llm)
         self.user_prompt = user_prompt
+        self._existing_deck_names = {it.name for it in info.srs.get_all_decks()}
+
+    def _wrong_deck_names(self, deck_names: list[str]) -> list[str]:
+        return [dn for dn in deck_names if dn not in self._existing_deck_names]
+
+    def _get_cards_in_deck(self, deck_name: str):
+        deck = self.info.srs.get_deck_by_name(deck_name)
+        return len(self.info.srs.get_cards_in_deck(deck))
+
+    def _execute(self, response: str) -> tuple[bool, list[str]]:
+        """If first false: Wrong names, if first true: decks to search in."""
+        if response.startswith("smallestOf("):
+            response = response[len("smallestOf(") :].rstrip(")")
+            deck_names = [it.strip() for it in response.split(",")]
+            wrong_deck_names = self._wrong_deck_names(deck_names)
+            if wrong_deck_names:
+                return False, wrong_deck_names
+            return True, [min(deck_names, key=self._get_cards_in_deck)]
+
+        if response.startswith("largestOf("):
+            response = response[len("largestOf(") :].rstrip(")")
+            deck_names = [it.strip() for it in response.split(",")]
+            wrong_deck_names = self._wrong_deck_names(deck_names)
+            if wrong_deck_names:
+                return False, wrong_deck_names
+            return True, [max(deck_names, key=self._get_cards_in_deck)]
+
+        if response == "all":
+            return True, list(self._existing_deck_names)
+
+        # If here it should be a list of names.
+        deck_names = [it.strip() for it in response.split(",")]
+        wrong_deck_names = self._wrong_deck_names(deck_names)
+        if wrong_deck_names:
+            return False, wrong_deck_names
+        return True, deck_names
 
     def act(self) -> AbstractActionState | None:
-        possible_decks = self.info.srs.get_all_decks()
-        possible_deck_names = {deck.name for deck in possible_decks}
+        keywords = {"small", "large"}  # also includes smaller, larger, etc.
+
+        if any(k in self.user_prompt for k in keywords):
+            decks_by_size = self._decks_by_size + "\n"
+        else:
+            decks_by_size = ""
+
+        deck_names = "\n".join(f"* {it.name}" for it in self.info.srs.get_all_decks())
 
         message = self._prompt_template.format(
-            user_input=self.user_prompt, decks=[str(it) for it in self.info.srs.get_all_decks()]
+            user_input=self.user_prompt, deck_names=deck_names, decks_by_size=decks_by_size
         )
 
         for attempt in range(self.MAX_ATTEMPTS):
@@ -194,24 +252,27 @@ Make sure to exactly match the deck names.
             response = remove_block(response, "think")
             response = response.replace('"', "").replace("'", "")
             response = response.strip()
+            last_line = response.rsplit("\n", maxsplit=2)[-1].strip()
 
-            if response == "all":
-                return StateTaskSearch(self.info, self.user_prompt, possible_decks)
-            else:
-                deck_strings = {s.strip() for s in response.split(",")}
-                unknown_deck_strings = deck_strings - possible_deck_names
+            (success, result) = self._execute(last_line)
 
-                if len(unknown_deck_strings) == 0:
-                    decks = [it for it in possible_decks if it.name in deck_strings]
-                    return StateTaskSearch(self.info, self.user_prompt, decks)
+            if success:
+                decks = [self.info.srs.get_deck_by_name(it) for it in result]
+                # TODO DEBUG REMOVEEEE
+                # print(
+                #     f"Prompt: {self.user_prompt}\n"
+                #     f"Answer: {response}\n"
+                #     f"Result: {', '.join(sorted(result))}\n"
+                #     f"All available decks: {', '.join(sorted(self._existing_deck_names))}\n"
+                #     "------------------------------------------\n"
+                # )
+                # raise ValueError(f"Answer:\n{response}\nResult:\n{', '.join(result)}\n")
+                return StateTaskSearch(self.info, self.user_prompt, decks)
 
-                message = (
-                    f"The following deck names are unknown: {', '.join(unknown_deck_strings)}.\n"
-                    'If you want to search in all decks, answer "all" (and nothing else!)."'
-                    "If you want to search in a specific deck, answer the name of the deck.\n"
-                    "If you want to search in multiple, specific decks, answer a comma-separated list of deck names.\n"
-                    "Please make sure to exactly match the deck names."
-                )
+            message = (
+                f"The following deck names are unknown: {', '.join(result)}.\n"
+                "Please make sure to exactly match the deck names."
+            )
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
@@ -304,16 +365,13 @@ The user gave the following input:
 You already decided that you have to search for cards.
 Please decide now how you want to search for cards. Your options are:
 
-* Search for keyword (exact): You give me one or multiple keywords and I will search for all cards that contain at least one of these keywords. You will be able to specify whether you want to search in the question or the answer or both. You can also decide whether the search should be case sensitive or not.
+1: The user specified one exact keywords to look for.
+2: The user specified multiple exact keywords to look for.
+3: The user specified a search term, but there can be slight deviations from the word (e.g. quotation marks, singular/plural).
+4: The user specified multiple search terms, but there can be slight deviations from the word (e.g. quotation marks, singular/plural).
+5: The user asked you to search for specific content (e.g. all cards about <topic>).
 
-* Search for keyword (fuzzy search): You give me one or multiple keywords and I will search for all cards that contain at least one of these keywords, or contain a 'similar' substring. You will be able to specify whether you want to search in the question or the answer or both. You can also decide whether the search should be case sensitive or not.
-
-* Search cards with fitting content: You give me a search prompt and I will search for cards that fit the search prompt. The search is *not* limited to exact wording, but searches for cards with fitting content.
-
-
-If you have exact keywords to look for, you should use exact search. If you have one or more words/phrases to search for, but you cannot be sure that all fitting cards contain the keywords/phrases exactly (e.g. plural form, quotation marks, etc.), use fuzzy search. If you search for a topic, a category or a concept, or have any other search term that does not contain concrete search terms, use content search.
-
-Please answer "exact", "fuzzy" or "content", and **nothing else**. All other details will be determined later.
+Please answer with the number of the best fitting option, and **nothing else**!
 """.strip()
     MAX_ATTEMPTS = 3
 
@@ -328,7 +386,7 @@ Please answer "exact", "fuzzy" or "content", and **nothing else**. All other det
             if attempt == 0:
                 message = self._prompt_template.format(user_input=self.user_prompt)
             else:
-                message = 'Your answer must be either "exact", "fuzzy" or "content", **and nothing else**.'
+                message = "Your answer must be the option (1-5) that fits he user task the best!"
 
             response = self.llm_communicator.send_message(message)
 
@@ -336,11 +394,11 @@ Please answer "exact", "fuzzy" or "content", and **nothing else**. All other det
             response = response.replace('"', "").replace("'", "")
             response = response.lower().strip()
 
-            if response == "exact":
+            if response == "1" or response == "2":
                 return StateKeywordSearch(self.info, self.user_prompt, self.decks_to_search_in)
-            if response == "fuzzy":
+            if response == "3" or response == "4":
                 return StateFuzzySearch(self.info, self.user_prompt, self.decks_to_search_in)
-            if response == "content":
+            if response == "5":
                 return StateContentSearch(self.info, self.user_prompt, self.decks_to_search_in)
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
@@ -733,6 +791,19 @@ Now please answer the name of the deck that the search result should be saved to
         self.user_prompt = user_prompt
         self.found_cards = found_cards
 
+    def _clean_new_name(self, raw_new_deck_name):
+        """Cleans a new deck name."""
+        words_to_strip = {"called", "named", "with the name", "with name", "with named"}
+
+        # sort in reverse for prefix-freiheit (whatever that is in english, not sure if necessary)
+        pattern = (
+            r"\b(?:" + "|".join(re.escape(word) for word in sorted(words_to_strip, key=len, reverse=True)) + r")\b"
+        )
+        clean_name = re.sub(pattern, "", raw_new_deck_name, flags=re.IGNORECASE)
+        clean_name = " ".join(clean_name.split())  # normalize whitespace, probably more efficient than regexp
+
+        return clean_name
+
     def act(self) -> Optional["AbstractActionState"]:
         deck_list = "\n".join([f" * {it.name}" for it in self.info.srs.get_all_decks()])
         prompt = self._prompt_template.format(deck_list=deck_list, user_input=self.user_prompt)
@@ -741,7 +812,7 @@ Now please answer the name of the deck that the search result should be saved to
         deck_created = False
         deck = self.info.srs.get_deck_by_name_or_none(deck_name)
         if deck is None:
-            action = SrsAction.add_deck(self.info.srs, deck_name)
+            action = SrsAction.add_deck(self.info.srs, self._clean_new_name(deck_name))
             deck = action.result_object
             self.info.progress_callback.handle(action.description, True)
             self.info.history_manager.add_action(action)
