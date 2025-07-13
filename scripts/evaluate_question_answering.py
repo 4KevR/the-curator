@@ -3,11 +3,27 @@
 #
 # =============================  VARIABLES  ========================================================================
 
+# random state for the test shuffling. Use None to disable shuffling (not recommended, may lead to autocorrelation)
+random_state: int | None = None  # 2308421
+
+# You can specify a subset of the tests to run if you want to.
+# If not None, tests are only included if any of their queries contains any of the filter substrings.
+query_filter: set[str] | None = None  # {"* Replace all ment"}
+
+# Filter tests by name. Must be the exact name.
+name_filter: set[str] | None = None  # {"add_card"}
+
+# If not None, only the given slice of the tests are used. Applied after shuffling.
+subset_indexes: slice | None = None  # slice(0, 4)
+
+# number of times to run each test.
+iterations: int = 1
+
 # options: 'local_llama', 'kit_llama', 'kit_llama_req', 'local_qwen8', 'local_qwen14'
 llms_to_use: str = "local_llama"
 
 # Where are the audio files? If asr should be skipped (only using text prompts), set to None.
-audio_file_path: str | None = None  # "./data/recording_data/fabian"
+audio_file_path: str | None = "./data/recording_data/fabian"
 
 # options: 'local_whisper_medium', 'lecture_translator'
 asr_to_use: str = "local_whisper_medium"
@@ -15,15 +31,24 @@ asr_to_use: str = "local_whisper_medium"
 default_temperature: float = 0.0
 default_max_tokens: int = 1000
 
+# If dry run: Only output the final test sample, do not actually run tests. No log file created.
+dry_run: bool = False
+
 # ==================================================================================================================
 
 print(
     f"""The configuration is:
+random_state: {random_state}
+query_filter: {query_filter}
+name_filter: {name_filter}
+subset_indexes: {subset_indexes}
+iterations: {iterations}
 llms_to_use: {llms_to_use}
 audio_file_path: {audio_file_path}
 asr_to_use: {asr_to_use}
 default_temperature: {default_temperature}
 default_max_tokens: {default_max_tokens}
+dry_run: {dry_run}
 """
 )
 
@@ -114,20 +139,49 @@ print(f"Startup took {time.time() - script_start_time:.2f} seconds.\n")
 
 tests = load_test_data("tests/data/tests.json")
 
-# get question-answering tests
+# get question_answering tests
 question_answering_tests = tests.question_answering[:]
+
+# filter if wanted
+if name_filter is not None:
+    question_answering_tests = [it for it in question_answering_tests if it.name in name_filter]
+
+if query_filter is not None:
+    question_answering_tests = [
+        it for it in question_answering_tests if any(s in q for s in query_filter for q in it.queries)
+    ]
+
+# shuffle if wanted
+if random_state is not None:
+    question_answering_tests = pd.Series(question_answering_tests).sample(frac=1.0, random_state=random_state).tolist()
+
+# get slice if wanted
+if subset_indexes is not None:
+    question_answering_tests = question_answering_tests[subset_indexes]
+
+# run test multiple times if wanted
+if iterations > 1:
+    question_answering_tests = iterations * question_answering_tests
 
 print(f"Tests loaded after: {time.time() - script_start_time:.2f} seconds.\n")
 
+# test dry run
+if dry_run:
+    print("Dry run: Only output the final test list, do not actually run tests.")
+    print("--------------------------------------------------------------------")
+    print("\n\n".join(str(it) for it in question_answering_tests))
+    print("--------------------------------------------------------------------")
+    exit(0)
+
 # here the tests are run:
-QA_RES = eval_pipeline.evaluate_individual_tests(question_answering_tests)
+I_RES = eval_pipeline.evaluate_individual_tests(question_answering_tests)
 
 print("\nAll tests executed.\n")
 
-print(f"Total test duration: {sum(it.time_taken_s for it in QA_RES):.2f} seconds.\n")
+print(f"Total test duration: {sum(it.time_taken_s for it in I_RES):.2f} seconds.\n")
 
-total_prompt_tokens = sum(res.token_usage.prompt_tokens for res in QA_RES if res.token_usage)
-total_completion_tokens = sum(res.token_usage.completion_tokens for res in QA_RES if res.token_usage)
+total_prompt_tokens = sum(res.token_usage.prompt_tokens for res in I_RES if res.token_usage)
+total_completion_tokens = sum(res.token_usage.completion_tokens for res in I_RES if res.token_usage)
 total_tokens = total_prompt_tokens + total_completion_tokens
 
 print("Cumulative Token Usage:")
@@ -136,7 +190,7 @@ print(f"  Completion Tokens: {total_completion_tokens}")
 print(f"  Total Tokens: {total_tokens}\n")
 
 tmp = pd.DataFrame()
-raw = ["crashed" if r.crashed else ("passed" if r.passed else "failed") for r in QA_RES]
+raw = ["crashed" if r.crashed else ("passed" if r.passed else "failed") for r in I_RES]
 tmp["abs"] = (pd.Series(raw + ["crashed", "passed", "failed"]).value_counts() - 1).sort_index()
 tmp["rel"] = (tmp["abs"] / sum(tmp["abs"]) * 100).round(2)
 
