@@ -1,4 +1,7 @@
+import os
+
 import requests
+from transformers import AutoTokenizer
 
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 
@@ -11,9 +14,14 @@ class KitLLMReq(AbstractLLM):
         default_max_tokens: int,
     ):
         """Initialize the KitLLM client."""
+        super().__init__()
         self.llm_url = llm_url
         self.default_temperature = default_temperature
         self.default_max_tokens = default_max_tokens
+        self.model = "meta-llama/Llama-3.1-8B-Instruct"
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            self.model, token=os.getenv("HUGGING_FACE_TOKEN"), cache_dir="./model_cache"
+        )
 
     @staticmethod
     def _format_llama_chat(messages):
@@ -27,13 +35,23 @@ class KitLLMReq(AbstractLLM):
     def generate(
         self, messages: list[dict[str, str]], temperature: float | None = None, max_tokens: int | None = None
     ) -> str:
+        prompt = self._format_llama_chat(messages)
+
+        if temperature is None:
+            temperature = self.default_temperature
+        if max_tokens is None:
+            max_tokens = self.default_max_tokens
+
         payload = {
             "inputs": self._format_llama_chat(messages),
-            "parameters": {"max_new_tokens": 1000, "temperature": 0.05},
+            "parameters": {"max_new_tokens": max_tokens, "temperature": temperature},
         }
 
         response = requests.post(self.llm_url, json=payload)
         result: str = response.json()["generated_text"]
+
+        self.current_input_tokens_accumulation += len(self.tokenizer(prompt).input_ids)
+        self.current_output_tokens_accumulation += len(self.tokenizer(result).input_ids)
 
         result = result.lstrip().replace("assistant", "").lstrip()
         return result

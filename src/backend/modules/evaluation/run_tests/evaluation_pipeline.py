@@ -134,6 +134,7 @@ class EvaluationPipeline:
                 task_finish_message=eval_res.task_finish_message,
                 state_history=eval_res.state_history,
                 log_messages=eval_res.llm_history,
+                token_usage=self.task_llm.get_and_reset_token_usage(),
             )
             return res
         except Exception as e:
@@ -157,6 +158,7 @@ class EvaluationPipeline:
                 task_finish_message=None,
                 state_history=conversation_manager.state_manager.state_history,
                 log_messages=conversation_manager.state_manager.logging_llm.get_log(),
+                token_usage=self.task_llm.get_and_reset_token_usage(),
             )
 
     def _evaluate_tests(self, tests: list[InteractionTest | QuestionAnsweringTest]) -> list[TestEvalResult]:

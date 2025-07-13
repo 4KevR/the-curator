@@ -19,7 +19,7 @@ subset_indexes: slice | None = None  # slice(0, 4)
 # number of times to run each test.
 iterations: int = 1
 
-# options: 'local_llama', 'kit_llama', 'local_qwen8', 'local_qwen14'
+# options: 'local_llama', 'kit_llama', 'kit_llama_req', 'local_qwen8', 'local_qwen14'
 llms_to_use: str = "local_llama"
 
 # Where are the audio files? If asr should be skipped (only using text prompts), set to None.
@@ -101,6 +101,7 @@ from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTransla
 from src.backend.modules.asr.local_whisper_asr import LocalWhisperASR  # noqa E402
 from src.backend.modules.evaluation.load_test_data.load_test_data import load_test_data  # noqa E402
 from src.backend.modules.evaluation.run_tests.evaluation_pipeline import EvaluationPipeline  # noqa E402
+from src.backend.modules.llm.kit_llm import KitLLM  # noqa E402
 from src.backend.modules.llm.kit_llm_req import KitLLMReq  # noqa E402
 from src.backend.modules.llm.lm_studio_llm import LMStudioLLM  # noqa E402
 
@@ -108,8 +109,11 @@ if llms_to_use == "local_llama":
     task_llm = LMStudioLLM("meta-llama-3.1-8b-instruct", default_temperature, default_max_tokens)
     comparison_llm = LMStudioLLM("meta-llama-3.1-8b-instruct", 0.0, 10)
 elif llms_to_use == "kit_llama":
-    task_llm = KitLLMReq(os.getenv("LLM_URL"), default_temperature, default_max_tokens)
-    comparison_llm = KitLLMReq(os.getenv("LLM_URL"), 0.0, 10)
+    task_llm = KitLLM(0.001, default_max_tokens)
+    comparison_llm = KitLLM(0.001, 10)
+elif llms_to_use == "kit_llama_req":
+    task_llm = KitLLMReq(os.getenv("LLM_URL"), 0.001, default_max_tokens)
+    comparison_llm = KitLLMReq(os.getenv("LLM_URL"), 0.001, 10)
 elif llms_to_use == "local_qwen8":
     task_llm = LMStudioLLM("qwen3-8b", default_temperature, default_max_tokens, no_think=True)
     comparison_llm = LMStudioLLM("qwen3-8b", 0.0, 20, no_think=True)  # needs more tokens for empty thinking block.
@@ -190,6 +194,15 @@ I_RES = eval_pipeline.evaluate_individual_tests(interaction_tests)
 print("\nAll tests executed.\n")
 
 print(f"Total test duration: {sum(it.time_taken_s for it in I_RES):.2f} seconds.\n")
+
+total_prompt_tokens = sum(res.token_usage.prompt_tokens for res in I_RES if res.token_usage)
+total_completion_tokens = sum(res.token_usage.completion_tokens for res in I_RES if res.token_usage)
+total_tokens = total_prompt_tokens + total_completion_tokens
+
+print("Cumulative Token Usage:")
+print(f"  Prompt Tokens: {total_prompt_tokens}")
+print(f"  Completion Tokens: {total_completion_tokens}")
+print(f"  Total Tokens: {total_tokens}\n")
 
 tmp = pd.DataFrame()
 raw = ["crashed" if r.crashed else ("passed" if r.passed else "failed") for r in I_RES]

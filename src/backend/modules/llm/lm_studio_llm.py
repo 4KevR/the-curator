@@ -22,6 +22,7 @@ class LMStudioLLM(AbstractLLM):
         no_think: bool = False,
     ):
         """Initialize the LLM Studio client."""
+        super().__init__()
         if int(os.getenv("IN_DOCKER", "0")):
             self.client = OpenAI(base_url="http://host.docker.internal:1234/v1", api_key="lm-studio")
         else:
@@ -57,6 +58,8 @@ class LMStudioLLM(AbstractLLM):
         )
 
         response = raw_response.choices[0].message.content
+        self.current_input_tokens_accumulation += raw_response.usage.prompt_tokens
+        self.current_output_tokens_accumulation += raw_response.usage.completion_tokens
         if not self.no_think:
             return response
 

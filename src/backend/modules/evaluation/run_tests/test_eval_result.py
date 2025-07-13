@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass
 
 from src.backend.modules.helpers.string_util import remove_block
+from src.backend.modules.llm.types import TokenUsage
 
 
 @dataclass(frozen=True)
@@ -24,10 +25,13 @@ class TestEvalResult:
     state_history: list[str]
     error_messages: list[str]
     log_messages: list[list[tuple[str, str]]]
+    token_usage: TokenUsage | None
 
     def pretty_print(self, skip_thinking=False):
         header = f"Test {self.name} " + ("PASSED" if self.passed else ("CRASHED" if self.crashed else "FAILED")) + "."
-        header += f" Audio file available: {self.audio_files_available}"
+        header += f" Audio file available: {self.audio_files_available}."
+        header += f" Time taken: {self.time_taken_s:.2f} s."
+        header += f" Token usage: {self.token_usage.prompt_tokens} prompt, {self.token_usage.completion_tokens} completion, {self.token_usage.total_tokens} total."
 
         queries = "\n".join(
             f"Original:    {o}\nTranscribed: {t}\n" for (o, t) in zip(self.original_queries, self.transcribed_queries)
@@ -106,6 +110,8 @@ LLM Judge: {self.llm_judge_name}
 Time taken: {self.time_taken_s:.2f} s.
 
 Levenshtein matching: {levenshtein}
+
+Token usage: {self.token_usage.prompt_tokens} prompt, {self.token_usage.completion_tokens} completion, {self.token_usage.total_tokens} total.
 """
         if self.transcribed_queries is not None:
             queries = "### Queries\n" + "\n\n".join(

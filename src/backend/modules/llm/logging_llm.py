@@ -1,4 +1,5 @@
 from src.backend.modules.llm.abstract_llm import AbstractLLM
+from src.backend.modules.llm.types import TokenUsage
 
 
 class LoggingLLM(AbstractLLM):
@@ -38,3 +39,6 @@ class LoggingLLM(AbstractLLM):
 
     def get_log(self):
         return self._log
+
+    def get_and_reset_token_usage(self) -> TokenUsage:
+        return self._llm.get_and_reset_token_usage()
