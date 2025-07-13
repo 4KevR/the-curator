@@ -67,6 +67,8 @@ class LlamaIndexExecutor:
     If no store name is provided, it will use the default table names.
     """
 
+    _TOP_K = 20
+
     def __init__(self, store_name: str | None = None):
         def sanitize_name(name: str) -> str:
             return re.sub(r"[^a-zA-Z0-9]", "_", name)
@@ -105,10 +107,8 @@ class LlamaIndexExecutor:
                 storage_context=self.storage_context_cards,
             )
             self.was_already_set_up = False
-        self.deck_query_engine = self.deck_index.as_query_engine(
-            response_mode="compact",
-        )
-        self.card_query_engine = self.card_index.as_query_engine(response_mode="compact")
+        self.deck_query_engine = self.deck_index.as_query_engine(response_mode="compact", similarity_top_k=self._TOP_K)
+        self.card_query_engine = self.card_index.as_query_engine(response_mode="compact", similarity_top_k=self._TOP_K)
 
     def add_card(self, card: AbstractCard):
         if not isinstance(card, AbstractCard):

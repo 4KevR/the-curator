@@ -1,3 +1,5 @@
+import re
+
 from src.backend.modules.ai_assistant.states import AbstractActionState
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.llm.llm_communicator import LLMCommunicator
@@ -15,6 +17,7 @@ class StateQuestion(AbstractActionState):
         "If the question cannot be answered using the cards above, respond accordingly."
         "Answer with a single, short sentence, without any additional information."
     )
+    _MAX_CARDS_FOR_LLM = 10
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, llama_index_executor: LlamaIndexExecutor):
         self.llm_communicator = LLMCommunicator(llm)
@@ -23,8 +26,11 @@ class StateQuestion(AbstractActionState):
 
     def act(self) -> AbstractActionState | None:
         fitting_nodes = self.llama_index_executor.search_cards(self.user_prompt)
-        fitting_nodes = sorted(fitting_nodes, key=lambda x: x[1], reverse=True)[:5]
-        fitting_nodes = "\n".join(fn[0] for fn in fitting_nodes)
+        fitting_nodes = sorted(fitting_nodes, key=lambda x: x[1], reverse=True)
+        fitting_nodes = fitting_nodes[: self._MAX_CARDS_FOR_LLM]
+        fitting_nodes = "\n".join(
+            re.sub(r"\nA: ", " - ", re.sub(r"^Q:", "", fn[0])).replace("\n", " ") for fn in fitting_nodes
+        )
 
         message = self._prompt_template.format(user_input=self.user_prompt, cards=fitting_nodes)
         response = self.llm_communicator.send_message(message)

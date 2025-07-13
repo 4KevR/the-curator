@@ -12,19 +12,18 @@ class LLMSimilarityJudge:
         """
         Use the LLM to judge if the actual answer to a question-answering-test is similar enough to the expected answer.
         """
-        prompt = f"""Please evaluate the following two answers, and tell me if they contain the same information.
-        Ignore differences in grammar, length, or wording, as long as the answers are semantically equivalent.
-        Also similar responses are accepted, as phrasing might be very different.
-        If they are similar, end your response with "true", else with "false" (without quotation marks).
-        Only the last word of your response will be evaluated.
-
+        prompt = f"""I have two answers to a task.
 Expected answer:
 {expected}
 
 Actual answer:
 {actual}
 
-Remember to only respond with 'true' or 'false'.
+Please tell me if the actual answer contains – at least – the same information as the expected answer.
+It is fine if the actual answer contains more information than the expected answer.
+Ignore differences in grammar, length, or wording, as long as the answers are semantically equivalent.
+
+If they are similar, answer true, else false
 """
         response = self.judge_llm.generate_single(prompt)
 
