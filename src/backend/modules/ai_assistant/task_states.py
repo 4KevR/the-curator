@@ -14,7 +14,8 @@ from src.backend.modules.helpers.string_util import find_substring_in_llm_respon
 from src.backend.modules.llm.abstract_llm import AbstractLLM
 from src.backend.modules.llm.llm_communicator import LLMCommunicator
 from src.backend.modules.search.abstract_card_searcher import AbstractCardSearcher
-from src.backend.modules.search.llama_index import LlamaIndexExecutor, LlamaIndexSearcher
+from src.backend.modules.search.llama_index import LlamaIndexExecutor
+from src.backend.modules.search.llm_search_by_content import LLMSearchByContent
 from src.backend.modules.search.search_by_substring import SearchBySubstring
 from src.backend.modules.search.search_by_substring_fuzzy import SearchBySubstringFuzzy
 from src.backend.modules.srs.abstract_srs import (
@@ -63,6 +64,24 @@ The raw input is:
 Only answer with the new task description!
 """.strip()
 
+    _prompt_template_no_history = """
+You are an AI assistant for a flashcard management system. The flashcard manager contains decks of flashcards (cards).
+The user wants you to execute a task (adding, modifying or deleting cards or decks).
+
+
+Please rewrite the following user input so that the task is easier to understand.
+Make sure that you satisfy the following requirements:
+* The content of the task should be preserved, but remove all unnecessary information.
+* Do not refer to the original task; include all necessary information in your output.
+* The input is transcribed from voice, so please try to correct speech recognition errors like double words or miss-spelling.
+* The new task description should be very easy to understand. Use full sentences!
+
+The raw input is:
+{user_input}
+
+Only answer with the new task description!
+""".strip()
+
     MIN_LENGTH_REWRITE = 250
 
     def __init__(
@@ -81,7 +100,11 @@ Only answer with the new task description!
 
     def act(self) -> AbstractActionState | None:
         if len(self.history_manager.latest_queries) == 0:
-            return StateTask(self.info, self.user_prompt.replace("'", "").replace('"', ""))
+            user_prompt = self.user_prompt.replace("'", "").replace('"', "")
+            if len(user_prompt) >= self.MIN_LENGTH_REWRITE:
+                message = self._prompt_template_no_history.format(user_input=user_prompt)
+                user_prompt = self.llm_communicator.send_message(message).replace("'", "").replace('"', "")
+            return StateTask(self.info, user_prompt)
 
         message = self._prompt_template.format(
             history=str(self.history_manager.latest_queries),
@@ -188,7 +211,9 @@ Only answer with the specified output, and nothing else.
 **Decks by size**
 If the user told you to use the smaller/smallest/bigger/biggest of some decks, please use the following syntax:
 * `smallestOf(<deck_name_1>, <deck_name_2>, ..., <deck_name_n>)` or
-* `largestOf(<deck_name_1>, <deck_name_2>, ..., <deck_name_n>)` or
+* `largestOf(<deck_name_1>, <deck_name_2>, ..., <deck_name_n>)`.
+Only include the decks that the user specified!
+
 """.strip()
     MAX_ATTEMPTS = 3
 
@@ -207,30 +232,31 @@ If the user told you to use the smaller/smallest/bigger/biggest of some decks, p
 
     def _execute(self, response: str) -> tuple[bool, list[str]]:
         """If first false: Wrong names, if first true: decks to search in."""
-        if response.startswith("smallestOf("):
-            response = response[len("smallestOf(") :].rstrip(")")
-            deck_names = [it.strip() for it in response.split(",")]
-            wrong_deck_names = self._wrong_deck_names(deck_names)
-            if wrong_deck_names:
-                return False, wrong_deck_names
-            return True, [min(deck_names, key=self._get_cards_in_deck)]
-
-        if response.startswith("largestOf("):
-            response = response[len("largestOf(") :].rstrip(")")
-            deck_names = [it.strip() for it in response.split(",")]
-            wrong_deck_names = self._wrong_deck_names(deck_names)
-            if wrong_deck_names:
-                return False, wrong_deck_names
-            return True, [max(deck_names, key=self._get_cards_in_deck)]
-
         if response == "all":
             return True, list(self._existing_deck_names)
 
-        # If here it should be a list of names.
+        if response.startswith("smallestOf("):
+            response = response[len("smallestOf(") :].rstrip(")")
+            type = "smallest"
+        elif response.startswith("largestOf("):
+            response = response[len("largestOf(") :].rstrip(")")
+            type = "largest"
+        else:
+            type = "default"
+
         deck_names = [it.strip() for it in response.split(",")]
         wrong_deck_names = self._wrong_deck_names(deck_names)
         if wrong_deck_names:
-            return False, wrong_deck_names
+            deck_names = [it.replace("Deck", "").replace("deck", "").strip() for it in response.split(",")]
+            second_try_wrong_deck_names = self._wrong_deck_names(deck_names)
+            if second_try_wrong_deck_names:
+                return False, wrong_deck_names
+
+        # Deck names now exist
+        if type == "smallest":
+            return True, [min(deck_names, key=self._get_cards_in_deck)]
+        if type == "largest":
+            return True, [max(deck_names, key=self._get_cards_in_deck)]
         return True, deck_names
 
     def act(self) -> AbstractActionState | None:
@@ -271,7 +297,9 @@ If the user told you to use the smaller/smallest/bigger/biggest of some decks, p
 
             message = (
                 f"The following deck names are unknown: {', '.join(result)}.\n"
-                "Please make sure to exactly match the deck names."
+                "Please make sure to exactly match the deck names. "
+                "Answer with the same result, just replace the unknown deck names with the corrected deck names!"
+                "If the user gave you no information about the decks **to search in**, answer all."
             )
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
@@ -365,12 +393,10 @@ The user gave the following input:
 You already decided that you have to search for cards.
 Please decide now how you want to search for cards. Your options are:
 
-1: The user specified one exact keywords to look for.
-2: The user specified multiple exact keywords to look for.
-3: The user specified a search term, but there can be slight deviations from the word (e.g. quotation marks, singular/plural).
-4: The user specified multiple search terms, but there can be slight deviations from the word (e.g. quotation marks, singular/plural).
+1: The user specified one or multiple exact keywords to look for.
 5: The user asked you to search for specific content (e.g. all cards about <topic>).
 
+If you are very unsure, answer 1.
 Please answer with the number of the best fitting option, and **nothing else**!
 """.strip()
     MAX_ATTEMPTS = 3
@@ -386,7 +412,7 @@ Please answer with the number of the best fitting option, and **nothing else**!
             if attempt == 0:
                 message = self._prompt_template.format(user_input=self.user_prompt)
             else:
-                message = "Your answer must be the option (1-5) that fits he user task the best!"
+                message = "Your answer must be the option (1-5) that fits the user task the best!"
 
             response = self.llm_communicator.send_message(message)
 
@@ -394,12 +420,23 @@ Please answer with the number of the best fitting option, and **nothing else**!
             response = response.replace('"', "").replace("'", "")
             response = response.lower().strip()
 
-            if response == "1" or response == "2":
-                return StateKeywordSearch(self.info, self.user_prompt, self.decks_to_search_in)
-            if response == "3" or response == "4":
+            if response == "1":
                 return StateFuzzySearch(self.info, self.user_prompt, self.decks_to_search_in)
             if response == "5":
-                return StateContentSearch(self.info, self.user_prompt, self.decks_to_search_in)
+                keyword_keywords = {"keyword", "substring"}
+                found_keywords = sorted(kw for kw in keyword_keywords if kw in self.user_prompt)
+                if len(found_keywords) == 0:
+                    return StateContentSearch(self.info, self.user_prompt, self.decks_to_search_in)
+                message = (
+                    f"The keywords {found_keywords} have been found in the user prompt. "
+                    "Are you sure that it is a content-based search? If yes, answer 5, else answer 1."
+                )
+                response = self.llm_communicator.send_message(message)
+                if response == "1":
+                    return StateFuzzySearch(self.info, self.user_prompt, self.decks_to_search_in)
+                if response == "5":
+                    return StateContentSearch(self.info, self.user_prompt, self.decks_to_search_in)
+                message = "Please answer 1 or 5 , and nothing else."
 
         raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
@@ -503,7 +540,7 @@ Please fill in the following template. Make sure to produce valid json.
     "search_in_question": <bool here>,
     "search_in_answer": <bool here>,
     "case_sensitive": <bool here>,
-    "fuzzy": <float here>
+    "fuzzy": <bool here>
 }}
 ]
 
@@ -511,13 +548,14 @@ If you are unsure, use these defaults:
   search_in_question: true
   search_in_answer: true
   case_sensitive: false
-  fuzzy: 0.8
+  fuzzy: true
 
 If multiple keywords are specified, each card that matches at least one of the keywords will be returned. Only use multiple keywords if necessary; do not use substrings of other keywords.
 
 Please answer only with the json list of filled-in, valid json object as described above.
 """.strip()
     MAX_ATTEMPTS = 3
+    DEFAULT_FUZZY = 0.8
 
     def __init__(self, info: TaskInfo, user_prompt: str, decks_to_search_in: list[AbstractDeck]):
         self.info = info
@@ -554,16 +592,24 @@ Please answer only with the json list of filled-in, valid json object as describ
                         raise ValueError("search_in_answer must be a boolean")
                     if not isinstance(parsed["case_sensitive"], bool):
                         raise ValueError("case_sensitive must be a boolean")
-                    if not isinstance(parsed["fuzzy"], float):
-                        raise ValueError("fuzzy must be a float")
+                    if not isinstance(parsed["fuzzy"], bool):
+                        raise ValueError("fuzzy must be a boolean")
 
-                    searcher = SearchBySubstringFuzzy(
-                        search_substring=parsed["search_substring"],
-                        search_in_question=parsed["search_in_question"],
-                        search_in_answer=parsed["search_in_answer"],
-                        case_sensitive=parsed["case_sensitive"],
-                        fuzzy=parsed["fuzzy"],
-                    )
+                    if not parsed["fuzzy"]:
+                        searcher = SearchBySubstring(
+                            search_substring=parsed["search_substring"],
+                            search_in_question=parsed["search_in_question"],
+                            search_in_answer=parsed["search_in_answer"],
+                            case_sensitive=parsed["case_sensitive"],
+                        )
+                    else:
+                        searcher = SearchBySubstringFuzzy(
+                            search_substring=parsed["search_substring"],
+                            search_in_question=parsed["search_in_question"],
+                            search_in_answer=parsed["search_in_answer"],
+                            case_sensitive=parsed["case_sensitive"],
+                            fuzzy=self.DEFAULT_FUZZY,
+                        )
                     searchers.append(searcher)
 
                 return StateVerifySearch(self.info, self.user_prompt, self.decks_to_search_in, searchers)
@@ -585,15 +631,18 @@ The user gave the following input:
 
 {user_input}
 
-You already decided that you have to search for cards, and that you want to use content based search.
-Please fill in the following template. Make sure to produce valid json.
-{{
-    "search_prompt": "<string here>"
-}}
+Now your task is to create a good search prompt for the content-based search.
+The search prompt should only contain the content the user wants to search for, not any other information.
 
-Please answer only with the filled-in, valid json.
+Example:
+If the user input is:
+Please find all cards about aquatic animals, and add them to a new deck called aquatic animals.
+
+A good search prompt would be:
+aquatic animals
+
+Please **only** respond with the search prompt, and nothing else!
 """.strip()
-    MAX_ATTEMPTS = 3
 
     def __init__(self, info: TaskInfo, user_prompt: str, decks_to_search_in: list[AbstractDeck]):
         self.info = info
@@ -603,26 +652,9 @@ Please answer only with the filled-in, valid json.
 
     def act(self) -> AbstractActionState | None:
         message = self._prompt_template.format(user_input=self.user_prompt)
-        for attempt in range(self.MAX_ATTEMPTS):
-            try:
-                response = self.llm_communicator.send_message(message)
-                parsed = json.loads(response.strip())
-                if not isinstance(parsed, dict):
-                    raise ValueError("Response must be a dictionary")
-                if set(parsed.keys()) != {"search_prompt"}:
-                    raise ValueError("Response must contain exactly the required keys")
-                if not isinstance(parsed["search_prompt"], str):
-                    raise ValueError("search_prompt must be a string")
-
-                searcher = LlamaIndexSearcher(executor=self.info.llama_index, prompt=parsed["search_prompt"])
-                return StateVerifySearch(self.info, self.user_prompt, self.decks_to_search_in, [searcher])
-
-            except JSONDecodeError as jde:
-                message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
-            except Exception as e:
-                message = f"An exception occurred: {e}. Please try again."
-
-        raise ExceedingMaxAttemptsError(self.__class__.__name__)
+        response = self.llm_communicator.send_message(message)
+        searcher = LLMSearchByContent(self.info.llm, response, True, True)
+        return StateVerifySearch(self.info, self.user_prompt, self.decks_to_search_in, [searcher])
 
 
 class StateVerifySearch(AbstractActionState):
@@ -861,6 +893,7 @@ You can choose one of the following actions:
   Do not forget to include the quotation marks around the strings to create valid json!
   These flag options exist: ["none", "red", "orange", "green", "blue", "pink", "turquoise", "purple"]
   These card state options exist: ["new", "learning", "review", "suspended", "buried"]
+  If the user did not instruct you to change the flag or state, keep the flag and state empty!
 
 Please answer only with the operation you want to perform in the given format, and answer nothing else!
 """.strip()
@@ -919,13 +952,13 @@ Please answer only with the operation you want to perform in the given format, a
             action = SrsAction.edit_card_answer(self.info.srs, card, parsed["answer"])
             self.info.history_manager.add_action(action)
             self.info.progress_callback.handle(action.description, True)
-        if "flag" in parsed:
+        if "flag" in parsed and parsed["flag"].strip():
             flag = Flag.from_str(parsed["flag"])
             if flag != card.flag:
                 action = SrsAction.edit_card_flag(self.info.srs, card, flag)
                 self.info.history_manager.add_action(action)
                 self.info.progress_callback.handle(action.description, True)
-        if "state" in parsed:
+        if "state" in parsed and parsed["state"].strip():
             state = CardState.from_str(parsed["state"])
             if state != card.state:
                 action = SrsAction.edit_card_state(self.info.srs, card, state)
@@ -957,7 +990,7 @@ Please answer only with the operation you want to perform in the given format, a
             else:  # only run if no break!
                 raise ExceedingMaxAttemptsError(self.__class__.__name__)
 
-        return StateFinishedTask(f"{len(self.found_cards)} cards handled in a stream.")  # TODO (command counts?)
+        return StateFinishedTask(f"{len(self.found_cards)} cards handled in a stream.")
 
 
 class StateTaskNoSearch(AbstractActionState):
@@ -1158,12 +1191,6 @@ Do not generate any text for the fields that are not present in the user input. 
                         return result_state
 
                 return StateFinishedTask(f"Executed {len(parsed)} commands.")
-                # TODO Now, there is only one iterations - all commands must be sent the first time.
-                #        Llama was absolutely unable to use [] to finish command execution.
-                # message = (
-                #     "The commands you sent were all executed successfully! "
-                #     "If that was all, respond with []. If you have other commands to execute, send them."
-                # )
             except JSONDecodeError as jde:
                 message = f"Your answer must be a valid json string. Exception: {jde}. Please try again."
             except MissingDeckException as mde:

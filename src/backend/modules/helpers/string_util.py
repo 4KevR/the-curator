@@ -103,3 +103,8 @@ def remove_block(text: str, block_name: str, strip: bool = True) -> str:
     if strip:
         res = res.strip()
     return res
+
+
+def remove_quots(s: str) -> str:
+    """Removes all quotation marks."""
+    return s.replace("'", "").replace('"', "")

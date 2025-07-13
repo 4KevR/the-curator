@@ -4,7 +4,7 @@
 # =============================  VARIABLES  ========================================================================
 
 # random state for the test shuffling. Use None to disable shuffling (not recommended, may lead to autocorrelation)
-random_state: int | None = 2308421
+random_state: int | None = None  # 2308421
 
 # You can specify a subset of the tests to run if you want to.
 # If not None, tests are only included if any of their queries contains any of the filter substrings.
