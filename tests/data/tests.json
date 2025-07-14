@@ -5176,15 +5176,11 @@
       {
         "name": "misc_0",
         "description": "Get the number of cards in a deck",
-        "environment": "java_10",
+        "environment": "programming",
         "queries": [
           [
-            "How many cards are available in the java_10 deck?"
-          ],
-          [
-            "What is the total number of cards in the java_10 deck?"
-          ],
-          [
+            "How many cards are available in the java_10 deck?",
+            "What is the total number of cards in the java_10 deck?",
             "Can you give me the amount of cards in the java_10 deck?"
           ]
         ],
@@ -5196,18 +5192,10 @@
         "environment": "all",
         "queries": [
           [
-            "What decks are available?"
-          ],
-          [
-            "What different content can I learn?"
-          ],
-          [
-            "What are the names of the decks?"
-          ],
-          [
-            "Can you list the available decks?"
-          ],
-          [
+            "What decks are available?",
+            "What different content can I learn?",
+            "What are the names of the decks?",
+            "Can you list the available decks?",
             "What decks do you have?"
           ]
         ],
@@ -5216,15 +5204,11 @@
       {
         "name": "misc_2",
         "description": "Get the amount of required revisions in one deck",
-        "environment": "java_10",
+        "environment": "programming",
         "queries": [
           [
-            "How many revisions do I need to do in the java_10 deck?"
-          ],
-          [
-            "How much do I need to revise in the java_10 deck?"
-          ],
-          [
+            "How many revisions do I need to do in the java_10 deck?",
+            "How much do I need to revise in the java_10 deck?",
             "What is the amount of revisions in the java_10 deck today?"
           ]
         ],
@@ -5236,15 +5220,9 @@
         "environment": "all",
         "queries": [
           [
-            "How many cards do I need to do learn in all decks?"
-          ],
-          [
-            "How much do I need to revise today?"
-          ],
-          [
-            "What is the amount of cards to learn in all decks today?"
-          ],
-          [
+            "How many cards do I need to do learn in all decks?",
+            "How much do I need to revise today?",
+            "What is the amount of cards to learn in all decks today?",
             "How many cards today?"
           ]
         ],

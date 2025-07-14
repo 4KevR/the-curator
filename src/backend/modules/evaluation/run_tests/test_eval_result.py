@@ -21,6 +21,7 @@ class TestEvalResult:
     original_queries: list[str]
     transcribed_queries: list[str] | None
     question_answer: str | None
+    expected_answer: str | None
     task_finish_message: str | None
     state_history: list[str]
     error_messages: list[str]
@@ -122,7 +123,7 @@ Token usage: {self.token_usage.prompt_tokens} prompt, {self.token_usage.completi
             queries = "### Queries\n" + "\n\n".join(f"**`original   `**: {o}" for o in self.original_queries)
 
         if self.question_answer is not None:
-            response = f"### Response\n{self.question_answer}\n"
+            response = f"### Response\nActual: {self.question_answer}\n\nExpected: {self.expected_answer}\n"
         elif self.task_finish_message is not None:
             response = f"### Task Finish Message\n{self.task_finish_message}\n"
         else:

@@ -131,6 +131,7 @@ class EvaluationPipeline:
                 original_queries=test.queries,
                 transcribed_queries=prompts if all_files_exist else None,
                 question_answer=eval_res.question_answer,
+                expected_answer=test.expected_answer if isinstance(test, QuestionAnsweringTest) else None,
                 task_finish_message=eval_res.task_finish_message,
                 state_history=eval_res.state_history,
                 log_messages=eval_res.llm_history,
