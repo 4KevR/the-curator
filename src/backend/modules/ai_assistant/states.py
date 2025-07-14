@@ -47,7 +47,7 @@ The user gave the following prompt:
 {user_input}
 
 If you think the user wants you to **interact** with the flashcard system (e.g. creating, modifying, or deleting cards or decks), please answer "task".
-If the user wants you to answer a question about the content of the flashcards, please answer "question".
+If the user wants to know something about the content of the flashcards, please answer "question".
 If the user wants to **enter study mode**, such as learning or reviewing a specific deck, please answer "study".
 Do not answer anything else.
 """

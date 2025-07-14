@@ -21,12 +21,12 @@ class TestEvalResult:
     original_queries: list[str]
     transcribed_queries: list[str] | None
     question_answer: str | None
-    expected_answer: str | None
     task_finish_message: str | None
     state_history: list[str]
     error_messages: list[str]
     log_messages: list[list[tuple[str, str]]]
     token_usage: TokenUsage | None
+    expected_answer: str | None = None
 
     def pretty_print(self, skip_thinking=False):
         header = f"Test {self.name} " + ("PASSED" if self.passed else ("CRASHED" if self.crashed else "FAILED")) + "."

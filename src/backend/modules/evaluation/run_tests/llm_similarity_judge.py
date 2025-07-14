@@ -20,10 +20,10 @@ Actual answer:
 {actual}
 
 Please tell me if the actual answer contains – at least – the same information as the expected answer.
-It is fine if the actual answer contains more information than the expected answer.
+It is fine if the actual answer contains a little more information than the expected answer.
 Ignore differences in grammar, length, or wording, as long as the answers are semantically equivalent.
 
-If they are similar, answer true, else false
+If they are similar enough, answer true, else false. **Answer nothing else.**
 """
         response = self.judge_llm.generate_single(prompt)
 

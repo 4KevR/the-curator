@@ -4149,7 +4149,7 @@
       {
         "name": "python_0",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does Python's design philosophy prioritize developer experience compared to other programming languages?"
@@ -4160,7 +4160,7 @@
       {
         "name": "python_1",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the process of declaring a variable in Python and how does it differ from other programming languages like C++?"
@@ -4171,7 +4171,7 @@
       {
         "name": "python_2",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What data structure in Python allows for storing an ordered sequence of elements that can be modified after creation?"
@@ -4182,7 +4182,7 @@
       {
         "name": "python_3",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What syntax is used to define a list in Python and provide an example of creating a list with three elements?"
@@ -4193,7 +4193,7 @@
       {
         "name": "python_4",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does Python handle code block delimitation compared to languages like Java or C++?"
@@ -4204,7 +4204,7 @@
       {
         "name": "python_5",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What symbol is used to start a single-line comment in Python code?"
@@ -4215,7 +4215,7 @@
       {
         "name": "python_6",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does the immutability of tuples affect their use in Python programs?"
@@ -4226,7 +4226,7 @@
       {
         "name": "python_7",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "In which scenario would it be more appropriate to use a tuple instead of a list in Python?"
@@ -4237,7 +4237,7 @@
       {
         "name": "python_8",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How would you describe the data structure that stores elements with unique keys and their associated values in Python?"
@@ -4248,7 +4248,7 @@
       {
         "name": "python_9",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What Python code would you use to retrieve the value associated with the key 'exampleKey' from a dictionary named 'dataDict'? Provide an example."
@@ -4259,7 +4259,7 @@
       {
         "name": "python_10",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What does the Python keyword 'None' signify in terms of data representation?"
@@ -4270,7 +4270,7 @@
       {
         "name": "python_11",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How would you determine the number of elements in a list called 'my_list'?"
@@ -4281,7 +4281,7 @@
       {
         "name": "python_12",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What syntax is required to create a basic function in Python that takes no arguments?"
@@ -4292,7 +4292,7 @@
       {
         "name": "python_13",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does the `return` statement affect the flow of execution in a Python function?"
@@ -4303,7 +4303,7 @@
       {
         "name": "python_14",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How can you use a 'for' loop to iterate through a list and print each element?"
@@ -4314,7 +4314,7 @@
       {
         "name": "python_15",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the general syntax for creating an indefinite loop in Python that continues until a specific condition is met?"
@@ -4325,7 +4325,7 @@
       {
         "name": "python_16",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the primary purpose of the `range()` function in Python and how can it be used to iterate over sequences?"
@@ -4336,7 +4336,7 @@
       {
         "name": "python_17",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What mechanism can be used to catch and handle errors in Python code?"
@@ -4347,7 +4347,7 @@
       {
         "name": "python_18",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What happens in Python when you use a `try-except-finally` structure and an exception occurs inside the `try` block?"
@@ -4358,7 +4358,7 @@
       {
         "name": "python_19",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the syntax for importing a standard library module in Python?"
@@ -4369,7 +4369,7 @@
       {
         "name": "python_20",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How can you generate a new list that contains only the even numbers from an existing list?"
@@ -4380,7 +4380,7 @@
       {
         "name": "python_21",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "In Python, what is the purpose of using the `pass` statement in a function or loop when you haven't implemented the body yet?"
@@ -4391,7 +4391,7 @@
       {
         "name": "python_22",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does the concept of uniqueness in sets differ from lists in Python?"
@@ -4402,7 +4402,7 @@
       {
         "name": "python_23",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What Python syntax would you use to determine if an element exists within a given collection like a list or a set?"
@@ -4413,7 +4413,7 @@
       {
         "name": "python_24",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How can you create a list of even numbers from 0 to 10 using Python slicing?"
@@ -4424,7 +4424,7 @@
       {
         "name": "python_25",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What Python function is used to receive user input from the console?"
@@ -4435,7 +4435,7 @@
       {
         "name": "python_26",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What happens when you try to modify a string variable in Python, and why can't strings be modified once assigned?"
@@ -4446,7 +4446,7 @@
       {
         "name": "python_27",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What function can be used in Python to convert a string containing a number into an integer?"
@@ -4457,7 +4457,7 @@
       {
         "name": "python_28",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "In Python, what happens if you call a function with fewer arguments than defined parameters?"
@@ -4468,7 +4468,7 @@
       {
         "name": "python_29",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does using keyword arguments improve the readability and maintainability of code when calling functions?"
@@ -4479,7 +4479,7 @@
       {
         "name": "python_30",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the purpose of using `*args` as an argument in Python functions, and how does it handle additional parameters?"
@@ -4490,7 +4490,7 @@
       {
         "name": "python_31",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the purpose of using `**kwargs` when defining a Python function and how is it utilized inside the function?"
@@ -4501,7 +4501,7 @@
       {
         "name": "python_32",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the syntax for formatting a string with an f-string in Python, and how would you use it to include a variable named 'username'?"
@@ -4512,7 +4512,7 @@
       {
         "name": "python_33",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What happens when a Python file containing a __main__ block is executed directly?"
@@ -4523,7 +4523,7 @@
       {
         "name": "python_34",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the purpose of multi-line strings in Python when defining functions and modules?"
@@ -4534,7 +4534,7 @@
       {
         "name": "python_35",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the primary mechanism for defining a new class in Python, and what can be included within it?"
@@ -4545,7 +4545,7 @@
       {
         "name": "python_36",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What role does the `__init__` method play when creating an instance of a Python class?"
@@ -4556,7 +4556,7 @@
       {
         "name": "python_37",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does Python support code reusability between classes?"
@@ -4567,7 +4567,7 @@
       {
         "name": "python_38",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does method overriding in Python allow for polymorphism?"
@@ -4578,7 +4578,7 @@
       {
         "name": "python_39",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What method can be used to determine the data type of a Python variable?"
@@ -4589,7 +4589,7 @@
       {
         "name": "python_40",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What can the `dir()` function be used to determine about a Python object?"
@@ -4600,7 +4600,7 @@
       {
         "name": "python_41",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does one typically manage dependencies in a Python project, such as installing and updating libraries?"
@@ -4611,7 +4611,7 @@
       {
         "name": "python_42",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does the Python programming language handle multiple conditions in a conditional statement after an initial if condition has been evaluated?"
@@ -4622,7 +4622,7 @@
       {
         "name": "python_43",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What method can be used to add an element to the end of a Python list?"
@@ -4633,7 +4633,7 @@
       {
         "name": "python_44",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What methods can be used to delete elements from a Python list, and how do they differ in usage?"
@@ -4644,7 +4644,7 @@
       {
         "name": "python_45",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does the `with` statement in Python help ensure that resources are properly managed and cleaned up, even if an error occurs?"
@@ -4655,7 +4655,7 @@
       {
         "name": "python_46",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the primary purpose of the `open()` function when working with files in Python?"
@@ -4666,7 +4666,7 @@
       {
         "name": "python_47",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What Python function allows iterating over a list while accessing both the index and value simultaneously?"
@@ -4677,7 +4677,7 @@
       {
         "name": "python_48",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What Python function can be used to iterate over elements from two lists simultaneously?"
@@ -4688,7 +4688,7 @@
       {
         "name": "python_49",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How can you calculate the square root of a number in Python without using any external libraries?"
@@ -4699,7 +4699,7 @@
       {
         "name": "python_50",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the difference between a named function and an anonymous function in Python, and how do you define an anonymous function?"
@@ -4710,7 +4710,7 @@
       {
         "name": "python_51",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How can you use Python's `filter()` function to select even numbers from a list of integers?"
@@ -4721,7 +4721,7 @@
       {
         "name": "python_52",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How can you use Python's `map()` function to apply a given function to elements of a list?"
@@ -4732,7 +4732,7 @@
       {
         "name": "python_53",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the primary purpose of the `sys` module in Python, and how can it be used to interact with the environment?"
@@ -4743,7 +4743,7 @@
       {
         "name": "python_54",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the primary advantage of using a generator expression over a list comprehension in Python?"
@@ -4754,7 +4754,7 @@
       {
         "name": "python_55",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What command would you use to set up a Python virtual environment named 'projectEnv'?"
@@ -4765,7 +4765,7 @@
       {
         "name": "python_56",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does the syntax for the print statement differ between Python 2 and Python 3?"
@@ -4776,7 +4776,7 @@
       {
         "name": "python_57",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the effect of using the `global` keyword inside a function when declaring a variable?"
@@ -4787,7 +4787,7 @@
       {
         "name": "python_58",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What are two methods to read all lines from a file in Python?"
@@ -4798,7 +4798,7 @@
       {
         "name": "python_59",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How can you use decorators to add logging functionality to a function in Python?"
@@ -4809,7 +4809,7 @@
       {
         "name": "python_60",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What function can be used to retrieve the current working directory in Python and which module does it belong to?"
@@ -4820,7 +4820,7 @@
       {
         "name": "python_61",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What function in the os module can be used to change the name of an existing file?"
@@ -4831,7 +4831,7 @@
       {
         "name": "python_62",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the purpose of using 'as' in an import statement and provide an example?"
@@ -4842,7 +4842,7 @@
       {
         "name": "python_63",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "Which of the following variables are equal (==) and which are identical (is)? .\n```python\na = [1, 2, 3]\nb = a\nc = list(a)\nd = b.copy()\ne = c[:]\n```"
@@ -4853,7 +4853,7 @@
       {
         "name": "python_64",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What method can be used to remove duplicate elements from a list in Python?"
@@ -4864,7 +4864,7 @@
       {
         "name": "python_65",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does Python handle boolean expressions when one part of the expression guarantees the final outcome?"
@@ -4875,7 +4875,7 @@
       {
         "name": "python_66",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the conventional way to define constants in Python and provide an example?"
@@ -4886,7 +4886,7 @@
       {
         "name": "python_67",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "In Python, what happens when you use the `break` statement inside a loop?"
@@ -4897,7 +4897,7 @@
       {
         "name": "python_68",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What happens when a `continue` statement is encountered within a Python loop?"
@@ -4908,7 +4908,7 @@
       {
         "name": "python_69",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What are the two primary methods to terminate a Python script immediately?"
@@ -4919,7 +4919,7 @@
       {
         "name": "python_70",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the purpose of including a docstring in a Python class method?"
@@ -4930,7 +4930,7 @@
       {
         "name": "python_71",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What Python syntax allows you to extract a subset of elements from a list while specifying the starting and ending indices?"
@@ -4941,7 +4941,7 @@
       {
         "name": "python_72",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What does the __name__ attribute represent when used within a Python script or module?"
@@ -4952,7 +4952,7 @@
       {
         "name": "python_73",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the correct syntax for handling two different types of exceptions (e.g., ValueError and IndexError) within a single except clause?"
@@ -4963,7 +4963,7 @@
       {
         "name": "python_74",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What are the key differences between using `sorted()` and `.sort()` methods on Python lists?"
@@ -4974,7 +4974,7 @@
       {
         "name": "python_75",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What Python function can be used to determine the data type of a variable?"
@@ -4985,7 +4985,7 @@
       {
         "name": "python_76",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What method would you use to remove an element from a Python dictionary if you know the key?"
@@ -4996,7 +4996,7 @@
       {
         "name": "python_77",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How do you add elements to a Python list using the `extend()` and `insert()` methods?"
@@ -5007,7 +5007,7 @@
       {
         "name": "python_78",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the basic step to make a reusable piece of Python code that can be imported into other scripts?"
@@ -5018,7 +5018,7 @@
       {
         "name": "python_79",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What variable in Python contains the absolute path of the script that is currently running?"
@@ -5029,7 +5029,7 @@
       {
         "name": "python_80",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What is the purpose of using Python's built-in functions `min()` and `max()` when working with lists or tuples?"
@@ -5040,7 +5040,7 @@
       {
         "name": "python_81",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What are the two methods to terminate an infinite loop in Python?"
@@ -5051,7 +5051,7 @@
       {
         "name": "python_82",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "What happens when you use the * operator before an iterable while calling a Python function?"
@@ -5062,7 +5062,7 @@
       {
         "name": "python_83",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How can you extract a portion of a string in Python starting from index 3 up to but not including index 8?"
@@ -5073,7 +5073,7 @@
       {
         "name": "python_84",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How does user input handling differ between Python 2 and 3?"
@@ -5084,7 +5084,7 @@
       {
         "name": "python_85",
         "description": "",
-        "environment": "java",
+        "environment": "python",
         "queries": [
           [
             "How can you determine if a given string in Python begins with a specific substring?"

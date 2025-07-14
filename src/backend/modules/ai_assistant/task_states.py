@@ -694,6 +694,8 @@ class StateVerifySearch(AbstractActionState):
         ]
         found_cards = AbstractCardSearcher.union_search_all(self.searchers, all_cards)
 
+        return StateTaskWorkOnFoundCards(self.info, self.user_prompt, self.decks_to_search_in, found_cards)
+
         for attempt in range(self.MAX_ATTEMPTS):
             if attempt == 0:
                 if len(found_cards) <= self.SAMPLE_SIZE:

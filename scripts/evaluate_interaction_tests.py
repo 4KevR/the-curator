@@ -109,10 +109,10 @@ if llms_to_use == "local_llama":
     task_llm = LMStudioLLM("meta-llama-3.1-8b-instruct", default_temperature, default_max_tokens)
     comparison_llm = LMStudioLLM("meta-llama-3.1-8b-instruct", 0.0, 10)
 elif llms_to_use == "kit_llama":
-    task_llm = KitLLM(0.001, default_max_tokens)
+    task_llm = KitLLM(max(default_temperature, 0.001), default_max_tokens)
     comparison_llm = KitLLM(0.001, 10)
 elif llms_to_use == "kit_llama_req":
-    task_llm = KitLLMReq(os.getenv("LLM_URL"), 0.001, default_max_tokens)
+    task_llm = KitLLMReq(os.getenv("LLM_URL"), max(default_temperature, 0.001), default_max_tokens)
     comparison_llm = KitLLMReq(os.getenv("LLM_URL"), 0.001, 10)
 elif llms_to_use == "local_qwen8":
     task_llm = LMStudioLLM("qwen3-8b", default_temperature, default_max_tokens, no_think=True)
