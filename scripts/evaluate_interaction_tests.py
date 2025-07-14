@@ -25,7 +25,7 @@ llms_to_use: str = "local_llama"
 # Where are the audio files? If asr should be skipped (only using text prompts), set to None.
 audio_file_path: str | None = "./data/recording_data/fabian"
 
-# options: 'local_whisper_medium', 'lecture_translator'
+# options: 'local_whisper_medium', 'local_whisper-large-v3', 'lecture_translator'
 asr_to_use: str = "local_whisper_medium"
 
 # levenshtein distance settings for question/answer matching
@@ -125,6 +125,8 @@ else:
 
 if asr_to_use == "local_whisper_medium":
     asr = LocalWhisperASR("openai/whisper-medium")
+elif asr_to_use == "local_whisper-large-v3":
+    asr = LocalWhisperASR("openai/whisper-large-v3")
 elif asr_to_use == "lecture_translator":
     asr = CloudLectureTranslatorASR()
 else:
