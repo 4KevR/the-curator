@@ -5,6 +5,7 @@ from enum import Enum
 
 import nltk
 from llama_index.core import StorageContext, VectorStoreIndex, load_index_from_storage
+from llama_index.core.postprocessor import SimilarityPostprocessor
 from llama_index.core.schema import Document
 from llama_index.storage.index_store.postgres import PostgresIndexStore
 from llama_index.vector_stores.postgres import PGVectorStore
@@ -107,8 +108,16 @@ class LlamaIndexExecutor:
                 storage_context=self.storage_context_cards,
             )
             self.was_already_set_up = False
-        self.deck_query_engine = self.deck_index.as_query_engine(response_mode="compact", similarity_top_k=self._TOP_K)
-        self.card_query_engine = self.card_index.as_query_engine(response_mode="compact", similarity_top_k=self._TOP_K)
+        self.deck_query_engine = self.deck_index.as_query_engine(
+            response_mode="compact",
+            similarity_top_k=self._TOP_K,
+            node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.5)],
+        )
+        self.card_query_engine = self.card_index.as_query_engine(
+            response_mode="compact",
+            similarity_top_k=self._TOP_K,
+            node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.5)],
+        )
 
     def add_card(self, card: AbstractCard):
         if not isinstance(card, AbstractCard):
