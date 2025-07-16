@@ -36,6 +36,7 @@ class EvaluationPipeline:
         verbose_task_execution: bool = False,
         print_progress: bool = False,
         log_file_path: str = None,
+        transcription_cache_path: str | None = None,
     ) -> None:
         self.asr = asr
         self.task_llm = task_llm
@@ -53,6 +54,14 @@ class EvaluationPipeline:
             if os.path.exists(log_file_path):
                 raise ValueError(f"Log file '{log_file_path}' already exists.")
             os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+
+        self.transcription_cache = {}
+        if transcription_cache_path and os.path.exists(transcription_cache_path):
+            with open(transcription_cache_path, "r", encoding="utf-8") as f:
+                self.transcription_cache = json.load(f)
+            print(
+                f"Loaded transcription cache from {transcription_cache_path} with {len(self.transcription_cache)} entries."
+            )
 
     def _evaluate_test(self, test: InteractionTest | QuestionAnsweringTest) -> TestEvalResult:
         start_time = time.time()
@@ -76,20 +85,28 @@ class EvaluationPipeline:
         )
 
         if self.audio_recording_dir_path is not None:
-            audio_files = [
+            audio_file_paths = [
                 os.path.join(self.audio_recording_dir_path, sound_file_name + ".wav")
                 for sound_file_name in test.sound_file_names
             ]
+            audio_file_base_names = test.sound_file_names
 
             # do all required audio files exist?
-            all_files_exist = all(os.path.exists(a_f) for a_f in audio_files)
+            all_files_exist = all(os.path.exists(a_f) for a_f in audio_file_paths)
         else:
-            audio_files = []
+            audio_file_paths = []
+            audio_file_base_names = []
             all_files_exist = False
 
         try:
             if all_files_exist:
-                prompts = [self.asr.transcribe_wav_file(afp) for afp in audio_files]
+                for i, afp in enumerate(audio_file_paths):
+                    base_name = audio_file_base_names[i]
+                    if base_name in self.transcription_cache:
+                        prompts.append(self.transcription_cache[base_name])
+                    else:
+                        transcription = self.asr.transcribe_wav_file(afp)
+                        prompts.append(transcription)
             else:
                 prompts = list(test.queries)
 

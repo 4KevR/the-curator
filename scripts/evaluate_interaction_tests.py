@@ -45,6 +45,9 @@ max_states: int | None = None
 # If dry run: Only output the final test sample, do not actually run tests. No log file created.
 dry_run: bool = False
 
+# Transcription cache path. If None, no cache is used.
+transcription_cache_path: str | None = None
+
 # ==================================================================================================================
 
 print(
@@ -149,6 +152,7 @@ eval_pipeline = EvaluationPipeline(
     verbose_task_execution=False,
     print_progress=True,
     log_file_path=log_file_path,
+    transcription_cache_path=transcription_cache_path,
 )
 
 print(f"Startup took {time.time() - script_start_time:.2f} seconds.\n")

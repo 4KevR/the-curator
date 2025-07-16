@@ -16,7 +16,7 @@ from src.backend.modules.ai_assistant.state_manager import StateFinishedSingleLe
 from src.backend.modules.ai_assistant.task_states import StateFinishedDueToMissingInformation
 from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR
 from src.backend.modules.asr.local_whisper_asr import LocalWhisperASR
-from src.backend.modules.llm.kit_llm_req import KitLLMReq
+from src.backend.modules.llm import LMStudioLLM
 from src.backend.modules.search.llama_index import LlamaIndexExecutor
 from src.backend.modules.srs.anki_module import AnkiSRS
 
@@ -27,7 +27,7 @@ app.register_blueprint(action_blueprint)
 app.register_blueprint(speech_blueprint)
 socketio = SocketIO(app)
 
-llm = KitLLMReq(os.getenv("LLM_URL"), 0.0, 1000)
+llm = LMStudioLLM("meta-llama-3.1-8b-instruct", 0.001, 1000)
 whisper_asr = LocalWhisperASR("openai/whisper-medium")
 lecture_translator_asr: dict[str, CloudLectureTranslatorASR] = {}
 anki_srs_adapters: dict[str, AnkiSRS] = {}
