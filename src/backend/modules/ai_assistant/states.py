@@ -39,7 +39,7 @@ class StateAction(AbstractActionState):
     _prompt_template = """
 You are an assistant of a flashcard management system. You assist a user in interacting in three ways:
 1. Interacting with the flashcard system (creating/modifying/deleting cards/decks etc.),
-2. Answering questions about the content of the flashcards,
+2. Answering questions about the content of the flashcards or about the system itself (e.g., how many decks exist),
 3. Entering and managing study sessions (e.g., starting to learn or review a deck).
 
 The user gave the following prompt:
@@ -47,7 +47,7 @@ The user gave the following prompt:
 {user_input}
 
 If you think the user wants you to **interact** with the flashcard system (e.g. creating, modifying, or deleting cards or decks), please answer "task".
-If the user wants to know something about the content of the flashcards, please answer "question".
+If the user wants to know something about the content of the flashcards or about the system itself, please answer "question".
 If the user wants to **enter study mode**, such as learning or reviewing a specific deck, please answer "study".
 Do not answer anything else.
 """
@@ -73,7 +73,7 @@ Do not answer anything else.
     def act(self) -> AbstractActionState | None:
         # believe me I hate that this is necessary, but else we get circular imports.
         from src.backend.modules.ai_assistant.learning_states import StateClassify, StateStartLearn
-        from src.backend.modules.ai_assistant.question_states import StateQuestion
+        from src.backend.modules.ai_assistant.question_states import StateClassifyQuestion
         from src.backend.modules.ai_assistant.task_states import StateRewriteTask
 
         if self.srs.study_mode:
@@ -92,7 +92,7 @@ Do not answer anything else.
             resp = find_substring_in_llm_response_or_null(response, "question", "task", True)
 
             if resp is True:
-                return StateQuestion(self.user_prompt, self.llm, self.llama_index_executor)
+                return StateClassifyQuestion(self.user_prompt, self.llm, self.srs, self.llama_index_executor)
             elif resp is False:
                 return StateRewriteTask(
                     self.user_prompt,
