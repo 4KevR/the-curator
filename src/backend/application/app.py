@@ -2,10 +2,12 @@ import base64
 import logging
 import os
 import tempfile
+import uuid
 from collections import defaultdict
 
 import nltk
-from flask import Flask
+from flask import Flask, jsonify, request, send_file
+from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 
 from src.backend.controllers.action import action_blueprint
@@ -23,9 +25,10 @@ from src.backend.modules.srs.anki_module import AnkiSRS
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3050"}})
 app.register_blueprint(action_blueprint)
 app.register_blueprint(speech_blueprint)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:3050")
 
 llm = LMStudioLLM("meta-llama-3.1-8b-instruct", 0.001, 1000)
 whisper_asr = LocalWhisperASR("openai/whisper-medium")
@@ -138,11 +141,7 @@ def handle_submit_stream_batch(data):
     if not user or not b64_pcm:
         emit("action_error", {"error": "User and audio data required."})
         return
-    data = {
-        "b64_pcm": b64_pcm,
-        "duration": duration,
-    }
-    lecture_translator_asr[user]._send_audio(encoded_audio=data["b64_pcm"], duration=data["duration"])
+    lecture_translator_asr[user]._send_audio(encoded_audio=b64_pcm, duration=duration)
     read_data = lecture_translator_asr[user]._read_from_queue()
     if read_data:
         emit("streamed_sentence_part", {"part": read_data})
@@ -178,3 +177,114 @@ def handle_new_conversation(data):
         return
     conversation_manager = get_conversation_manager(user)
     conversation_manager.history_manager.clear_history()
+
+
+@app.route("/api/anki/decks/<user_name>", methods=["GET"])
+def get_anki_decks(user_name):
+    try:
+        if user_name not in anki_srs_adapters:
+            anki_srs_adapters[user_name] = AnkiSRS(user_name)
+        anki_srs = anki_srs_adapters[user_name]
+        decks = anki_srs.get_all_decks()
+        deck_names = [deck.name for deck in decks]
+        return jsonify({"decks": deck_names})
+    except Exception as e:
+        logger.error(f"Error getting Anki decks for user {user_name}: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# Directory to store uploaded/exported Anki files
+ANKI_FILE_STORAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/anki_files"))
+if not os.path.exists(ANKI_FILE_STORAGE_DIR):
+    os.makedirs(ANKI_FILE_STORAGE_DIR)
+
+
+@app.route("/api/anki/upload", methods=["POST"])
+def upload_anki_file():
+    if "file" not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "No selected file"}), 400
+    if file:
+        filename = f"{uuid.uuid4()}.apkg"
+        filepath = os.path.join(ANKI_FILE_STORAGE_DIR, filename)
+        file.save(filepath)
+        return jsonify({"file_id": filename}), 200
+    return jsonify({"error": "File upload failed"}), 500
+
+
+@app.route("/api/anki/download/<file_id>", methods=["GET"])
+def download_anki_file(file_id):
+    filepath = os.path.join(ANKI_FILE_STORAGE_DIR, file_id)
+    if os.path.exists(filepath):
+        return send_file(filepath, as_attachment=True, download_name=file_id)
+    return jsonify({"error": "File not found"}), 404
+
+
+@socketio.on("import_anki_collection")
+def handle_import_anki_collection(data):
+    user = data.get("user")
+    file_id = data.get("file_id")
+    if not user or not file_id:
+        emit("action_error", {"error": "User and file ID required for import."})
+        return
+
+    filepath = os.path.join(ANKI_FILE_STORAGE_DIR, file_id)
+    if not os.path.exists(filepath):
+        emit("action_error", {"error": f"File with ID {file_id} not found on server."})
+        return
+
+    try:
+        anki_srs_adapters[user].import_deck_from_apkg(filepath)
+        emit("action_progress", {"message": "Anki deck imported", "is_srs_action": True})
+    except Exception as e:
+        emit("action_error", {"error": f"Failed to import Anki deck: {str(e)}"})
+    finally:
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
+
+@socketio.on("export_anki_collection")
+def handle_export_anki_collection(data):
+    user = data.get("user")
+    deck_name = data.get("deck_name", "Default")
+
+    if not user:
+        emit("action_error", {"error": "User required for export."})
+        return
+
+    tmp_filepath = ""
+    try:
+        filename = f"{uuid.uuid4()}.apkg"
+        tmp_filepath = os.path.join(ANKI_FILE_STORAGE_DIR, filename)
+
+        anki_srs = anki_srs_adapters[user]
+        deck_to_export = anki_srs.get_deck_by_name_or_none(deck_name)
+
+        if not deck_to_export:
+            emit("action_error", {"error": f"Deck '{deck_name}' not found for export."})
+            return
+
+        anki_srs.export_deck_to_apkg(deck_to_export, tmp_filepath)
+
+        emit("anki_collection_exported", {"file_id": filename})
+        emit(
+            "action_progress",
+            {"message": f"Anki deck '{deck_name}' exported", "is_srs_action": True},
+        )
+    except Exception as e:
+        emit("action_error", {"error": f"Failed to export Anki deck: {str(e)}"})
+
+
+@socketio.on("reset_anki_collection")
+def handle_reset_anki_collection(data):
+    user = data.get("user")
+    if not user:
+        emit("action_error", {"error": "User required for reset."})
+        return
+    try:
+        anki_srs_adapters[user].clear_collection()
+        emit("action_progress", {"message": "Anki collection reset successfully!", "is_srs_action": True})
+    except Exception as e:
+        emit("action_error", {"error": f"Failed to reset Anki collection: {str(e)}"})

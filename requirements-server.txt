@@ -8,6 +8,7 @@ python-dotenv==1.1.0
 gunicorn==23.0.0
 Flask==3.1.1
 Flask-SocketIO==5.5.1
+Flask-Cors==4.0.1
 anki==25.2.7
 nltk==3.9.1
 numpy==2.1.0
@@ -37,4 +38,3 @@ llama-index-llms-lmstudio==0.3.0
 
 # Fabian (RTX 5070TI) needs to execute this command:
 # pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
-

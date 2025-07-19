@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+
+.font-dm-serif {
+  font-family: var(--font-dm-serif-text), serif;
+}

@@ -628,3 +628,30 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
             cards_to_be_learned.append(AnkiCard(note, deck, raw_card))
 
         return cards_to_be_learned
+
+    def clear_collection(self) -> None:
+        """
+        Clears all notes and cards from the Anki collection, and deletes all decks except "Default".
+        This effectively resets the collection to an empty state.
+        """
+        # Delete all notes (which also deletes their associated cards)
+        all_note_ids = self.list_all_notes()
+        if all_note_ids:
+            self.delete_notes_by_ids(all_note_ids)
+            logger.debug(f"Cleared {len(all_note_ids)} notes from the Anki collection.")
+        else:
+            logger.debug("Anki collection is already empty of notes/cards.")
+
+        # Delete all decks except the "Default" deck
+        all_decks = self.get_all_decks()
+        for deck in all_decks:
+            if deck.name != "Default":
+                try:
+                    self.delete_deck(deck)
+                    logger.debug(f"Deleted deck: '{deck.name}'")
+                except ValueError as e:
+                    logger.warning(f"Could not delete deck '{deck.name}': {e}")
+            else:
+                logger.debug(f"Skipping deletion of default deck: '{deck.name}'")
+        self.col.save()  # Persist changes to the collection
+        logger.info("Anki collection reset complete.")

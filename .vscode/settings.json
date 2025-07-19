@@ -6,5 +6,10 @@
   "python.testing.pytestEnabled": true,
   "files.exclude": {
     "**/__pycache__": true
-  }
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

@@ -180,7 +180,7 @@ class CloudLectureTranslatorASR(AbstractASR):
 
     def _send_white_noise(self, rate: int = 32000) -> None:
         """Send white noise to the server to signal the end of transcription."""
-        for _ in range(10):
+        for _ in range(2):
             white_noise = b"\x00" * 10000
             encoded_noise = base64.b64encode(white_noise).decode("ascii")
             duration = len(white_noise) / rate
