@@ -28,9 +28,10 @@ export default function Home() {
   const socketRef = useRef<Socket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
-    const socket = io('http://localhost:5000');
+    const socket = io(backendUrl);
     socketRef.current = socket;
 
     socket.on('connect', () => {
@@ -109,7 +110,7 @@ export default function Home() {
     });
 
     socket.on('anki_collection_exported', (data: { file_id: string }) => {
-      const downloadUrl = `http://localhost:5000/api/anki/download/${data.file_id}`;
+      const downloadUrl = `${backendUrl}/api/anki/download/${data.file_id}`;
       const a = document.createElement('a');
       a.href = downloadUrl;
       a.download = 'exported_anki_deck.apkg';
@@ -249,7 +250,7 @@ export default function Home() {
       formData.append('file', file);
 
       try {
-        const response = await fetch('http://localhost:5000/api/anki/upload', {
+        const response = await fetch(`${backendUrl}/api/anki/upload`, {
           method: 'POST',
           body: formData,
         });

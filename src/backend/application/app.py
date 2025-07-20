@@ -19,21 +19,19 @@ from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
 from src.backend.modules.ai_assistant.state_manager import StateFinishedSingleLearnStep
 from src.backend.modules.ai_assistant.task_states import StateFinishedDueToMissingInformation
 from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR
-from src.backend.modules.asr.local_whisper_asr import LocalWhisperASR
-from src.backend.modules.llm import LMStudioLLM
+from src.backend.modules.llm import KitLLM
 from src.backend.modules.search.llama_index import LlamaIndexExecutor
 from src.backend.modules.srs.anki_module import AnkiSRS
 
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3050"}})
+CORS(app, resources={r"/api/*": {"origins": os.getenv("FRONTEND_URL")}})
 app.register_blueprint(action_blueprint)
 app.register_blueprint(speech_blueprint)
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:3050")
+socketio = SocketIO(app, cors_allowed_origins=os.getenv("FRONTEND_URL"))
 
-llm = LMStudioLLM("meta-llama-3.1-8b-instruct", 0.001, 1000)
-whisper_asr = LocalWhisperASR("openai/whisper-medium")
+llm = KitLLM(0.001, 1000)
 lecture_translator_asr: dict[str, CloudLectureTranslatorASR] = {}
 anki_srs_adapters: dict[str, AnkiSRS] = {}
 llama_index_executors: dict[str, LlamaIndexExecutor] = {}
@@ -201,7 +199,7 @@ def handle_submit_action_file(data):
         tmp_path = tmp.name
     try:
         emit("action_progress", {"message": "Starting transcription..."})
-        transcription = whisper_asr.transcribe_wav_file(tmp_path)
+        transcription = lecture_translator_asr[user].transcribe_wav_file(tmp_path)
         emit("action_progress", {"message": "Transcription completed."})
         emit("action_progress", {"message": f"User message: {transcription}"})
         os.remove(tmp_path)
@@ -291,7 +289,7 @@ def get_anki_decks(user_name):
 
 
 # Directory to store uploaded/exported Anki files
-ANKI_FILE_STORAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/anki_files"))
+ANKI_FILE_STORAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.getenv("ANKI_RELATIVE_DATA_DIR")))
 if not os.path.exists(ANKI_FILE_STORAGE_DIR):
     os.makedirs(ANKI_FILE_STORAGE_DIR)
 

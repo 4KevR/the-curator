@@ -12,6 +12,9 @@ on:
       image_name:
         required: true
         type: string
+      context:
+        required: true
+        type: string
 
 jobs:
   build:
@@ -45,7 +48,7 @@ jobs:
         if: ${{ inputs.push }}
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ${{ inputs.context }}
           file: ${{ inputs.dockerfile }}
           push: true
           tags: ghcr.io/4kevr/${{ inputs.image_name }}:latest
@@ -55,6 +58,6 @@ jobs:
         if: ${{ !inputs.push }}
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ${{ inputs.context }}
           file: ${{ inputs.dockerfile }}
           push: false

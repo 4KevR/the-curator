@@ -17,6 +17,7 @@ jobs:
       push: true
       dockerfile: ./src/backend/Dockerfile
       image_name: the-curator-server
+      context: .
     permissions:
       contents: read
       packages: write

@@ -29,12 +29,13 @@ const DeckSelectionDialog: React.FC<DeckSelectionDialogProps> = ({
   const [selectedDeck, setSelectedDeck] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     if (isOpen) {
       setIsLoading(true);
       setError(null);
-      fetch(`http://localhost:5000/api/anki/decks/${userId}`)
+      fetch(`${backendUrl}/api/anki/decks/${userId}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -57,7 +58,7 @@ const DeckSelectionDialog: React.FC<DeckSelectionDialogProps> = ({
           setIsLoading(false);
         });
     }
-  }, [isOpen, userId]);
+  }, [isOpen, userId, backendUrl]);
 
   const handleExport = () => {
     if (selectedDeck) {
