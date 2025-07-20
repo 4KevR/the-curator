@@ -90,7 +90,6 @@ export default function Home() {
       setLiveTranscription('');
       stopRecording();
       setPipelineActive(true);
-      setIsRecording(false);
       setCurrentState('');
     });
 
@@ -125,6 +124,9 @@ export default function Home() {
   }, []);
 
   const startRecording = async () => {
+    // Ensure any existing recording is stopped before starting a new one
+    stopRecording();
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const audioCtx = new AudioContext({ sampleRate: 16000 });
@@ -136,7 +138,7 @@ export default function Home() {
       const workletNode = new AudioWorkletNode(audioCtx, 'recorder-processor');
       workletNodeRef.current = workletNode;
 
-      const bufferSize = 4000; // 0.25 seconds at 16kHz
+      const bufferSize = 8000; // 0.5 seconds at 16kHz
       let sampleBuffer = new Float32Array(bufferSize);
       let offset = 0;
 
@@ -196,6 +198,7 @@ export default function Home() {
       audioContextRef.current = null;
     }
     setLiveTranscription('');
+    setIsRecording(false);
   };
 
   const sendTextMessage = (message: string) => {
@@ -309,6 +312,7 @@ export default function Home() {
       {/* Floating Action Buttons */}
       <FloatingBar
         onStartVoiceRecording={startVoiceRecording}
+        onAbortVoiceRecording={stopRecording}
         onSendTextMessage={sendTextMessage}
         isRecording={isRecording}
         onResetConversation={resetConversation}

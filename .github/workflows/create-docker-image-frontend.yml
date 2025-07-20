@@ -1,4 +1,4 @@
-name: Create Docker image
+name: Create Docker image - Frontend
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Image version'
+        description: "Image version"
         required: true
 
 jobs:
@@ -15,6 +15,8 @@ jobs:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
       push: true
+      dockerfile: ./src/frontend/Dockerfile
+      image_name: the-curator-frontend
     permissions:
       contents: read
       packages: write

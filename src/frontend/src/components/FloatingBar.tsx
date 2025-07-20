@@ -1,9 +1,17 @@
 import TextInput from '@/components/TextInput';
-import React, { useRef, useState } from 'react';
-import { Download, Mic, MoreVertical, RefreshCw, Upload } from 'react-feather';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Download,
+  Mic,
+  MoreVertical,
+  RefreshCw,
+  StopCircle,
+  Upload,
+} from 'react-feather';
 
 interface FloatingBarProps {
   onStartVoiceRecording: () => void;
+  onAbortVoiceRecording: () => void;
   onSendTextMessage: (message: string) => void;
   onResetConversation?: () => void;
   onExportAnkiCollection: () => void;
@@ -13,6 +21,7 @@ interface FloatingBarProps {
 
 const FloatingBar: React.FC<FloatingBarProps> = ({
   onStartVoiceRecording,
+  onAbortVoiceRecording,
   onSendTextMessage,
   onResetConversation,
   onExportAnkiCollection,
@@ -23,6 +32,7 @@ const FloatingBar: React.FC<FloatingBarProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   let blurTimeout: NodeJS.Timeout;
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const [isTemporarilyDisabled, setIsTemporarilyDisabled] = useState(false);
 
   const handleBlur = () => {
     blurTimeout = setTimeout(() => setIsShowingMoreOptions(false), 100);
@@ -43,16 +53,36 @@ const FloatingBar: React.FC<FloatingBarProps> = ({
     fileInputRef.current?.click();
   };
 
+  useEffect(() => {
+    if (isRecording) {
+      setIsTemporarilyDisabled(false);
+    }
+  }, [isRecording]);
+
+  const handleRecordingClick = () => {
+    if (isRecording) {
+      onAbortVoiceRecording();
+    } else {
+      setIsTemporarilyDisabled(true);
+      onStartVoiceRecording();
+    }
+  };
+
   return (
     <div className='fixed right-0 bottom-0 left-0 z-10 flex items-end justify-center space-x-4 p-4'>
       <button
-        onClick={onStartVoiceRecording}
-        className={`flex cursor-pointer items-center justify-center rounded-full bg-white p-4 text-gray-800 shadow-lg transition-all duration-300 ${isRecording ? 'w-20' : 'w-14 hover:bg-gray-100 focus:ring-2 focus:ring-gray-300 focus:outline-none'}`}
+        onClick={handleRecordingClick}
+        className={`flex items-center justify-center rounded-full p-4 text-gray-800 shadow-lg transition-all duration-300 ${isRecording ? 'w-20' : 'w-14'} ${isTemporarilyDisabled ? 'bg-gray-400' : 'cursor-pointer bg-white hover:bg-gray-100 focus:ring-2 focus:ring-gray-300 focus:outline-none'}`}
+        disabled={isTemporarilyDisabled}
       >
-        {isRecording && (
-          <span className='me-2 inline-flex h-2 w-2 animate-ping rounded-full bg-yellow-500'></span>
+        {isRecording ? (
+          <>
+            <span className='me-2 inline-flex h-2 w-2 animate-ping rounded-full bg-yellow-500'></span>
+            <StopCircle size={24} className='text-red-600' />
+          </>
+        ) : (
+          <Mic size={24} />
         )}
-        <Mic size={24} />
       </button>
       <TextInput onSendText={onSendTextMessage} />
       <div

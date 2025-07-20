@@ -232,6 +232,12 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         self.col = Collection(collection_path)
         self.llama_index_executor = LlamaIndexExecutor(anki_user)
 
+    def close(self):
+        """Closes the Anki collection."""
+        if self.col:
+            self.col.close()
+            logger.debug("Anki collection closed.")
+
     # Decks
     @override
     def add_deck(self, deck_name: str) -> AnkiDeck:

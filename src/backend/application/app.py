@@ -1,7 +1,9 @@
+import atexit
 import base64
 import logging
 import os
 import tempfile
+import threading
 import uuid
 from collections import defaultdict
 
@@ -38,26 +40,123 @@ llama_index_executors: dict[str, LlamaIndexExecutor] = {}
 temporary_user_data: dict[str, str] = defaultdict(str)
 user_conversations: dict[str, ConversationManager] = {}
 
+# Global locks for AnkiSRS and LlamaIndexExecutor initialization
+anki_srs_init_locks: dict[str, threading.Lock] = defaultdict(threading.Lock)
+llama_index_init_locks: dict[str, threading.Lock] = defaultdict(threading.Lock)
+
+# For managing sentence processing queue
+user_sentence_queues: dict[str, list[str]] = defaultdict(list)
+user_processing_flags: dict[str, bool] = defaultdict(bool)
+
+
+# Cleanup function to close Anki collections on application exit
+def _close_anki_collections():
+    for user, anki_srs in anki_srs_adapters.items():
+        try:
+            anki_srs.close()
+            logger.info(f"Anki collection for user '{user}' closed during shutdown.")
+        except Exception as e:
+            logger.error(f"Error closing Anki collection for user '{user}': {e}")
+
+
+atexit.register(_close_anki_collections)
+
+
+class TaskStartClassifier:
+    _prompt_template = """
+You are an AI assistant for a flashcard management system with decks and cards.
+
+Given a user's spoken transcription, decide if it should be processed as a flashcard manager task. Tasks include: asking questions, modifying flashcards or decks, or adding information to them.
+
+- If the transcription contains such a task or question, respond with "yes".
+- If it only contains filler words, non-logical statements, or is incomplete (e.g., unfinished thoughts or general introductions), respond with "no".
+
+Transcription:
+{transcription}
+
+Respond with "yes" or "no" only.
+"""
+
+    def __init__(self):
+        self.llm = llm
+
+    def classify(self, transcription: str) -> bool:
+        prompt = self._prompt_template.format(transcription=transcription)
+        response = self.llm.generate([{"role": "user", "content": prompt}])
+        if response.strip().lower() == "yes":
+            return True
+        elif response.strip().lower() == "no":
+            return False
+        else:
+            raise ValueError(f"Unexpected response from LLM: {response}")
+
 
 class SocketIOProgressCallback(ProgressCallback):
     def handle(self, message, is_srs_action=False):
         emit("action_progress", {"message": message, "is_srs_action": is_srs_action})
 
 
+task_start_classifier = TaskStartClassifier()
 socketio_progress_callback = SocketIOProgressCallback()
 
 
 def get_conversation_manager(user_name):
     if user_name in user_conversations:
         return user_conversations[user_name]
-    if user_name not in anki_srs_adapters:
-        anki_srs_adapters[user_name] = AnkiSRS(user_name)
-    if user_name not in llama_index_executors:
-        llama_index_executors[user_name] = LlamaIndexExecutor(user_name)
+
+    # Ensure AnkiSRS initialization is thread-safe
+    with anki_srs_init_locks[user_name]:
+        if user_name not in anki_srs_adapters:
+            logger.info(f"Creating new AnkiSRS adapter for user: {user_name}")
+            anki_srs_adapters[user_name] = AnkiSRS(user_name)
+
+    # Ensure LlamaIndexExecutor initialization is thread-safe
+    with llama_index_init_locks[user_name]:
+        if user_name not in llama_index_executors:
+            llama_index_executors[user_name] = LlamaIndexExecutor(user_name)
+
     user_conversations[user_name] = ConversationManager(
         llm, anki_srs_adapters[user_name], llama_index_executors[user_name], socketio_progress_callback
     )
     return user_conversations[user_name]
+
+
+def _process_next_sentence(user: str):
+    if not user_sentence_queues[user]:
+        user_processing_flags[user] = False
+        return
+
+    user_processing_flags[user] = True
+    full_sentences = " ".join(user_sentence_queues[user])
+
+    try:
+        if not task_start_classifier.classify(full_sentences):
+            logger.info(f"Query for user {user} classified as not a valid task: {full_sentences}")
+            # If not a valid task, still process the next one in queue
+            _process_next_sentence(user)
+            return
+
+        emit("received_complete_sentence", {"sentence": full_sentences})
+        logger.info(f"Received complete sentence: {full_sentences}")
+        user_sentence_queues[user].clear()
+        conversation_manager = get_conversation_manager(user)
+        result = conversation_manager.process_query(full_sentences)
+        if (
+            type(result.finish_state) is StateFinishedSingleLearnStep
+            or type(result.finish_state) is StateFinishedDueToMissingInformation
+        ):
+            emit_event = "action_single_result"
+        else:
+            emit_event = "action_result"
+        emit(
+            emit_event,
+            {"task_finish_message": result.task_finish_message, "question_answer": result.question_answer},
+        )
+    except Exception as e:
+        emit("action_error", {"error": str(e)})
+    finally:
+        # After processing, check for next sentence in queue
+        _process_next_sentence(user)  # Recursively call to process next if available
 
 
 @socketio.on("submit_action")
@@ -66,6 +165,9 @@ def handle_submit_action(data):
     transcription = data.get("transcription")
     if not user or not transcription:
         emit("action_error", {"error": "User and transcription required."})
+        return
+    if not task_start_classifier.classify(transcription):
+        emit("action_error", {"error": "Query does not contain a valid task."})
         return
     conversation_manager = get_conversation_manager(user)
     try:
@@ -103,6 +205,9 @@ def handle_submit_action_file(data):
         emit("action_progress", {"message": "Transcription completed."})
         emit("action_progress", {"message": f"User message: {transcription}"})
         os.remove(tmp_path)
+        if not task_start_classifier.classify(transcription):
+            emit("action_error", {"error": "Query does not contain a valid task."})
+            return
         conversation_manager = get_conversation_manager(user)
         result = conversation_manager.process_query(transcription)
         if (
@@ -149,24 +254,16 @@ def handle_submit_stream_batch(data):
     sentences = nltk.tokenize.sent_tokenize(temporary_user_data[user])
     complete_sentences = [sentence for sentence in sentences if sentence.endswith((".", "!", "?"))]
     if complete_sentences:
-        emit("received_complete_sentence", {"sentence": complete_sentences[0]})
+        # Add all newly completed sentences to the queue
+        for sentence in complete_sentences:
+            user_sentence_queues[user].append(sentence)
+
+        # Clear temporary data for the sentences that were just added to the queue
         temporary_user_data[user] = ""
-        conversation_manager = get_conversation_manager(user)
-        try:
-            result = conversation_manager.process_query(complete_sentences[0])
-            if (
-                type(result.finish_state) is StateFinishedSingleLearnStep
-                or type(result.finish_state) is StateFinishedDueToMissingInformation
-            ):
-                emit_event = "action_single_result"
-            else:
-                emit_event = "action_result"
-            emit(
-                emit_event,
-                {"task_finish_message": result.task_finish_message, "question_answer": result.question_answer},
-            )
-        except Exception as e:
-            emit("action_error", {"error": str(e)})
+
+        # If no processing is currently active for this user, start processing the queue
+        if not user_processing_flags[user]:
+            _process_next_sentence(user)
 
 
 @socketio.on("new_conversation")

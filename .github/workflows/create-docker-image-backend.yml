@@ -1,0 +1,22 @@
+name: Create Docker image - Backend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Image version"
+        required: true
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      push: true
+      dockerfile: ./src/backend/Dockerfile
+      image_name: the-curator-server
+    permissions:
+      contents: read
+      packages: write
