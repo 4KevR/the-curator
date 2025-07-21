@@ -6,7 +6,7 @@ import FloatingBar from '@/components/FloatingBar';
 import Header from '@/components/Header';
 import SRSContent from '@/components/SRSContent';
 import { arrayBufferToBase64, floatTo16BitPCM } from '@/utils/helper';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 
 export type ConversationMessage = {
@@ -220,7 +220,7 @@ export default function Home() {
     }
   };
 
-  const resetConversation = () => {
+  const resetConversation = useCallback(() => {
     setConversation([]);
     setSrsData([]);
     setLiveTranscription('');
@@ -229,7 +229,7 @@ export default function Home() {
     if (socketRef.current) {
       socketRef.current.emit('new_conversation', { user: userName });
     }
-  };
+  }, [userName]);
 
   const handleExportAnkiCollection = () => {
     setIsDeckSelectionOpen(true);
@@ -273,10 +273,13 @@ export default function Home() {
     }
   };
 
-  const setEventUserName = (name: string) => {
-    setUserName(name);
-    resetConversation();
-  };
+  const setEventUserName = useCallback(
+    (name: string) => {
+      setUserName(name);
+      resetConversation();
+    },
+    [resetConversation],
+  );
 
   const handleResetAnkiCollection = () => {
     if (socketRef.current) {
@@ -285,7 +288,7 @@ export default function Home() {
   };
 
   return (
-    <div className='flex h-screen flex-col bg-white'>
+    <div className='flex h-dvh flex-col bg-white'>
       <Header
         userName={userName}
         setUserName={setEventUserName}

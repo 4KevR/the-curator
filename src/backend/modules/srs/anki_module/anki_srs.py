@@ -301,6 +301,8 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         self._verify_deck_exists(deck)
         if deck.name == "Default":
             raise ValueError("The default deck cannot be deleted.")
+        for card in self.get_cards_in_deck(deck):
+            self.llama_index_executor.remove_card(card.id)
         self.col.decks.remove([deck.id.numeric_id])
         self.llama_index_executor.remove_deck(deck.id)
 
@@ -473,9 +475,21 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         if not os.path.exists(path):
             raise FileNotFoundError(f"Cannot find file: {path}")
 
+        decks_before_import = {deck.id.numeric_id for deck in self.get_all_decks()}
         importer = AnkiPackageImporter(self.col, path)
         set_lang("en_US")  # If not set, an error will be reported.
         importer.run()
+        decks_after_import = {deck.id.numeric_id for deck in self.get_all_decks()}
+        new_decks = decks_after_import - decks_before_import
+        if not len(new_decks) == 1:
+            raise ValueError(f"Expected exactly one new deck after import, but found {len(new_decks)}.")
+        deck = self.get_deck_by_id_or_none(LocalDeckID(new_decks.pop()))
+        if deck is None:
+            raise ValueError(f"Deck with ID {new_decks.pop()} not found after import.")
+        self.llama_index_executor.add_deck(deck)
+        cards = self.get_cards_in_deck(deck)
+        for card in cards:
+            self.llama_index_executor.add_card(card)
         logger.debug(f"Deck is imported from {path}.")
 
     # Note
@@ -641,6 +655,11 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         This effectively resets the collection to an empty state.
         """
         # Delete all notes (which also deletes their associated cards)
+        all_decks = self.get_all_decks()
+        for deck in all_decks:
+            cards = self.get_cards_in_deck(deck)
+            for card in cards:
+                self.llama_index_executor.remove_card(card.id)
         all_note_ids = self.list_all_notes()
         if all_note_ids:
             self.delete_notes_by_ids(all_note_ids)
@@ -649,11 +668,11 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
             logger.debug("Anki collection is already empty of notes/cards.")
 
         # Delete all decks except the "Default" deck
-        all_decks = self.get_all_decks()
         for deck in all_decks:
             if deck.name != "Default":
                 try:
                     self.delete_deck(deck)
+                    self.llama_index_executor.remove_deck(deck.id)
                     logger.debug(f"Deleted deck: '{deck.name}'")
                 except ValueError as e:
                     logger.warning(f"Could not delete deck '{deck.name}': {e}")

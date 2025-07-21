@@ -66,8 +66,8 @@ You are an AI assistant for a flashcard management system with decks and cards.
 
 Given a user's spoken transcription, decide if it should be processed as a flashcard manager task. Tasks include: asking questions, modifying flashcards or decks, or adding information to them.
 
-- If the transcription contains such a task or question, respond with "yes".
-- If it only contains filler words, non-logical statements, or is incomplete (e.g., unfinished thoughts or general introductions), respond with "no".
+- If it only contains filler words or non-logical sentences, respond with "no".
+- Else, respond with "yes".
 
 Transcription:
 {transcription}

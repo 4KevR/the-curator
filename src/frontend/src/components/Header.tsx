@@ -8,7 +8,7 @@ import {
   PopoverPanel,
   Transition,
 } from '@headlessui/react';
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Settings } from 'react-feather';
 
 interface HeaderProps {
@@ -24,6 +24,10 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const [pendingUserName, setPendingUserName] = React.useState(userName);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+
+  useEffect(() => {
+    setPendingUserName(userName);
+  }, [userName]);
 
   const handleUserNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPendingUserName(event.target.value);
@@ -90,7 +94,7 @@ const Header: React.FC<HeaderProps> = ({
                     </div>
                     <button
                       type='submit'
-                      className='mt-2 w-full rounded-md bg-blue-500 py-1 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:outline-none'
+                      className='mt-2 w-full cursor-pointer rounded-md bg-blue-500 py-1 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:outline-none'
                     >
                       Change User
                     </button>
