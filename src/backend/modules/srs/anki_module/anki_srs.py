@@ -481,15 +481,14 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         importer.run()
         decks_after_import = {deck.id.numeric_id for deck in self.get_all_decks()}
         new_decks = decks_after_import - decks_before_import
-        if not len(new_decks) == 1:
-            raise ValueError(f"Expected exactly one new deck after import, but found {len(new_decks)}.")
-        deck = self.get_deck_by_id_or_none(LocalDeckID(new_decks.pop()))
-        if deck is None:
-            raise ValueError(f"Deck with ID {new_decks.pop()} not found after import.")
-        self.llama_index_executor.add_deck(deck)
-        cards = self.get_cards_in_deck(deck)
-        for card in cards:
-            self.llama_index_executor.add_card(card)
+        for deck_id in new_decks:
+            deck = self.get_deck_by_id_or_none(LocalDeckID(deck_id))
+            if deck is None:
+                raise ValueError(f"Deck with ID {deck_id} not found after import.")
+            self.llama_index_executor.add_deck(deck)
+            cards = self.get_cards_in_deck(deck)
+            for card in cards:
+                self.llama_index_executor.add_card(card)
         logger.debug(f"Deck is imported from {path}.")
 
     # Note
