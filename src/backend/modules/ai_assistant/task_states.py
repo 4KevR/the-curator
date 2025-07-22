@@ -481,7 +481,7 @@ Please answer only with the json list of filled-in, valid json object as describ
         for attempt in range(self.MAX_ATTEMPTS):
             try:
                 response = self.llm_communicator.send_message(message)
-                response = re.sub(r"]\s*\[", "],[", response)  # merge unconnected json lists
+                response = re.sub(r"]\s*\[", ",", response)  # merge unconnected json lists
 
                 parsed_list = json.loads(response.strip())
                 if not isinstance(parsed_list, list):
@@ -571,7 +571,7 @@ Please answer only with the json list of filled-in, valid json object as describ
         for attempt in range(self.MAX_ATTEMPTS):
             try:
                 response = self.llm_communicator.send_message(message)
-                response = re.sub(r"]\s*\[", "],[", response)  # merge unconnected json lists
+                response = re.sub(r"]\s*\[", ",", response)  # merge unconnected json lists
 
                 parsed_list = json.loads(response.strip())
                 if not isinstance(parsed_list, list):
@@ -1056,7 +1056,7 @@ Do not generate any text for the fields that are not present in the user input. 
         List of dict of strings, right keys, right values.
         Does not test anything that has to do with the srs.
         """
-        response = re.sub(r"]\s*\[", "],[", response)  # merge unconnected json lists
+        response = re.sub(r"]\s*\[", ",", response)  # merge unconnected json lists
         parsed = json.loads(response.strip())
 
         if not isinstance(parsed, list):
@@ -1115,7 +1115,7 @@ Do not generate any text for the fields that are not present in the user input. 
 
         return parsed
 
-    def _execute_command(self, cmd_dict: dict[Any, Any]) -> Optional[AbstractActionState]:
+    def _execute_command(self, cmd_dict: dict[Any, Any], command_id: int) -> Optional[AbstractActionState]:
         # execute tasks
         if cmd_dict.get("task", None) == "create_deck":
             deck_name = cmd_dict.get("name", None)
@@ -1123,6 +1123,8 @@ Do not generate any text for the fields that are not present in the user input. 
                 return StateFinishedDueToMissingInformation("You must provide a deck name.")
             deck = self.info.srs.get_deck_by_name_or_none(deck_name)
             if deck is not None:
+                if command_id == 0:  # if first command: just ignore command
+                    return None
                 raise ValueError("Deck already exists")
             action = SrsAction.add_deck(self.info.srs, deck_name)
         elif cmd_dict.get("task", None) == "rename_deck":
@@ -1193,8 +1195,8 @@ Do not generate any text for the fields that are not present in the user input. 
                 # srs.start_transaction()
                 # srs.commit()
                 # srs.rollback()
-                for command in parsed:
-                    result_state = self._execute_command(command)
+                for i, command in enumerate(parsed):
+                    result_state = self._execute_command(command, i)
                     if result_state:  # If a state is returned (e.g., missing_information)
                         return result_state
 
