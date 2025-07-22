@@ -481,9 +481,12 @@ Please answer only with the json list of filled-in, valid json object as describ
         for attempt in range(self.MAX_ATTEMPTS):
             try:
                 response = self.llm_communicator.send_message(message)
+                response = re.sub(r"]\s*\[", "],[", response)  # merge unconnected json lists
+
                 parsed_list = json.loads(response.strip())
                 if not isinstance(parsed_list, list):
-                    raise ValueError("Response must be a list.")
+                    parsed_list = [parsed_list]
+                    # raise ValueError("Response must be a list.")
 
                 searchers = []
                 for parsed in parsed_list:
@@ -496,13 +499,13 @@ Please answer only with the json list of filled-in, valid json object as describ
                         "case_sensitive",
                     }:
                         raise ValueError("Response must contain exactly the required keys")
-                    if not isinstance(parsed["search_substring"], str):
+                    if not isinstance(parsed.get("search_substring", None), str):
                         raise ValueError("search_substring must be a string")
-                    if not isinstance(parsed["search_in_question"], bool):
+                    if not isinstance(parsed.get("search_in_question", None), bool):
                         raise ValueError("search_in_question must be a boolean")
-                    if not isinstance(parsed["search_in_answer"], bool):
+                    if not isinstance(parsed.get("search_in_answer", None), bool):
                         raise ValueError("search_in_answer must be a boolean")
-                    if not isinstance(parsed["case_sensitive"], bool):
+                    if not isinstance(parsed.get("case_sensitive", None), bool):
                         raise ValueError("case_sensitive must be a boolean")
 
                     searcher = SearchBySubstring(
@@ -568,9 +571,11 @@ Please answer only with the json list of filled-in, valid json object as describ
         for attempt in range(self.MAX_ATTEMPTS):
             try:
                 response = self.llm_communicator.send_message(message)
+                response = re.sub(r"]\s*\[", "],[", response)  # merge unconnected json lists
+
                 parsed_list = json.loads(response.strip())
                 if not isinstance(parsed_list, list):
-                    raise ValueError("Response must be a list.")
+                    parsed_list = [parsed_list]
 
                 searchers = []
                 for parsed in parsed_list:
@@ -584,15 +589,15 @@ Please answer only with the json list of filled-in, valid json object as describ
                         "fuzzy",
                     }:
                         raise ValueError("Response must contain exactly the required keys")
-                    if not isinstance(parsed["search_substring"], str):
+                    if not isinstance(parsed.get("search_substring", None), str):
                         raise ValueError("search_substring must be a string")
-                    if not isinstance(parsed["search_in_question"], bool):
+                    if not isinstance(parsed.get("search_in_question", None), bool):
                         raise ValueError("search_in_question must be a boolean")
-                    if not isinstance(parsed["search_in_answer"], bool):
+                    if not isinstance(parsed.get("search_in_answer", None), bool):
                         raise ValueError("search_in_answer must be a boolean")
-                    if not isinstance(parsed["case_sensitive"], bool):
+                    if not isinstance(parsed.get("case_sensitive", None), bool):
                         raise ValueError("case_sensitive must be a boolean")
-                    if not isinstance(parsed["fuzzy"], bool):
+                    if not isinstance(parsed.get("fuzzy", None), bool):
                         raise ValueError("fuzzy must be a boolean")
 
                     if not parsed["fuzzy"]:
@@ -1051,10 +1056,11 @@ Do not generate any text for the fields that are not present in the user input. 
         List of dict of strings, right keys, right values.
         Does not test anything that has to do with the srs.
         """
+        response = re.sub(r"]\s*\[", "],[", response)  # merge unconnected json lists
         parsed = json.loads(response.strip())
 
         if not isinstance(parsed, list):
-            raise ValueError("Response must be a list in JSON format.")
+            parsed = [parsed]
 
         for cmd_dict in parsed:
             if not isinstance(cmd_dict, dict):
@@ -1111,17 +1117,17 @@ Do not generate any text for the fields that are not present in the user input. 
 
     def _execute_command(self, cmd_dict: dict[Any, Any]) -> Optional[AbstractActionState]:
         # execute tasks
-        if cmd_dict["task"] == "create_deck":
-            deck_name = cmd_dict["name"]
+        if cmd_dict.get("task", None) == "create_deck":
+            deck_name = cmd_dict.get("name", None)
             if not deck_name:
                 return StateFinishedDueToMissingInformation("You must provide a deck name.")
             deck = self.info.srs.get_deck_by_name_or_none(deck_name)
             if deck is not None:
                 raise ValueError("Deck already exists")
             action = SrsAction.add_deck(self.info.srs, deck_name)
-        elif cmd_dict["task"] == "rename_deck":
-            old_name = cmd_dict["old_name"]
-            new_name = cmd_dict["new_name"]
+        elif cmd_dict.get("task", None) == "rename_deck":
+            old_name = cmd_dict.get("old_name", None)
+            new_name = cmd_dict.get("new_name", None)
             if not old_name or not new_name:
                 return StateFinishedDueToMissingInformation("You must provide both old and new deck names.")
             deck = self.info.srs.get_deck_by_name_or_none(old_name)
@@ -1130,30 +1136,30 @@ Do not generate any text for the fields that are not present in the user input. 
             if self.info.srs.get_deck_by_name_or_none(new_name) is not None:
                 raise ValueError(f"New name {new_name} already exists")
             action = SrsAction.rename_deck(self.info.srs, deck, new_name)
-        elif cmd_dict["task"] == "delete_deck":
-            name = cmd_dict["name"]
+        elif cmd_dict.get("task", None) == "delete_deck":
+            name = cmd_dict.get("name", None)
             if not name:
                 return StateFinishedDueToMissingInformation("You must provide a deck name to delete.")
             deck = self.info.srs.get_deck_by_name_or_none(name)
             if deck is None:
                 raise MissingDeckException(name)
             action = SrsAction.delete_deck(self.info.srs, deck)
-        elif cmd_dict["task"] == "add_card":
-            deck_name = cmd_dict["deck_name"]
+        elif cmd_dict.get("task", None) == "add_card":
+            deck_name = cmd_dict.get("deck_name", None)
             if not deck_name:
                 return StateFinishedDueToMissingInformation("You must provide a deck name to add the card to.")
-            question = cmd_dict["question"]
+            question = cmd_dict.get("question", None)
             if not question:
                 return StateFinishedDueToMissingInformation("You must provide a question for the card.")
-            answer = cmd_dict["answer"]
+            answer = cmd_dict.get("answer", None)
             if not answer:
                 return StateFinishedDueToMissingInformation("You must provide an answer for the card.")
-            state = cmd_dict["state"]
+            state = cmd_dict.get("state", None)
             if not state:
                 state = CardState.NEW
             else:
                 state = CardState.from_str(state)
-            flag = cmd_dict["flag"]
+            flag = cmd_dict.get("flag", None)
             if not flag:
                 flag = Flag.NONE
             else:
