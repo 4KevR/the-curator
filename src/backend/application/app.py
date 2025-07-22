@@ -64,12 +64,12 @@ class TaskStartClassifier:
     _prompt_template = """
 You are an AI assistant for a flashcard management system with decks and cards.
 
-Given a user's spoken transcription, decide if it should be processed as a flashcard manager task. Tasks include: asking questions, modifying flashcards or decks, or adding information to them.
+You are given a user's spoken transcription which may include sentences consisting of filler words.
 
 - If it only contains filler words or non-logical sentences, respond with "no".
-- Else, respond with "yes".
+- Else, respond with "yes". Also short sentences when users provide answers to questions shall be accepted.
 
-Transcription:
+This is the input transcription:
 {transcription}
 
 Respond with "yes" or "no" only.

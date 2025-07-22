@@ -46,6 +46,10 @@ const FloatingBar: React.FC<FloatingBarProps> = ({
     const file = event.target.files?.[0];
     if (file) {
       onImportAnkiCollection(file);
+      // Reset the file input value to allow re-uploading the same file or a new file
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 

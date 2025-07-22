@@ -488,6 +488,8 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
             self.llama_index_executor.add_deck(deck)
             cards = self.get_cards_in_deck(deck)
             for card in cards:
+                if card.deck.id.numeric_id != deck.id.numeric_id:
+                    continue
                 self.llama_index_executor.add_card(card)
         logger.debug(f"Deck is imported from {path}.")
 
@@ -670,8 +672,8 @@ class AnkiSRS(AbstractSRS[AnkiCard, AnkiDeck]):
         for deck in all_decks:
             if deck.name != "Default":
                 try:
-                    self.delete_deck(deck)
                     self.llama_index_executor.remove_deck(deck.id)
+                    self.delete_deck(deck)
                     logger.debug(f"Deleted deck: '{deck.name}'")
                 except ValueError as e:
                     logger.warning(f"Could not delete deck '{deck.name}': {e}")
