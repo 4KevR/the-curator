@@ -19,7 +19,7 @@ from src.backend.modules.ai_assistant.progress_callback import ProgressCallback
 from src.backend.modules.ai_assistant.state_manager import StateFinishedSingleLearnStep
 from src.backend.modules.ai_assistant.task_states import StateFinishedDueToMissingInformation
 from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR
-from src.backend.modules.llm import KitLLM
+from src.backend.modules.llm import LMStudioLLM
 from src.backend.modules.search.llama_index import LlamaIndexExecutor
 from src.backend.modules.srs.anki_module import AnkiSRS
 
@@ -31,7 +31,7 @@ app.register_blueprint(action_blueprint)
 app.register_blueprint(speech_blueprint)
 socketio = SocketIO(app, cors_allowed_origins=os.getenv("FRONTEND_URL"))
 
-llm = KitLLM(0.001, 1000)
+llm = LMStudioLLM("meta-llama-3.1-8b-instruct", 0.001, 1000)
 lecture_translator_asr: dict[str, CloudLectureTranslatorASR] = {}
 anki_srs_adapters: dict[str, AnkiSRS] = {}
 llama_index_executors: dict[str, LlamaIndexExecutor] = {}

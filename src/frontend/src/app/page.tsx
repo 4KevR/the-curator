@@ -28,7 +28,13 @@ export default function Home() {
   const socketRef = useRef<Socket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
+  const userNameRef = useRef(userName);
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  // Effect to keep userNameRef updated
+  useEffect(() => {
+    userNameRef.current = userName;
+  }, [userName]);
 
   useEffect(() => {
     const socket = io(backendUrl);
@@ -167,7 +173,7 @@ export default function Home() {
             const duration = pcmChunk.byteLength / (2 * audioCtx.sampleRate);
             if (socketRef.current) {
               socketRef.current.emit('submit_stream_batch', {
-                user: userName,
+                user: userNameRef.current,
                 b64_pcm: b64Pcm,
                 duration: duration,
                 transcoding: 'client',
