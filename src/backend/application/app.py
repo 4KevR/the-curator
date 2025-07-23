@@ -1,5 +1,6 @@
 import atexit
 import base64
+import io
 import logging
 import os
 import tempfile
@@ -289,7 +290,7 @@ def get_anki_decks(user_name):
 
 
 # Directory to store uploaded/exported Anki files
-ANKI_FILE_STORAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.getenv("ANKI_RELATIVE_DATA_DIR")))
+ANKI_FILE_STORAGE_DIR = os.getenv("ANKI_RELATIVE_DATA_DIR")
 if not os.path.exists(ANKI_FILE_STORAGE_DIR):
     os.makedirs(ANKI_FILE_STORAGE_DIR)
 
@@ -313,7 +314,9 @@ def upload_anki_file():
 def download_anki_file(file_id):
     filepath = os.path.join(ANKI_FILE_STORAGE_DIR, file_id)
     if os.path.exists(filepath):
-        return send_file(filepath, as_attachment=True, download_name=file_id)
+        with open(filepath, "rb") as f:
+            content = f.read()
+        return send_file(io.BytesIO(content), as_attachment=True, download_name=file_id)
     return jsonify({"error": "File not found"}), 404
 
 

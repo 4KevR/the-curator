@@ -203,3 +203,4 @@ scripts/*copy.py
 /tmp/
 
 # Misc
+.DS_Store

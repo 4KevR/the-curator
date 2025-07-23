@@ -59,7 +59,7 @@ def transcribe_audio_tests(audio_dir: str, tests_json_path: str) -> dict:
 
 
 if __name__ == "__main__":
-    audio_data_path = "data/recording_data/fabian"
+    audio_data_path = "data/recording_data/combined"
     tests_json_path = "tests/data/tests.json"
     save_transcriptions_path = "transcriptions_cache_new.json"
 

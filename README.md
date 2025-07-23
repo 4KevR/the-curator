@@ -1,4 +1,5 @@
 # the-curator
+
 Turning memories into mastery
 
 # Get started
@@ -7,10 +8,11 @@ Turning memories into mastery
 
 - Python 3.10 (client) and 3.12 (server)
 - Docker
+- Node v22
 
 ## Local setup
 
-Due to different dependencies (and their relations), client and server need different Python versions. But both use a shared `pre-commit` setup to enable style consistency in the repository. The configuration is stored in `.pre-commit-config.yaml`. Install the recommended extensions from `.vscode/extensions.json`.
+Due to different dependencies (and their relations), client (CLI application) and server need different Python versions. But both use a shared `pre-commit` setup to enable style consistency in the repository. The configuration is stored in `.pre-commit-config.yaml`. Install the recommended extensions from `.vscode/extensions.json`.
 
 ### Server
 
@@ -36,7 +38,7 @@ docker compose up -d vector-db pgadmin
 
 Now, you can run the initial setup - see [here](#terminal).
 
-### Client
+### Client (CLI application)
 
 Use Python 3.10
 
@@ -51,6 +53,17 @@ pre-commit install
 
 Finally, set the defined variables in `.env.local` accordingly. If you don't know the value of the AUDIO_DEVICE, leave it empty, the CLI will print a list of available devices on startup.
 
+### Client (Web application)
+
+Use Node v22
+
+```bash
+npm install
+cp src/frontend/.env.local.example src/frontend/.env.local
+```
+
+Set the defined variables in `src/frontend/.env.local` accordingly.
+
 ## Start
 
 ### Terminal
@@ -59,7 +72,8 @@ Use startup files directly:
 
 1. `run.py` starts Flask server
 2. `run-cli.py` starts CLI application (use defined flags for startup)
-3. `run-setup.py` makes setup for LlamaIndex
+
+For the web client, use `npm run dev` in the `src/frontend` directory.
 
 ### VSCode run configurations
 
@@ -67,7 +81,7 @@ Run server and client application via the `Run and Debug` tab
 
 ### Docker
 
-You can build and run the Flask server also in a Docker container. Use `compose.yml` for the setup.
+You can build and run the server and the web client also in a Docker container. Use `compose.yml` for the setup.
 
 ```bash
 docker compose up -d --build
@@ -78,9 +92,4 @@ docker compose up -d --build
 
 ## Additional notes
 
-### Noteworthy:
-The 'Meta-Llama-3.1-8B-Instruct' model is deployed locally in LM Studio.
-See more details [here](card_generator/create_cards.py).
-
-### To be improved:
-pdf_reader: Now it can only be based on text content and cannot interpret images.
+When using the `LMStudioLLM`, you need to setup 'Meta-Llama-3.1-8B-Instruct' in your local LM Studio installation.

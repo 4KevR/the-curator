@@ -23,7 +23,7 @@ iterations: int = 1
 llms_to_use: str = "local_llama"
 
 # Where are the audio files? If asr should be skipped (only using text prompts), set to None.
-audio_file_path: str | None = "./data/recording_data/fabian"
+audio_file_path: str | None = "./data/recording_data/combined"
 
 # options: 'local_whisper_medium', 'local_whisper-large-v3', 'lecture_translator'
 asr_to_use: str = "local_whisper_medium"
