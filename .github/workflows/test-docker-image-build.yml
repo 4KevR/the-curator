@@ -6,10 +6,23 @@ on:
       - main
 
 jobs:
-  test-build:
+  test-build-backend:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
       push: false
+      dockerfile: ./src/backend/Dockerfile
+      image_name: the-curator-server
+      context: .
+    permissions:
+      contents: read
+      packages: write
+  test-build-frontend:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      push: false
+      dockerfile: Dockerfile
+      image_name: the-curator-frontend
+      context: src/frontend
     permissions:
       contents: read
       packages: write
