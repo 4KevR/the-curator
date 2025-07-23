@@ -1,4 +1,4 @@
-name: Test Docker image build
+name: Test Docker image builds
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ jobs:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
       push: false
-      dockerfile: ./src/backend/Dockerfile
+      dockerfile: src/backend/Dockerfile
       image_name: the-curator-server
       context: .
     permissions:
@@ -20,7 +20,7 @@ jobs:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
       push: false
-      dockerfile: Dockerfile
+      dockerfile: src/frontend/Dockerfile
       image_name: the-curator-frontend
       context: src/frontend
     permissions:

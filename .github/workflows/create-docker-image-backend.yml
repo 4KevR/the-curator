@@ -15,7 +15,7 @@ jobs:
     uses: ./.github/workflows/reusable-docker-build.yml
     with:
       push: true
-      dockerfile: ./src/backend/Dockerfile
+      dockerfile: src/backend/Dockerfile
       image_name: the-curator-server
       context: .
     permissions:
