@@ -55,16 +55,17 @@ Examples:
 
 
 class StateQuestion(AbstractActionState):
-    _prompt_template = (
-        "You are an assistant of a flashcard management system. You assist the user in answering questions about the"
-        " content of the flashcards in the system. The user asked the following question:\n"
-        "{user_input}\n"
-        "The following cards in the system fit the question:\n"
-        "{cards}\n"
-        "**Using only the information in the cards above, answer the question.**\n"
-        "If the question cannot be answered using the cards above, respond accordingly."
-        "Answer with a single, short sentence, without any additional information."
-    )
+    _prompt_template = """
+You are an assistant of a flashcard management system. You assist the user in answering questions about the content of the flashcards in the system. The user asked the following question:
+
+{user_input}
+
+The following cards in the system fit the question:
+{cards}
+
+**Using only the information in the cards above, answer the question.**
+If the question cannot be answered using the cards above, respond that you cannot answer this question. Answer with a single, short sentence, without any additional information.
+""".strip()
     _MAX_CARDS_FOR_LLM = 10
 
     def __init__(self, user_prompt: str, llm: AbstractLLM, llama_index_executor: LlamaIndexExecutor):
