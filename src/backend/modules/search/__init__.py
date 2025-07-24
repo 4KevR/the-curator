@@ -22,7 +22,7 @@ check_for_environment_variables(required_vars)
 
 logger = logging.getLogger(__name__)
 
-__USE_LOCAL_MODEL = True
+__USE_LOCAL_MODEL = os.getenv("LLAMA_INDEX_LOCAL_MODE", "false").lower() == "true"
 
 if __USE_LOCAL_MODEL:
     logger.info("Initializing LlamaIndex with LM Studio LLM...")
