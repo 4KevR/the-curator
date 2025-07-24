@@ -23,9 +23,7 @@ def initialize_tts_model() -> None:
     # Initialize the TTS model
     global _tts_model
     if _tts_model is None:
-        _tts_model = TTS(
-            model_name="tts_models/en/ljspeech/tacotron2-DDC", progress_bar=False
-        )
+        _tts_model = TTS(model_name="tts_models/en/ljspeech/tacotron2-DDC", progress_bar=False)
 
 
 def tts_and_play(text: str) -> None:
@@ -43,9 +41,7 @@ def tts_and_play(text: str) -> None:
         audio = _tts_model.tts(text)
 
         # Play
-        sd.play(
-            audio, samplerate=_tts_model.synthesizer.output_sample_rate, blocking=True
-        )
+        sd.play(audio, samplerate=_tts_model.synthesizer.output_sample_rate, blocking=True)
         sd.wait()  # Block until finished
 
         # # Save the audio to a WAV file
@@ -54,19 +50,15 @@ def tts_and_play(text: str) -> None:
         # write(file_name, _tts_model.synthesizer.output_sample_rate, np.array(audio))
 
 
-ALLOWED_CHARS = set(
-    "_-!'(),.:;? ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\n"
-)
+ALLOWED_CHARS = set("`_-!'(),.:;? \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890\n")
 
 
 def check_illegal_chars(text: str):
     illegal = set(text) - ALLOWED_CHARS
     if illegal:
-        raise ValueError(
-            f"Input contains illegal characters: {''.join(sorted(illegal))}"
-        )
+        raise ValueError(f"Input contains illegal characters: {''.join(sorted(illegal))}")
 
 
 if __name__ == "__main__":
-    text = "Let's begin your interactive learning session."
+    text = "Let's begin your interactive learning session. What is `NLP`? What is `Transformer`?"
     tts_and_play(text)

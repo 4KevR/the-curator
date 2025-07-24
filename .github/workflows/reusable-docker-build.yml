@@ -6,9 +6,15 @@ on:
       push:
         required: true
         type: boolean
-
-env:
-  IMAGE_NAME: "the-curator-server"
+      dockerfile:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+      context:
+        required: true
+        type: string
 
 jobs:
   build:
@@ -42,16 +48,16 @@ jobs:
         if: ${{ inputs.push }}
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./src/backend/Dockerfile
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
           push: true
-          tags: ghcr.io/4kevr/${{ env.IMAGE_NAME }}:latest
+          tags: ghcr.io/4kevr/${{ inputs.image_name }}:latest
           labels: commit_sha_short=${{ steps.sha-generator.outputs.sha_short }}
 
       - name: Build only
         if: ${{ !inputs.push }}
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./src/backend/Dockerfile
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
           push: false

@@ -1,4 +1,5 @@
 *
 
-!requirements.txt
+!requirements-server.txt
 !src/backend/**/*.py
+!src/shared/**/*.py

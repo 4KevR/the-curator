@@ -1,10 +1,51 @@
 services:
-  web:
+  web-frontend:
+    container_name: the-curator-frontend
+    build:
+      context: src/frontend
+      dockerfile: Dockerfile
+    stop_signal: SIGINT
+    ports:
+      - "127.0.0.1:7070:3050"
+    env_file:
+      - src/frontend/.env.local
+    depends_on:
+      - vector-db
+  web-backend:
+    container_name: the-curator-backend
     build:
       context: .
       dockerfile: src/backend/Dockerfile
     stop_signal: SIGINT
     ports:
-      - '5000:5000'
+      - "127.0.0.1:7071:5000"
     env_file:
       - .env
+      - .env.db
+    environment:
+      - IN_DOCKER=1
+    depends_on:
+      - vector-db
+  vector-db:
+    image: pgvector/pgvector:pg17
+    container_name: the-curator-db
+    env_file:
+      - .env.db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: the-curator-pgadmin
+    env_file:
+      - .env.db
+    ports:
+      - "5050:80"
+    depends_on:
+      - vector-db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+volumes:
+  pgdata:
+  pgadmin_data:

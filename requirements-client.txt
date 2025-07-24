@@ -1,0 +1,9 @@
+# Use with Python 3.10
+
+TTS==0.22.0
+sounddevice==0.5.2
+PyAudio==0.2.14  # needs "sudo apt-get install portaudio19-dev" on my system.
+pandas==1.5.3
+soundfile==0.13.1
+python-dotenv==1.1.0
+python-socketio[client]==5.13.0

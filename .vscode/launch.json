@@ -10,6 +10,8 @@
             "env": {
                 "FLASK_ENV": "development"
             },
+            "python": "${workspaceFolder}/.venv.server/bin/python",
+            "preLaunchTask": "Start DB containers"
         },
         {
             "name": "CLI application: Transcribe",
@@ -17,15 +19,37 @@
             "request": "launch",
             "program": "${workspaceFolder}/run-cli.py",
             "console": "integratedTerminal",
-            "args": ["transcribe"]
+            "args": [
+                "transcribe",
+            ],
+            "python": "${workspaceFolder}/.venv/bin/python"
         },
         {
-            "name": "CLI application: Transcribe with TTS",
+            "name": "CLI application: Execute text action",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/run-cli.py",
             "console": "integratedTerminal",
-            "args": ["transcribe", "--enable-tts"]
+            "args": ["action", "${input:transcription}", "${input:user}"],
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "CLI application: Process file & Act",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run-cli.py",
+            "console": "integratedTerminal",
+            "args": ["process-file", "${input:filePath}", "${input:user}"],
+            "python": "${workspaceFolder}/.venv/bin/python"
+        },
+        {
+            "name": "CLI application: WebSocket mode",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run-cli.py",
+            "console": "integratedTerminal",
+            "args": ["websocket-mode"],
+            "python": "${workspaceFolder}/.venv/bin/python"
         },
         {
             "name": "Python Debugger: Current File",
@@ -35,7 +59,33 @@
             "console": "integratedTerminal",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
-            }
+            },
+            "python": "${input:pythonInterpreter}"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "filePath",
+            "type": "promptString",
+            "description": "Enter the path to the file to process",
+            "default": "data"
         },
+        {
+            "id": "transcription",
+            "type": "promptString",
+            "description": "Enter the action to execute",
+        },
+        {
+            "id": "user",
+            "type": "promptString",
+            "description": "Enter the user name",
+            "default": "test_user"
+        },
+        {
+            "id": "pythonInterpreter",
+            "type": "promptString",
+            "description": "Enter the path to the Python interpreter (e.g., ${workspaceFolder}/.venv/bin/python)",
+            "default": "${workspaceFolder}/.venv/bin/python"
+        }
     ]
 }

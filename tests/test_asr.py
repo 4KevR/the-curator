@@ -6,14 +6,14 @@ from dotenv import load_dotenv
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.backend.adapter.lecture_translator import LectureTranslatorASR
-from src.cli.recording.recording_client import RecordingClient
+from src.backend.modules.asr.cloud_lecture_translator import CloudLectureTranslatorASR  # noqa: E402
+from src.cli.recording.recording_client import RecordingClient  # noqa: E402
 
 if __name__ == "__main__":
     load_dotenv(".env")
     load_dotenv(".env.local")
     print(os.getenv("AUDIO_DEVICE"))
-    asr = LectureTranslatorASR()
+    asr = CloudLectureTranslatorASR()
     recording_client = RecordingClient()
 
     for _ in range(3):

@@ -1,16 +1,17 @@
 import os
 import sys
 
+from src.backend.modules.pdf_to_cards.card_generator import CardGeneratorService
+from src.backend.modules.pdf_to_cards.pypdf2_reader import PyPDF2Reader
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.backend.adapter.kit_llm import KitLLM
-from src.backend.adapter.pypdf2_reader import PyPDF2Reader
-from src.backend.service import CardGeneratorService
+from src.backend.modules.llm.kit_llm import KitLLM  # noqa: E402
 
 if __name__ == "__main__":
     path = "data/test.pdf"  # 6 pages, the last page is blank
     pdf_reader = PyPDF2Reader()
-    llm_client = KitLLM()
+    llm_client = KitLLM(0.001, 2048)
     card_generator = CardGeneratorService(pdf_reader, llm_client)
     cards = card_generator.create_anki_cards_from_pdf(path)
     print(cards)

@@ -130,6 +130,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.venv.server
 env/
 venv/
 ENV/
@@ -182,6 +183,24 @@ data
 
 # Env
 .env.local
+.env.db
 
 # Recordings
 asr/*/recording session*/
+
+# Notebooks
+/notebooks/*
+!/notebooks/templates/
+!/notebooks/archive/
+
+# Model cache
+/model_cache
+
+# user copies of scripts
+scripts/*copy.py
+
+# Temporary files
+/tmp/
+
+# Misc
+.DS_Store
