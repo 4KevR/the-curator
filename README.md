@@ -49,7 +49,7 @@ cp .env.local.example .env.local
 pre-commit install
 ```
 
-Finally, set the defined variables in `.env.local` accordingly. If you don't know the value of the AUDIO_DEVICE, leave it empty, the CLI will print a list of available devices on startup.
+Finally, set the defined variable in `.env.local` accordingly. If you don't know the value of the AUDIO_DEVICE, leave it empty, the CLI will print a list of available devices on startup.
 
 ### Client (Web application)
 
@@ -61,7 +61,7 @@ npm install
 cp .env.local.example .env.local
 ```
 
-Set the defined variables in `src/frontend/.env.local` accordingly.
+Set the defined variable in `src/frontend/.env.local` accordingly.
 
 ## Start
 

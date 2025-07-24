@@ -11,18 +11,13 @@ from src.backend.modules.helpers import check_for_environment_variables
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-required_vars = [
-    "LLM_URL",
-    "POSTGRES_DB",
-    "POSTGRES_USER",
-    "POSTGRES_PASSWORD",
-]
+required_vars = ["LLM_URL", "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "LLM_TO_USE"]
 
 check_for_environment_variables(required_vars)
 
 logger = logging.getLogger(__name__)
 
-__USE_LOCAL_MODEL = os.getenv("LLAMA_INDEX_LOCAL_MODE", "false").lower() == "true"
+__USE_LOCAL_MODEL = os.getenv("LLM_TO_USE").lower() == "local"
 
 if __USE_LOCAL_MODEL:
     logger.info("Initializing LlamaIndex with LM Studio LLM...")

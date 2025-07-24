@@ -1,9 +1,10 @@
 import logging
+import os
 
 from flask import Blueprint, jsonify, request
 
 from src.backend.modules.ai_assistant import StateManager
-from src.backend.modules.llm import LMStudioLLM
+from src.backend.modules.llm import KitLLM, LMStudioLLM
 from src.backend.modules.search.llama_index import LlamaIndexExecutor
 from src.backend.modules.srs.anki_module import AnkiSRS
 
@@ -16,7 +17,12 @@ anki_srs_adapters: dict[str, AnkiSRS] = dict()
 llama_index_executors: dict[str, LlamaIndexExecutor] = dict()
 
 # LLM
-llm = LMStudioLLM("meta-llama-3.1-8b-instruct", 0.05, 2048)
+if os.getenv("LLM_TO_USE").lower() == "local":
+    llm = LMStudioLLM("meta-llama-3.1-8b-instruct", 0.001, 1000)
+elif os.getenv("LLM_TO_USE").lower() == "hosted":
+    llm = KitLLM(0.001, 1000)
+else:
+    raise ValueError("LLM_TO_USE environment variable must be set to 'local' or 'hosted'.")
 
 
 @action_blueprint.route("/action", methods=["POST"])
