@@ -36,8 +36,6 @@ To run LlamaIndex components, start the respective services from the `compose.ym
 docker compose up -d vector-db pgadmin
 ```
 
-Now, you can run the initial setup - see [here](#terminal).
-
 ### Client (CLI application)
 
 Use Python 3.10
@@ -58,8 +56,9 @@ Finally, set the defined variables in `.env.local` accordingly. If you don't kno
 Use Node v22
 
 ```bash
+cd src/frontend
 npm install
-cp src/frontend/.env.local.example src/frontend/.env.local
+cp .env.local.example .env.local
 ```
 
 Set the defined variables in `src/frontend/.env.local` accordingly.
